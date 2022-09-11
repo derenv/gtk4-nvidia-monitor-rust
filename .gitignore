@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2022 Deren Vural
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# reuse
+.reuse/*
+# vscode
+.vscode/*
+*.code-workspace
+# trunk
+.trunk/*
+# nano
+*.swp
+*/*.swp
+# custom
+/target
