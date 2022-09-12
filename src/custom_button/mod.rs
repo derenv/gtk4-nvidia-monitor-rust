@@ -6,7 +6,7 @@
  * mod.rs
  *
  * Description:
- * Public-facing interface for our custom GObject
+ * Public-facing interface/wrapper for our custom GObject (CustomButton)
  *
  * Made by:
  * Deren Vural
