@@ -1,9 +1,16 @@
+# SPDX-FileCopyrightText: 2022 Deren Vural
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 [package]
 name = "gnome-nvidia-extension-rust"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+#adwaita = { version = "0.1.1", package = "libadwaita"}
 gtk = { version = "0.4.8", package = "gtk4" }
+#glib = { version = "0.15.12", package = "glib" }
+
+#gobject = { version = "0.15.10", package = "gobject-sys" }
+#libappindicator = { version = "0.7.1", package = "libappindicator" }
