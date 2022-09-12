@@ -23,7 +23,7 @@ use glib::Object;
 use gtk::glib;
 
 glib::wrapper! {
-    pub struct CustomButton(ObjectSubClass<imp::CustomButton>)
+    pub struct CustomButton(ObjectSubclass<imp::CustomButton>)
         @extends gtk::Button, gtk::Widget,
         @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
 }
