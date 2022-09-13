@@ -22,11 +22,12 @@
 mod imp;
 
 // Imports
+use glib::Object;
 use gtk::glib;
 
 glib::wrapper! {
     pub struct Property(ObjectSubclass<imp::Property>)
-        @extends glib::Object;/*,
+        @extends Object;/*,
         @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;*/
 }
 
