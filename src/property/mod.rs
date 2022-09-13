@@ -22,7 +22,6 @@
 mod imp;
 
 // Imports
-use glib::Object;
 use gtk::glib;
 
 glib::wrapper! {

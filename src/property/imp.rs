@@ -20,7 +20,6 @@
 
 // Imports
 use gtk::glib;
-use glib::Object;
 use gtk::subclass::prelude::*;
 
 // Object holding the state
