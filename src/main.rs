@@ -22,14 +22,15 @@ use custom_button::CustomButton;
 // Imports
 use gtk::prelude::*;
 use gtk::{
-    /* Sub-Libraries */ gio,
+    /* Libraries */ gio,
     /* Application */ Application, ApplicationWindow,
     /* Widgets */ Button
 };
-//use libappindicator::{
-//    AppIndicator, AppIndicatorStatus
-//};
-use gio::Menu;
+use std::env;
+use std::path::Path;
+use libappindicator::{
+    /* SysTray */ AppIndicator, AppIndicatorStatus
+};
 
 // Constants
 const APP_ID: &str = "org.gtk_rs.NvidiaExtensionRust";
@@ -67,8 +68,8 @@ fn build_ui(app: &Application)
     });
 
     // Menu Child
-    let menu = Menu::new();
-    let item = Menu::new();
+    let menu = gio::Menu::new();
+    let item = gio::Menu::new();
     item.append(Some("Utilisation"), Some("app.util"));
     item.append(Some("Temperature"), Some("app.temp"));
     item.append(Some("Memory Usage"), Some("app.memo"));
@@ -79,9 +80,12 @@ fn build_ui(app: &Application)
     app.set_menubar(Some(&menu));
 
     // App Indicator
-    //let mut ai = AppIndicator::new("Nvidia App", "unknown");
-    //ai.set_status(AppIndicatorStatus::Active);
-    //ai.set_menu(&mut menu);
+    //let mut indicator = AppIndicator::new("Nvidia App", "");
+    //indicator.set_status(AppIndicatorStatus::Active);
+    //let icon_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("resources");
+    //indicator.set_icon_theme_path(icon_path.to_str().unwrap());
+    //indicator.set_icon_full("rust-logo", "icon");
+    //indicator.set_menu(&mut menu);
 
     // Create Parent window
     let window = ApplicationWindow::new(app);

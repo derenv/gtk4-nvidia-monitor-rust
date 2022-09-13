@@ -13,4 +13,4 @@ gtk = { version = "0.4.8", package = "gtk4" }
 #glib = { version = "0.15.12", package = "glib" }
 
 #gobject = { version = "0.15.10", package = "gobject-sys" }
-#libappindicator = { version = "0.7.1", package = "libappindicator" }
+libappindicator = { version = "0.7.1", package = "libappindicator" }

@@ -3,10 +3,10 @@
 
 /*
  * Name:
- * CustomButton
+ * imp.rs
  *
  * Description:
- * X
+ * Implementation of CustomButton
  *
  * Made by:
  * Deren Vural
