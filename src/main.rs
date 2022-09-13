@@ -36,8 +36,7 @@ use libappindicator::{
 const APP_ID: &str = "org.gtk_rs.NvidiaExtensionRust";
 
 // Main Function
-fn main()
-{
+fn main() {
     gtk::init().expect("Failed to initialise gtk");
 
     // Create a new application
@@ -51,8 +50,7 @@ fn main()
 }
 
 // Build Function
-fn build_ui(app: &Application)
-{
+fn build_ui(app: &Application) {
     // Button Child
     let button = Button::builder()
         .label("Press me!")
