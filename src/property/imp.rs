@@ -25,12 +25,12 @@ use gtk::subclass::prelude::*;
 // Object holding the state
 #[derive(Default)]
 pub struct Property {
-    str : processor,
-    str : name,
-    str : callExtension,
-    str : icon,
-    str : formatter,
-    str : gpuCount,
+    processor : str,
+    name : str,
+    callExtension : str,
+    icon : str,
+    formatter : str,
+    gpuCount : i32,
 }
 
 // The central trait for subclassing a GObject
