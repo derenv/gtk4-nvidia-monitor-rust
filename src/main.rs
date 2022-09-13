@@ -3,17 +3,20 @@
 
 /*
  * Name:
- * gnome-nvidia-extension-rust
+ * main.rs
  *
  * Description:
  * Rust Implementation of Nvidia Gnome Extension
  *
+ * Made:
+ * 12/09/2022
+ *
  * Made by:
  * Deren Vural
  *
- * Made:
- * 12/09/2022
-*/
+ * Notes:
+ *
+ */
 
 // Modules
 mod custom_button;
