@@ -8,12 +8,15 @@
  * Description:
  * Public-facing interface/wrapper for our custom GObject (CustomButton)
  *
+ * Made:
+ * 12/09/2022
+ *
  * Made by:
  * Deren Vural
  *
- * Made:
- * 12/09/2022
-*/
+ * Notes:
+ *
+ */
 
 // Custom GObjects
 mod imp;

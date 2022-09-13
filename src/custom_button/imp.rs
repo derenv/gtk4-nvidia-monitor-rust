@@ -6,14 +6,17 @@
  * imp.rs
  *
  * Description:
- * Implementation of CustomButton
+ * Implementation of our custom GObject class (CustomButton)
+ *
+ * Made:
+ * 12/09/2022
  *
  * Made by:
  * Deren Vural
  *
- * Made:
- * 12/09/2022
-*/
+ * Notes:
+ *
+ */
 
 // Imports
 use gtk::glib;
