@@ -17,7 +17,7 @@
 
 // Modules
 mod custom_button;
-use custom_button::CustomButton;
+//use custom_button::CustomButton;
 
 // Imports
 use gtk::prelude::*;
@@ -26,11 +26,11 @@ use gtk::{
     /* Application */ Application, ApplicationWindow,
     /* Widgets */ Button
 };
-use std::env;
-use std::path::Path;
-use libappindicator::{
-    /* SysTray */ AppIndicator, AppIndicatorStatus
-};
+//use std::env;
+//use std::path::Path;
+//use libappindicator::{
+//    /* SysTray */ AppIndicator, AppIndicatorStatus
+//};
 
 // Constants
 const APP_ID: &str = "org.gtk_rs.NvidiaExtensionRust";
