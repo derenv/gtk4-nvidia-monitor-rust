@@ -20,6 +20,7 @@
 
 // Imports
 use gtk::glib;
+use glib::Object;
 use gtk::subclass::prelude::*;
 
 // Object holding the state
@@ -41,7 +42,7 @@ impl ObjectSubclass for Property {
     // the actual GObject that will be created
     type Type = super::Property;
     // Parent GObject we inherit from
-    type ParentType = gtk::Object;
+    type ParentType = glib::Object;
 }
 
 // Trait shared by all GObjects

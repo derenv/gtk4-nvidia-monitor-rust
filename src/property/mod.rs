@@ -27,7 +27,7 @@ use gtk::glib;
 
 glib::wrapper! {
     pub struct Property(ObjectSubclass<imp::Property>)
-        @extends gtk::Object;/*,
+        @extends glib::Object;/*,
         @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;*/
 }
 
