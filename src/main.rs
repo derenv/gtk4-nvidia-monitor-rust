@@ -30,7 +30,7 @@ use gtk::prelude::*;
 use gtk::{
     /* Libraries */ gio,
     /* Application */ Application, ApplicationWindow,
-    /* Widgets */ Button
+    /* Widgets */ Button,
 };
 //use std::env;
 //use std::path::Path;
@@ -67,16 +67,16 @@ fn build_ui(app: &Application) {
         .build();
     // Connect to "clicked" signal of `button`
     button1.connect_clicked(move |_| {
-        println!("Trying to open settings!");//DEBUG
+        println!("Trying to open settings!"); //DEBUG
 
         // Ideally we should grab if nvidia-settings 'failed' somehow or exited normally
         match subprocess::exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
             Ok(_x) => {
-                println!("........yay");//DEBUG
-            },
+                println!("........yay"); //DEBUG
+            }
             Err(_y) => {
-                println!("........fak");//DEBUG
-            },
+                println!("........fak"); //DEBUG
+            }
         };
     });
     // Button Child 2
@@ -89,22 +89,25 @@ fn build_ui(app: &Application) {
         .build();
     // Connect to "clicked" signal of `button`
     button2.connect_clicked(move |_| {
-        println!("Trying to open settings!");//DEBUG
+        println!("Trying to open settings!"); //DEBUG
 
         // Ideally we should grab if nvidia-settings 'failed' somehow or exited normally
-        match subprocess::exec_communicate(&[
-            OsStr::new("nvidia-settings"),
-            OsStr::new("-q"),
-            OsStr::new("GpuUUID"),
-            OsStr::new("-t"),
-        ], None,
-        None::<&gio::Cancellable>) {
+        match subprocess::exec_communicate(
+            &[
+                OsStr::new("nvidia-settings"),
+                OsStr::new("-q"),
+                OsStr::new("GpuUUID"),
+                OsStr::new("-t"),
+            ],
+            None,
+            None::<&gio::Cancellable>,
+        ) {
             Ok(_x) => {
-                println!("........yay");//DEBUG
-            },
+                println!("........yay"); //DEBUG
+            }
             Err(_y) => {
-                println!("........fak");//DEBUG
-            },
+                println!("........fak"); //DEBUG
+            }
         };
     });
 
