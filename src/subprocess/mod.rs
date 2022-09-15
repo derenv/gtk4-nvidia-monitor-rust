@@ -19,9 +19,9 @@
  */
 
 // Imports
-use std::ffi::OsStr;
-use gtk::{ gio, glib };
 use gtk::prelude::*;
+use gtk::{gio, glib};
+use std::ffi::OsStr;
 
 /*
  * Name:
@@ -45,15 +45,16 @@ use gtk::prelude::*;
  * @returns {Promise<boolean>} - The process success
  *
  */
-pub fn exec_check<'a>(argv: &[&OsStr], cancellable: Option<&impl IsA<gio::Cancellable>>) -> Result<(), glib::Error> {
+pub fn exec_check(
+    argv: &[&OsStr],
+    cancellable: Option<&impl IsA<gio::Cancellable>>,
+) -> Result<(), glib::Error> {
     // Create subprocess
-    println!("..creating subprocess");//DEBUG
+    println!("..creating subprocess"); //DEBUG
     match gio::Subprocess::newv(argv, gio::SubprocessFlags::NONE) {
-        Err(err) => {
-            Err(err)
-        },
+        Err(err) => Err(err),
         Ok(proc) => {
-            println!("..Subprocess successfully created!");//DEBUG
+            println!("..Subprocess successfully created!"); //DEBUG
 
             // Run subprocess
 
@@ -124,38 +125,36 @@ pub fn exec_check<'a>(argv: &[&OsStr], cancellable: Option<&impl IsA<gio::Cancel
             //*
             // This works but holds up main thread..
             match proc.wait(cancellable) {
-                Err(err) => {
-                    Err(err)
-                },
+                Err(err) => Err(err),
                 Ok(_out) => {
-                    println!("....process finished");//DEBUG
+                    println!("....process finished"); //DEBUG
                     Ok(())
-                },
+                }
             }
             //*/
         }
     }
 }
 
-pub fn exec_communicate<'a>(argv: &[&OsStr], _input: Option<&str>, cancellable: Option<&impl IsA<gio::Cancellable>>) -> Result<(), glib::Error> {
+pub fn exec_communicate(
+    argv: &[&OsStr],
+    _input: Option<&str>,
+    cancellable: Option<&impl IsA<gio::Cancellable>>,
+) -> Result<(), glib::Error> {
     // Create subprocess
-    println!("..creating subprocess");//DEBUG
+    println!("..creating subprocess"); //DEBUG
     match gio::Subprocess::newv(argv, gio::SubprocessFlags::NONE) {
-        Err(err) => {
-            Err(err)
-        },
+        Err(err) => Err(err),
         Ok(proc) => {
-            println!("..Subprocess successfully created!");//DEBUG
+            println!("..Subprocess successfully created!"); //DEBUG
 
             // Run subprocess
             match proc.communicate(None, cancellable) {
-                Err(err) => {
-                    Err(err)
-                },
+                Err(err) => Err(err),
                 Ok(_out) => {
-                    println!("....process finished");//DEBUG
+                    println!("....process finished"); //DEBUG
                     Ok(())
-                },
+                }
             }
         }
     }
