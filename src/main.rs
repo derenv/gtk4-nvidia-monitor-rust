@@ -21,6 +21,9 @@
 // Modules
 mod custom_button;
 //use custom_button::CustomButton;
+mod subprocess;
+
+use std::ffi::OsStr;
 
 // Imports
 use gtk::prelude::*;
@@ -54,18 +57,55 @@ fn main() {
 
 // Build Function
 fn build_ui(app: &Application) {
-    // Button Child
-    let button = Button::builder()
-        .label("Press me!")
+    // Button Child 1
+    let button1 = Button::builder()
+        .label("Open Settings")
         .margin_top(12)
         .margin_bottom(12)
         .margin_start(12)
         .margin_end(12)
         .build();
     // Connect to "clicked" signal of `button`
-    button.connect_clicked(move |button| {
-        // Set the label to "Hello World!" after the button has been clicked on
-        button.set_label("Hello World!");
+    button1.connect_clicked(move |_| {
+        println!("Trying to open settings!");//DEBUG
+
+        // Ideally we should grab if nvidia-settings 'failed' somehow or exited normally
+        match subprocess::exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
+            Ok(_x) => {
+                println!("........yay");//DEBUG
+            },
+            Err(_y) => {
+                println!("........fak");//DEBUG
+            },
+        };
+    });
+    // Button Child 2
+    let button2 = Button::builder()
+        .label("Get GPU Names")
+        .margin_top(12)
+        .margin_bottom(12)
+        .margin_start(12)
+        .margin_end(12)
+        .build();
+    // Connect to "clicked" signal of `button`
+    button2.connect_clicked(move |_| {
+        println!("Trying to open settings!");//DEBUG
+
+        // Ideally we should grab if nvidia-settings 'failed' somehow or exited normally
+        match subprocess::exec_communicate(&[
+            OsStr::new("nvidia-settings"),
+            OsStr::new("-q"),
+            OsStr::new("GpuUUID"),
+            OsStr::new("-t"),
+        ], None,
+        None::<&gio::Cancellable>) {
+            Ok(_x) => {
+                println!("........yay");//DEBUG
+            },
+            Err(_y) => {
+                println!("........fak");//DEBUG
+            },
+        };
     });
 
     // Menu Child
@@ -95,7 +135,8 @@ fn build_ui(app: &Application) {
     window.set_show_menubar(true);
 
     // Add children to window
-    window.set_child(Some(&button));
+    window.set_child(Some(&button1));
+    //window.set_child(Some(&button2));
 
     // Present window
     window.show();
