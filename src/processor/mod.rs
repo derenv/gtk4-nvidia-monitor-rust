@@ -40,4 +40,20 @@ impl Processor {
             ("tail_call", &tail_call)
         ]).expect("Failed to create `Processor`.")
     }
+
+    pub fn parse() {
+        todo!()
+    }
+
+    pub fn process(self) {
+        todo!()
+    }
+
+    pub fn add_property(self) {
+        todo!()
+    }
+
+    pub fn get_name(self) -> String {
+        self.name
+    }
 }
