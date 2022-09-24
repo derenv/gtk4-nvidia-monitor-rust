@@ -54,6 +54,7 @@ impl Processor {
     }
 
     pub fn get_name(self) -> String {
-        self.name
+        todo!()
+        //self.name
     }
 }
