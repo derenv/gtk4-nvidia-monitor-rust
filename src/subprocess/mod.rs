@@ -91,14 +91,14 @@ pub fn exec_communicate(
             // Run subprocess
             match proc.communicate(None, cancellable) {
                 Err(err) => Err(err),
-                Ok(buffers) => {
-                    match buffers {
-                        (None, None) => Ok((None, None)),
-                        (None, Some(stderr_buffer)) => Ok((None, Some(stderr_buffer))),
-                        (Some(stdout_buffer), None) => Ok((Some(stdout_buffer), None)),
-                        (Some(stdout_buffer), Some(stderr_buffer)) => Ok((Some(stdout_buffer), Some(stderr_buffer))),
+                Ok(buffers) => match buffers {
+                    (None, None) => Ok((None, None)),
+                    (None, Some(stderr_buffer)) => Ok((None, Some(stderr_buffer))),
+                    (Some(stdout_buffer), None) => Ok((Some(stdout_buffer), None)),
+                    (Some(stdout_buffer), Some(stderr_buffer)) => {
+                        Ok((Some(stdout_buffer), Some(stderr_buffer)))
                     }
-                }
+                },
             }
         }
     }
