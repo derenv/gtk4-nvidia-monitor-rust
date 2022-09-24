@@ -54,7 +54,7 @@ pub fn exec_check(
         // Run subprocess
         Ok(proc) => match proc.wait_async(cancellable, |_| ()) {
             _ => Ok(()),
-        }
+        },
     }
 }
 
@@ -96,6 +96,6 @@ pub fn exec_communicate(
                     Ok((Some(stdout_buffer), Some(stderr_buffer)))
                 }
             },
-        }
+        },
     }
 }
