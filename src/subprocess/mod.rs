@@ -51,12 +51,10 @@ pub fn exec_check(
     // Create subprocess
     match gio::Subprocess::newv(argv, gio::SubprocessFlags::NONE) {
         Err(err) => Err(err),
-        Ok(proc) => {
-            // Run subprocess
-            match proc.wait_async(cancellable, |_| ()) {
-                _ => Ok(()),
-            }
-        }
+        // Run subprocess
+        Ok(proc) => match proc.wait_async(cancellable, |_| ()) {
+            _ => Ok(()),
+        },
     }
 }
 
@@ -87,19 +85,17 @@ pub fn exec_communicate(
     // Create subprocess
     match gio::Subprocess::newv(argv, gio::SubprocessFlags::STDOUT_PIPE) {
         Err(err) => Err(err),
-        Ok(proc) => {
-            // Run subprocess
-            match proc.communicate(None, cancellable) {
-                Err(err) => Err(err),
-                Ok(buffers) => match buffers {
-                    (None, None) => Ok((None, None)),
-                    (None, Some(stderr_buffer)) => Ok((None, Some(stderr_buffer))),
-                    (Some(stdout_buffer), None) => Ok((Some(stdout_buffer), None)),
-                    (Some(stdout_buffer), Some(stderr_buffer)) => {
-                        Ok((Some(stdout_buffer), Some(stderr_buffer)))
-                    }
-                },
-            }
-        }
+        // Run subprocess
+        Ok(proc) => match proc.communicate(None, cancellable) {
+            Err(err) => Err(err),
+            Ok(buffers) => match buffers {
+                (None, None) => Ok((None, None)),
+                (None, Some(stderr_buffer)) => Ok((None, Some(stderr_buffer))),
+                (Some(stdout_buffer), None) => Ok((Some(stdout_buffer), None)),
+                (Some(stdout_buffer), Some(stderr_buffer)) => {
+                    Ok((Some(stdout_buffer), Some(stderr_buffer)))
+                }
+            },
+        },
     }
 }
