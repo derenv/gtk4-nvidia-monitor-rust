@@ -22,6 +22,7 @@
 mod custom_button;
 //use custom_button::CustomButton;
 mod subprocess;
+mod processor;
 
 use std::ffi::OsStr;
 
