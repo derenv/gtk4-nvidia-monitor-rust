@@ -68,16 +68,9 @@ fn build_ui(app: &Application) {
         .build();
     // Connect to "clicked" signal of `button`
     button1.connect_clicked(move |_| {
-        println!("Trying to open settings!"); //DEBUG
-
-        // Ideally we should grab if nvidia-settings 'failed' somehow or exited normally
         match subprocess::exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
-            Ok(_x) => {
-                println!("........yay"); //DEBUG
-            }
-            Err(_y) => {
-                println!("........fak"); //DEBUG
-            }
+            Ok(_x) => println!("Opening the Nvidia Settings app.."),
+            Err(_y) => println!("An error occured while opening the Nvidia Settings app..")
         };
     });
     // Button Child 2
