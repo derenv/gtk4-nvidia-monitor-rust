@@ -83,8 +83,6 @@ fn build_ui(app: &Application) {
         .build();
     // Connect to "clicked" signal of `button`
     button2.connect_clicked(move |_| {
-        println!("Trying to open settings!"); //DEBUG
-
         // Ideally we should grab if nvidia-settings 'failed' somehow or exited normally
         match subprocess::exec_communicate(
             &[
@@ -93,14 +91,38 @@ fn build_ui(app: &Application) {
                 OsStr::new("GpuUUID"),
                 OsStr::new("-t"),
             ],
-            None,
             None::<&gio::Cancellable>,
         ) {
-            Ok(_x) => {
-                println!("........yay"); //DEBUG
+            Ok(return_val) => {
+                match return_val {
+                    (None, None) => println!("no stdout or stderr, something went really wrong..."),
+                    (None, Some(stderr_buffer)) => {
+                        match std::str::from_utf8(&stderr_buffer) {
+                            Ok(stderr_buffer_contents) => println!("Process failed with error: {}", stderr_buffer_contents),
+                            Err(err) => panic!("{}", err),
+                        }
+                    },
+                    (Some(stdout_buffer), None) => {
+                        match std::str::from_utf8(&stdout_buffer) {
+                            Ok(stdout_buffer_contents) => println!("Process suceeded, returning: {}", stdout_buffer_contents),
+                            Err(err) => panic!("{}", err),
+                        }
+                    },
+                    (Some(stdout_buffer), Some(stderr_buffer)) => {
+                        match std::str::from_utf8(&stdout_buffer) {
+                            Ok(stdout_buffer_contents)=> {
+                                match std::str::from_utf8(&stderr_buffer) {
+                                    Ok(stderr_buffer_contents) => println!("Process suceeded, returning: {} but with error: {}", stdout_buffer_contents, stderr_buffer_contents),
+                                    Err(err) => panic!("{}", err),
+                                }
+                            },
+                            Err(err) => panic!("{}", err),
+                        }
+                    },
+                }
             }
             Err(_y) => {
-                println!("........fak"); //DEBUG
+                println!("something went wrong!"); //DEBUG
             }
         };
     });
@@ -132,8 +154,8 @@ fn build_ui(app: &Application) {
     window.set_show_menubar(true);
 
     // Add children to window
-    window.set_child(Some(&button1));
-    //window.set_child(Some(&button2));
+    //window.set_child(Some(&button1));
+    window.set_child(Some(&button2));
 
     // Present window
     window.show();
