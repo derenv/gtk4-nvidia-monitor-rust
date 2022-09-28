@@ -13,3 +13,4 @@
 */*.swp
 # custom
 /target
+Cargo.lock
