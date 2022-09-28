@@ -32,6 +32,7 @@ use gtk::{
     /* Application */ Application, ApplicationWindow,
     /* Widgets */ Button,
 };
+use processor::Processor;
 //use std::env;
 //use std::path::Path;
 //use libappindicator::{
@@ -69,7 +70,7 @@ fn build_ui(app: &Application) {
     button1.connect_clicked(move |_| {
         match subprocess::exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
             Ok(_x) => println!("Opening the Nvidia Settings app.."),
-            Err(_y) => println!("An error occured while opening the Nvidia Settings app..")
+            Err(y) => println!("An error occured while opening the Nvidia Settings app: {}", y.message()),
         };
     });
     // Button Child 2
@@ -82,7 +83,6 @@ fn build_ui(app: &Application) {
         .build();
     // Connect to "clicked" signal of `button`
     button2.connect_clicked(move |_| {
-        // Ideally we should grab if nvidia-settings 'failed' somehow or exited normally
         match subprocess::exec_communicate(
             &[
                 OsStr::new("nvidia-settings"),
@@ -110,8 +110,27 @@ fn build_ui(app: &Application) {
                     Err(err) => panic!("{}", err),
                 },
             }
-            Err(_y) => println!("something went wrong!"), //DEBUG
+            Err(err) => println!("something went wrong: {}", err),
         };
+    });
+    // Button Child 3
+    let button3 = Button::builder()
+        .label("Get GPU Names")
+        .margin_top(12)
+        .margin_bottom(12)
+        .margin_start(12)
+        .margin_end(12)
+        .build();
+    // Connect to "clicked" signal of `button`
+    button3.connect_clicked(move |_| {
+        let p: Processor = Processor::new("Nvidia Settings");//,"nvidia-settings","-t");
+        match p.process() {
+            Ok(output) => match output {
+                Some(valid_output) => println!("Process suceeded, returning: `{}`", valid_output),
+                None => println!("Process encountered an unknown error.."),
+            },
+            Err(err) => println!("Process encountered an error, returning: `{}`", err),
+        }
     });
 
     // Menu Child
@@ -142,7 +161,8 @@ fn build_ui(app: &Application) {
 
     // Add children to window
     //window.set_child(Some(&button1));
-    window.set_child(Some(&button2));
+    //window.set_child(Some(&button2));
+    window.set_child(Some(&button3));
 
     // Present window
     window.show();
