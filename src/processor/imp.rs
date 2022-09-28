@@ -25,10 +25,10 @@ use gtk::subclass::prelude::*;
 // Object holding the state
 #[derive(Default)]
 pub struct Processor {
-         name: &'static str,
-    base_call: &'static str,
-         call: &'static str,
-    tail_call: &'static str,
+    name: &'static str,
+    //base_call: &'static str,
+    //call: &'static str,
+    //tail_call: &'static str,
 }
 
 // The central trait for subclassing a GObject

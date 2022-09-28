@@ -23,9 +23,9 @@
 mod imp;
 
 // Imports
-use glib::Object;
-use gtk::glib::{self, Bytes};
 use super::subprocess;
+use glib::Object;
+use gtk::{ glib, gio };
 use std::ffi::OsStr;
 
 glib::wrapper! {
@@ -37,42 +37,126 @@ glib::wrapper! {
 
 // Trait shared by all processors
 impl Processor {
-    fn new(name: &'static str, base_call: &'static str, call: &'static str, tail_call: &'static str) -> Self {
+    pub fn new(name: &'static str, /*base_call: &'static str, tail_call: &'static str*/) -> Self {
         Object::new(&[
-            ("name", &name),
+            ("name", &name),/*
             ("base_call", &base_call),
-            ("call", &base_call),
-            ("tail_call", &tail_call),
-        ]).expect("Failed to create `Processor`.")
+            ("call", &base_call.clone()),
+            ("tail_call", &tail_call),*/
+        ]).expect("Failed to create `Processor`")
     }
 
-    fn process(self) -> Vec<String> {
+    pub fn process(self) -> Result<Option<String>, glib::Error> {
         // Create string of args
-        /*
-        let call: String = String::from("nvidia-settings");
-        let tail_call: &str = "-t";
-        call.push_str(tail_call);
-        let call_b = call.as_bytes();
+        //NOTE: we'll know what possible sizes will exist (wherever this gets implemented)
+        let mut call_stack: String = String::from("nvidia-settings");
+        let tail_call: &str = "-q GpuUUID -t";
+        call_stack.push_str(" ");
+        call_stack.push_str(tail_call);
+        let call_stack_bytes: &[u8] = call_stack.as_bytes();
+        let mut call_stack_items: Vec<&OsStr> = Vec::new();
 
-        let start: usize = 0;
-
-        for (i, &item) in call_b.iter().enumerate() {
-            if
+        // Build OsStr type vector of all args
+        let mut start: usize = 0;
+        for (i, &item) in call_stack_bytes.iter().enumerate() {
+            // if space
+            if item == b' ' {
+                let item_osstr: &OsStr;
+                match std::str::from_utf8(&call_stack_bytes[start..i]) {
+                    Ok(result) => {
+                        println!("item: {}", result);
+                        item_osstr = OsStr::new(result)
+                    },
+                    Err(err) => panic!("{}", err),
+                }
+                call_stack_items.insert(call_stack_items.len(), item_osstr);
+                start = i + 1;
+            }
+            // if final char
+            if i == (call_stack_bytes.iter().len() - 1) {
+                let item_osstr: &OsStr;
+                match std::str::from_utf8(&call_stack_bytes[start..]) {
+                    Ok(result) => {
+                        println!("item: {}", result);
+                        item_osstr = OsStr::new(result)
+                    },
+                    Err(err) => panic!("{}", err),
+                }
+                call_stack_items.insert(call_stack_items.len(), item_osstr);
+            }
         }
-        */
-        /*
-        match subprocess::exec_communicate(self.argv, None, None) {
-            Ok(output) => {
-                let parse_output = self.parse(output);
 
-                return parse_output;
+        // Build OsStr array from vector
+        match call_stack_items.len() {
+            4 => {
+                // Build array
+                let argv = [call_stack_items[0], call_stack_items[1], call_stack_items[2], call_stack_items[3]];
+
+                // Run process, get output
+                match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
+                    Ok(return_val) => match return_val {
+                        // ACTUAL
+                        (None, None) => return Ok(None),
+
+                        (None, Some(stderr_buffer)) => {
+                            println!("Process failed with error: {}", String::from_utf8_lossy(&stderr_buffer).into_owned());
+                        },
+
+                        (Some(stdout_buffer), None) => {
+                            let stdout_buffer_contents = String::from_utf8_lossy(&stdout_buffer).into_owned();
+
+                            return Ok(Some(self.parse(&stdout_buffer_contents)));
+                        },
+
+                        (Some(stdout_buffer), Some(stderr_buffer)) => {
+                            let stdout_buffer_contents = String::from_utf8_lossy(&stdout_buffer).into_owned();
+
+                            println!("Process failed with error: {}", String::from_utf8_lossy(&stderr_buffer).into_owned());
+
+                            return Ok(Some(self.parse(&stdout_buffer_contents)));
+                        },
+                    },
+                    Err(err) => return Err(err),
+                };
             },
-            Err(err) => todo!(),
-        };
-        */
-        todo!()
+            2 => {
+                // Build array
+                let argv = [call_stack_items[0], call_stack_items[1]];
+
+                // Run process, get output
+                match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
+                    Ok(return_val) => match return_val {
+                        // ACTUAL
+                        (None, None) => return Ok(None),
+
+                        (None, Some(stderr_buffer)) => {
+                            println!("Process failed with error: {}", String::from_utf8_lossy(&stderr_buffer).into_owned());
+                        },
+
+                        (Some(stdout_buffer), None) => {
+                            let stdout_buffer_contents = String::from_utf8_lossy(&stdout_buffer).into_owned();
+
+                            return Ok(Some(self.parse(&stdout_buffer_contents)));
+                        },
+
+                        (Some(stdout_buffer), Some(stderr_buffer)) => {
+                            let stdout_buffer_contents = String::from_utf8_lossy(&stdout_buffer).into_owned();
+
+                            println!("Process failed with error: {}", String::from_utf8_lossy(&stderr_buffer).into_owned());
+
+                            return Ok(Some(self.parse(&stdout_buffer_contents)));
+                        },
+                    },
+                    Err(err) => return Err(err),
+                };
+            },
+            _invalid_size => return Ok(None), // This will only occur via programmer error
+        }
+
+        return Ok(None);
     }
 
+    /*
     fn add_property(self, call_extension: &str) {
         todo!()
         //self.call.push(call_extension);
@@ -83,7 +167,18 @@ impl Processor {
         //self.name.
     }
 
-    fn parse(self, input: (Option<Bytes>, Option<Bytes>)) -> Vec<String> {
-        todo!()
+    fn parse(self, input: &String) -> String {
+        // Grab input string as owned, then return
+        //(this function is designed to be overloaded by subclasses)
+        input.replace("\n", "").to_owned()
+    }
+    */
+
+    fn parse(self, input: &String) -> String {
+        // Grab input string as owned, append test formatting and then return
+        let mut output = input.replace("\n", "").to_owned();
+        output.push_str("-FUCK");
+
+        output
     }
 }
