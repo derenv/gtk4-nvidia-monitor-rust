@@ -21,18 +21,17 @@
 // Modules
 mod custom_button;
 //use custom_button::CustomButton;
-mod subprocess;
 mod processor;
+mod subprocess;
 
 // Imports
-use std::ffi::OsStr;
 use gtk::prelude::*;
 use gtk::{
-    /* Libraries */ gio,
-    /* Application */ Application, ApplicationWindow,
+    /* Libraries */ gio, /* Application */ Application, ApplicationWindow,
     /* Widgets */ Button,
 };
 use processor::Processor;
+use std::ffi::OsStr;
 //use std::env;
 //use std::path::Path;
 //use libappindicator::{
@@ -70,7 +69,10 @@ fn build_ui(app: &Application) {
     button1.connect_clicked(move |_| {
         match subprocess::exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
             Ok(_x) => println!("Opening the Nvidia Settings app.."),
-            Err(y) => println!("An error occured while opening the Nvidia Settings app: {}", y.message()),
+            Err(y) => println!(
+                "An error occured while opening the Nvidia Settings app: {}",
+                y.message()
+            ),
         };
     });
     // Button Child 2
@@ -95,21 +97,30 @@ fn build_ui(app: &Application) {
             Ok(return_val) => match return_val {
                 (None, None) => println!("no stdout or stderr, something went really wrong..."),
                 (None, Some(stderr_buffer)) => match std::str::from_utf8(&stderr_buffer) {
-                    Ok(stderr_buffer_contents) => println!("Process failed with error: {}", stderr_buffer_contents),
+                    Ok(stderr_buffer_contents) => {
+                        println!("Process failed with error: {}", stderr_buffer_contents)
+                    }
                     Err(err) => panic!("{}", err),
                 },
                 (Some(stdout_buffer), None) => match std::str::from_utf8(&stdout_buffer) {
-                    Ok(stdout_buffer_contents) => println!("Process suceeded, returning: {}", stdout_buffer_contents),
+                    Ok(stdout_buffer_contents) => {
+                        println!("Process suceeded, returning: {}", stdout_buffer_contents)
+                    }
                     Err(err) => panic!("{}", err),
                 },
-                (Some(stdout_buffer), Some(stderr_buffer)) => match std::str::from_utf8(&stdout_buffer) {
-                    Ok(stdout_buffer_contents) => match std::str::from_utf8(&stderr_buffer) {
-                        Ok(stderr_buffer_contents) => println!("Process suceeded, returning: {} but with error: {}", stdout_buffer_contents, stderr_buffer_contents),
+                (Some(stdout_buffer), Some(stderr_buffer)) => {
+                    match std::str::from_utf8(&stdout_buffer) {
+                        Ok(stdout_buffer_contents) => match std::str::from_utf8(&stderr_buffer) {
+                            Ok(stderr_buffer_contents) => println!(
+                                "Process suceeded, returning: {} but with error: {}",
+                                stdout_buffer_contents, stderr_buffer_contents
+                            ),
+                            Err(err) => panic!("{}", err),
+                        },
                         Err(err) => panic!("{}", err),
-                    },
-                    Err(err) => panic!("{}", err),
-                },
-            }
+                    }
+                }
+            },
             Err(err) => println!("something went wrong: {}", err),
         };
     });
