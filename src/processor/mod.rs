@@ -28,6 +28,7 @@ use glib::Object;
 use gtk::{gio, glib, prelude::ObjectExt};
 use std::ffi::OsStr;
 
+// GObject wrapper for Processor
 glib::wrapper! {
     pub struct Processor(ObjectSubclass<imp::Processor>)
         @extends gtk::Widget,
@@ -260,5 +261,27 @@ impl Processor {
         //output.push_str("-FUCK");
 
         input.replace("\n", "")
+    }
+}
+
+/*
+ * Trait Name:
+ * Default
+ *
+ * Description:
+ * Default object
+ *
+ * Made:
+ * 08/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+impl Default for Processor {
+    fn default() -> Self {
+        Self::new("","")
     }
 }
