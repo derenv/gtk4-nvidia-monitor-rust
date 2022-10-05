@@ -21,10 +21,10 @@
  */
 
 // Imports
-use gtk::glib::{ self, ParamSpec, Value };
+use gtk::glib::once_cell::sync::Lazy;
+use gtk::glib::{self, ParamSpec, Value};
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use gtk::glib::once_cell::sync::Lazy;
 use std::cell::Cell;
 
 // Object holding the State
@@ -34,7 +34,6 @@ pub struct Processor {
     call: Cell<String>,
     tail_call: Cell<String>,
 }
-
 
 // The central trait for subclassing a GObject
 #[glib::object_subclass]
@@ -89,15 +88,13 @@ impl ObjectImpl for Processor {
      * glib::ParamSpecObject::builder("formatter").build(),
      */
     fn properties() -> &'static [ParamSpec] {
-        static PROPERTIES: Lazy<Vec<ParamSpec>> =
-            Lazy::new(|| {
-                vec![
-                    glib::ParamSpecString::builder("base-call").build(),
-                    glib::ParamSpecString::builder("call").build(),
-                    glib::ParamSpecString::builder("tail-call").build(),
-                ]
-            }
-        );
+        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
+            vec![
+                glib::ParamSpecString::builder("base-call").build(),
+                glib::ParamSpecString::builder("call").build(),
+                glib::ParamSpecString::builder("tail-call").build(),
+            ]
+        });
 
         //println!("PROPERTIES: {:?}", PROPERTIES);//TEST
         //println!("trying to add `base_call`: {:?}", glib::ParamSpecString::builder("base_call").build());//TEST
@@ -121,32 +118,29 @@ impl ObjectImpl for Processor {
      * Notes:
      *
      */
-    fn set_property(
-        &self,
-        _obj: &Self::Type,
-        _id: usize,
-        value: &Value,
-        pspec: &ParamSpec,
-    ) {
+    fn set_property(&self, _obj: &Self::Type, _id: usize, value: &Value, pspec: &ParamSpec) {
         //println!("setting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
             "base-call" => {
-                let input_base_call =
-                    value.get().expect("The value needs to be of type `String`.");
+                let input_base_call = value
+                    .get()
+                    .expect("The value needs to be of type `String`.");
                 self.base_call.replace(input_base_call);
-            },
+            }
             "call" => {
-                let input_call =
-                    value.get().expect("The value needs to be of type `String`.");
+                let input_call = value
+                    .get()
+                    .expect("The value needs to be of type `String`.");
                 self.call.replace(input_call);
-            },
+            }
             "tail-call" => {
-                let input_tail_call =
-                    value.get().expect("The value needs to be of type `String`.");
-                self.tail_call.replace( input_tail_call);
-            },
-            _ => unimplemented!(),//TODO
+                let input_tail_call = value
+                    .get()
+                    .expect("The value needs to be of type `String`.");
+                self.tail_call.replace(input_tail_call);
+            }
+            _ => unimplemented!(), //TODO
         }
     }
 
@@ -176,25 +170,25 @@ impl ObjectImpl for Processor {
 
                 self.base_call.set(value.clone());
 
-                return value.to_value();
-            },
+                value.to_value()
+            }
             "call" => {
                 //TODO: this seems ridiculous..
                 let value = self.call.take();
 
                 self.call.set(value.clone());
 
-                return value.to_value();
-            },
+                value.to_value()
+            }
             "tail-call" => {
                 //TODO: this seems ridiculous..
                 let value = self.tail_call.take();
 
                 self.tail_call.set(value.clone());
 
-                return value.to_value();
-            },
-            _ => unimplemented!(),//TODO
+                value.to_value()
+            }
+            _ => unimplemented!(), //TODO
         }
     }
 }

@@ -25,7 +25,7 @@ mod imp;
 // Imports
 use super::subprocess;
 use glib::Object;
-use gtk::{ glib, gio, prelude::ObjectExt };
+use gtk::{gio, glib, prelude::ObjectExt};
 use std::ffi::OsStr;
 
 glib::wrapper! {
@@ -75,7 +75,7 @@ impl Processor {
         obj.set_property("call", base_call.to_string().clone());
         obj.set_property("tail-call", tail_call.to_string());
 
-        return obj;
+        obj
     }
 
     /*
@@ -98,7 +98,7 @@ impl Processor {
         // Create call stack of program and args
         let tail_call = self.property::<String>("tail-call");
         let mut call_stack = self.property::<String>("call");
-        call_stack.push_str(" ");
+        call_stack.push(' ');
         call_stack.push_str(tail_call.as_str());
 
         // Turn call stack into bytes and create vector for final call stack
@@ -115,7 +115,7 @@ impl Processor {
                     Ok(result) => {
                         //println!("item: {}", result);//TEST
                         item_osstr = OsStr::new(result)
-                    },
+                    }
                     Err(err) => panic!("{}", err),
                 }
                 call_stack_items.insert(call_stack_items.len(), item_osstr);
@@ -128,7 +128,7 @@ impl Processor {
                     Ok(result) => {
                         //println!("item: {}", result);//TEST
                         item_osstr = OsStr::new(result)
-                    },
+                    }
                     Err(err) => panic!("{}", err),
                 }
                 call_stack_items.insert(call_stack_items.len(), item_osstr);
@@ -139,7 +139,12 @@ impl Processor {
         match call_stack_items.len() {
             4 => {
                 // Build array
-                let argv = [call_stack_items[0], call_stack_items[1], call_stack_items[2], call_stack_items[3]];
+                let argv = [
+                    call_stack_items[0],
+                    call_stack_items[1],
+                    call_stack_items[2],
+                    call_stack_items[3],
+                ];
 
                 // Run process, get output
                 match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
@@ -148,26 +153,34 @@ impl Processor {
                         (None, None) => return Ok(None),
 
                         (None, Some(stderr_buffer)) => {
-                            println!("Process failed with error: {}", String::from_utf8_lossy(&stderr_buffer).into_owned());
-                        },
+                            println!(
+                                "Process failed with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                            );
+                        }
 
                         (Some(stdout_buffer), None) => {
-                            let stdout_buffer_contents = String::from_utf8_lossy(&stdout_buffer).into_owned();
+                            let stdout_buffer_contents =
+                                String::from_utf8_lossy(&stdout_buffer).into_owned();
 
                             return Ok(Some(self.parse(&stdout_buffer_contents)));
-                        },
+                        }
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
-                            let stdout_buffer_contents = String::from_utf8_lossy(&stdout_buffer).into_owned();
+                            let stdout_buffer_contents =
+                                String::from_utf8_lossy(&stdout_buffer).into_owned();
 
-                            println!("Process failed with error: {}", String::from_utf8_lossy(&stderr_buffer).into_owned());
+                            println!(
+                                "Process failed with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                            );
 
                             return Ok(Some(self.parse(&stdout_buffer_contents)));
-                        },
+                        }
                     },
                     Err(err) => return Err(err),
                 };
-            },
+            }
             2 => {
                 // Build array
                 let argv = [call_stack_items[0], call_stack_items[1]];
@@ -179,30 +192,38 @@ impl Processor {
                         (None, None) => return Ok(None),
 
                         (None, Some(stderr_buffer)) => {
-                            println!("Process failed with error: {}", String::from_utf8_lossy(&stderr_buffer).into_owned());
-                        },
+                            println!(
+                                "Process failed with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                            );
+                        }
 
                         (Some(stdout_buffer), None) => {
-                            let stdout_buffer_contents = String::from_utf8_lossy(&stdout_buffer).into_owned();
+                            let stdout_buffer_contents =
+                                String::from_utf8_lossy(&stdout_buffer).into_owned();
 
                             return Ok(Some(self.parse(&stdout_buffer_contents)));
-                        },
+                        }
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
-                            let stdout_buffer_contents = String::from_utf8_lossy(&stdout_buffer).into_owned();
+                            let stdout_buffer_contents =
+                                String::from_utf8_lossy(&stdout_buffer).into_owned();
 
-                            println!("Process failed with error: {}", String::from_utf8_lossy(&stderr_buffer).into_owned());
+                            println!(
+                                "Process failed with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                            );
 
                             return Ok(Some(self.parse(&stdout_buffer_contents)));
-                        },
+                        }
                     },
                     Err(err) => return Err(err),
                 };
-            },
+            }
             _invalid_size => return Ok(None), // This will only occur via programmer error
         }
 
-        return Ok(None);
+        Ok(None)
     }
 
     /*
@@ -233,11 +254,11 @@ impl Processor {
      * Notes:
      * This function is designed to be overloaded by subclasses
      */
-    fn parse(self, input: &String) -> String {
+    fn parse(self, input: &str) -> String {
         //NOTE: leaving this here for future use..
         //let mut output = input.replace("\n", "").to_owned();
         //output.push_str("-FUCK");
 
-        input.replace("\n", "").to_owned()
+        input.replace("\n", "")
     }
 }
