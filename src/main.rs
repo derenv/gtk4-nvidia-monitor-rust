@@ -123,7 +123,13 @@ fn build_ui(app: &Application) {
         .build();
     // Connect to "clicked" signal of `button`
     button3.connect_clicked(move |_| {
-        let p: Processor = Processor::new("Nvidia Settings");//,"nvidia-settings","-t");
+        let p: Processor = Processor::new("nvidia-settings", "-q GpuUUID -t");
+
+        //NOTE: Leaving this here for future use..
+        //p.set_property("base-call", "nvidia-settings");
+        //p.set_property("call", "nvidia-settings");
+        //p.set_property("tail-call", "t");
+
         match p.process() {
             Ok(output) => match output {
                 Some(valid_output) => println!("Process suceeded, returning: `{}`", valid_output),
