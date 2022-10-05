@@ -25,34 +25,83 @@ mod imp;
 // Imports
 use super::subprocess;
 use glib::Object;
-use gtk::{ glib, gio };
+use gtk::{ glib, gio, prelude::ObjectExt };
 use std::ffi::OsStr;
 
 glib::wrapper! {
-    //pub struct Processor(ObjectSubclass<imp::Processor<'a>>)
     pub struct Processor(ObjectSubclass<imp::Processor>)
         @extends gtk::Widget,
         @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-// Trait shared by all processors
+/*
+ * Trait Name:
+ * Processor
+ *
+ * Description:
+ * Trait shared by all processors
+ *
+ * Made:
+ * 18/09/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
 impl Processor {
-    pub fn new(name: &'static str, /*base_call: &'static str, tail_call: &'static str*/) -> Self {
-        Object::new(&[
-            ("name", &name),/*
-            ("base_call", &base_call),
-            ("call", &base_call.clone()),
-            ("tail_call", &tail_call),*/
-        ]).expect("Failed to create `Processor`")
+    /*
+     * Name:
+     * new
+     *
+     * Description:
+     * Create a new Processor object
+     *
+     * Made:
+     * 18/09/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn new(base_call: &'static str, tail_call: &'static str) -> Self {
+        let obj: Processor = Object::new(&[]).expect("Failed to create `Processor`");
+
+        // TODO: set properties
+        obj.set_property("base-call", base_call.to_string());
+        obj.set_property("call", base_call.to_string().clone());
+        obj.set_property("tail-call", tail_call.to_string());
+
+        return obj;
     }
 
+    /*
+     * Name:
+     * process
+     *
+     * Description:
+     * Runs call stack and return result
+     *
+     * Made:
+     * 18/09/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     * we'll know what possible sizes will exist (wherever this gets implemented)
+     */
     pub fn process(self) -> Result<Option<String>, glib::Error> {
-        // Create string of args
-        //NOTE: we'll know what possible sizes will exist (wherever this gets implemented)
-        let mut call_stack: String = String::from("nvidia-settings");
-        let tail_call: &str = "-q GpuUUID -t";
+        // Create call stack of program and args
+        let tail_call = self.property::<String>("tail-call");
+        let mut call_stack = self.property::<String>("call");
         call_stack.push_str(" ");
-        call_stack.push_str(tail_call);
+        call_stack.push_str(tail_call.as_str());
+
+        // Turn call stack into bytes and create vector for final call stack
         let call_stack_bytes: &[u8] = call_stack.as_bytes();
         let mut call_stack_items: Vec<&OsStr> = Vec::new();
 
@@ -64,7 +113,7 @@ impl Processor {
                 let item_osstr: &OsStr;
                 match std::str::from_utf8(&call_stack_bytes[start..i]) {
                     Ok(result) => {
-                        println!("item: {}", result);
+                        //println!("item: {}", result);//TEST
                         item_osstr = OsStr::new(result)
                     },
                     Err(err) => panic!("{}", err),
@@ -77,7 +126,7 @@ impl Processor {
                 let item_osstr: &OsStr;
                 match std::str::from_utf8(&call_stack_bytes[start..]) {
                     Ok(result) => {
-                        println!("item: {}", result);
+                        //println!("item: {}", result);//TEST
                         item_osstr = OsStr::new(result)
                     },
                     Err(err) => panic!("{}", err),
@@ -86,7 +135,7 @@ impl Processor {
             }
         }
 
-        // Build OsStr array from vector
+        // Build OsStr array from vector (if matching a specific size)
         match call_stack_items.len() {
             4 => {
                 // Build array
@@ -166,19 +215,29 @@ impl Processor {
         todo!()
         //self.name.
     }
-
-    fn parse(self, input: &String) -> String {
-        // Grab input string as owned, then return
-        //(this function is designed to be overloaded by subclasses)
-        input.replace("\n", "").to_owned()
-    }
     */
 
+    /*
+     * Name:
+     * parse
+     *
+     * Description:
+     * Grab input string as owned, append test formatting and then return
+     *
+     * Made:
+     * 18/09/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     * This function is designed to be overloaded by subclasses
+     */
     fn parse(self, input: &String) -> String {
-        // Grab input string as owned, append test formatting and then return
-        let mut output = input.replace("\n", "").to_owned();
-        output.push_str("-FUCK");
+        //NOTE: leaving this here for future use..
+        //let mut output = input.replace("\n", "").to_owned();
+        //output.push_str("-FUCK");
 
-        output
+        input.replace("\n", "").to_owned()
     }
 }
