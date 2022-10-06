@@ -69,6 +69,9 @@ impl Property {
      *
      * Notes:
      * processor, name, callExtension, icon, formatter, gpuCount
+     *     ^      skip  utilization.gpu  ??     ^         i32
+     *
+     * given proc and gpuCount
      */
     pub fn new(
         processor: &Processor,
@@ -107,5 +110,9 @@ impl Property {
         }
 
         Some(results)
+    }
+
+    pub fn get_call_extension(&self) -> String {
+        self.property::<String>("call-extension").to_owned()
     }
 }
