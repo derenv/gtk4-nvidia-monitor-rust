@@ -23,7 +23,7 @@ mod imp;
 
 // Imports
 use glib::Object;
-use gtk::{glib, prelude::ObjectExt};
+use gtk::glib;
 
 // Modules
 //
