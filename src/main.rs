@@ -22,8 +22,8 @@
 mod custom_button;
 //use custom_button::CustomButton;
 mod processor;
-mod subprocess;
 mod property;
+mod subprocess;
 use property::Property;
 mod formatter;
 use formatter::Formatter;
@@ -169,8 +169,8 @@ fn build_ui(app: &Application) {
         let p: Property = Property::new(&proc, "", "", &form, &1);
 
         let vecc: Vec<Vec<String>> = vec![
-            vec!["1.68".to_string(),"2.01".to_string()],
-            vec!["3.83".to_string(),"4.22".to_string()]
+            vec!["1.68".to_string(), "2.01".to_string()],
+            vec!["3.83".to_string(), "4.22".to_string()],
         ];
         match p.parse(vecc, |input: Vec<String>| {
             Some(input.get(0).unwrap().to_string())
@@ -178,20 +178,19 @@ fn build_ui(app: &Application) {
             Some(results) => {
                 println!("size: {}", results.len());
                 for item in results {
-                    println!("item: {}",item);
+                    println!("item: {}", item);
                 }
-            },
+            }
             None => println!("Something's gone really wrong!"),
         }
-
 
         // PERCENT
         let proc: Processor = Processor::new("nvidia-settings", "-q GpuUUID -t");
         let form: Formatter = Formatter::new();
         let p: Property = Property::new(&proc, "", "", &form, &1);
         let vecc: Vec<Vec<String>> = vec![
-            vec!["1.68".to_string(),"2.01".to_string()],
-            vec!["3.83".to_string(),"4.22".to_string()]
+            vec!["1.68".to_string(), "2.01".to_string()],
+            vec!["3.83".to_string(), "4.22".to_string()],
         ];
         match p.parse(vecc, |input: Vec<String>| {
             // Grab input
@@ -206,20 +205,19 @@ fn build_ui(app: &Application) {
             Some(results) => {
                 println!("size: {}", results.len());
                 for item in results {
-                    println!("item: {}",item);
+                    println!("item: {}", item);
                 }
-            },
+            }
             None => println!("Something's gone really wrong when formatting GENERIC info"),
         }
-
 
         // POWER
         let proc: Processor = Processor::new("nvidia-settings", "-q GpuUUID -t");
         let form: Formatter = Formatter::new();
         let p: Property = Property::new(&proc, "", "", &form, &1);
         let vecc: Vec<Vec<String>> = vec![
-            vec!["1.68".to_string(),"2.01".to_string()],
-            vec!["3.83".to_string(),"4.22".to_string()]
+            vec!["1.68".to_string(), "2.01".to_string()],
+            vec!["3.83".to_string(), "4.22".to_string()],
         ];
         match p.parse(vecc, |input: Vec<String>| {
             // Grab input
@@ -239,32 +237,31 @@ fn build_ui(app: &Application) {
 
                     // Return result
                     Some(output)
-                },
+                }
                 Err(_) => {
                     //this should catch "" etc
                     println!("Not a valid number");
 
                     None
-                },
+                }
             }
         }) {
             Some(results) => {
                 println!("size: {}", results.len());
                 for item in results {
-                    println!("item: {}",item);
+                    println!("item: {}", item);
                 }
-            },
+            }
             None => println!("Something's gone really wrong when formatting POWER info"),
         }
-
 
         // MEMORY
         let proc: Processor = Processor::new("nvidia-settings", "-q GpuUUID -t");
         let form: Formatter = Formatter::new();
         let p: Property = Property::new(&proc, "", "", &form, &1);
         let vecc: Vec<Vec<String>> = vec![
-            vec!["1.68".to_string(),"2.01".to_string()],
-            vec!["3.83".to_string(),"4.22".to_string()]
+            vec!["1.68".to_string(), "2.01".to_string()],
+            vec!["3.83".to_string(), "4.22".to_string()],
         ];
         match p.parse(vecc, |input: Vec<String>| {
             // Grab input
@@ -290,41 +287,40 @@ fn build_ui(app: &Application) {
 
                             // Return result
                             Some(output)
-                        },
+                        }
                         Err(_) => {
                             //this should catch "" etc
                             println!("Not a valid number");
 
                             None
-                        },
+                        }
                     }
-                },
+                }
                 Err(_) => {
                     //this should catch "" etc
                     //TODO: fix this!
                     println!("Not a valid number");
 
                     None
-                },
+                }
             }
         }) {
             Some(results) => {
                 println!("size: {}", results.len());
                 for item in results {
-                    println!("item: {}",item);
+                    println!("item: {}", item);
                 }
-            },
+            }
             None => println!("Something's gone really wrong when formatting MEMORY info"),
         }
-
 
         // TEMPERATURE
         let proc: Processor = Processor::new("nvidia-settings", "-q GpuUUID -t");
         let form: Formatter = Formatter::new();
         let p: Property = Property::new(&proc, "", "", &form, &1);
         let vecc: Vec<Vec<String>> = vec![
-            vec!["1.68".to_string(),"2.01".to_string()],
-            vec!["3.83".to_string(),"4.22".to_string()]
+            vec!["1.68".to_string(), "2.01".to_string()],
+            vec!["3.83".to_string(), "4.22".to_string()],
         ];
         match p.parse(vecc, |input: Vec<String>| {
             // Grab input
@@ -334,7 +330,7 @@ fn build_ui(app: &Application) {
             #[derive(Debug, PartialEq, Eq)]
             enum TemperatureUnit {
                 CELCIUS = 0,
-                FAHRENHEIT = 1
+                FAHRENHEIT = 1,
             }
             let current_unit: TemperatureUnit = TemperatureUnit::CELCIUS;
             //let current_unit: TemperatureUnit = TemperatureUnit::FAHRENHEIT;
@@ -343,7 +339,7 @@ fn build_ui(app: &Application) {
             if current_unit == TemperatureUnit::CELCIUS {
                 // Apply temperature unit
                 output.push(char::from_u32(0x00B0).unwrap());
-                output.push( 'C');
+                output.push('C');
             } else if current_unit == TemperatureUnit::FAHRENHEIT {
                 match output.parse::<f64>() {
                     Ok(temp) => {
@@ -362,13 +358,13 @@ fn build_ui(app: &Application) {
 
                         // Return result
                         Some(f_output)
-                    },
+                    }
                     Err(_) => {
                         //this should catch "" etc
                         println!("Not a valid number");
 
                         None
-                    },
+                    }
                 };
             }
 
@@ -378,9 +374,9 @@ fn build_ui(app: &Application) {
             Some(results) => {
                 println!("size: {}", results.len());
                 for item in results {
-                    println!("item: {}",item);
+                    println!("item: {}", item);
                 }
-            },
+            }
             None => println!("Something's gone really wrong when formatting TEMPERATURE info"),
         }
     });

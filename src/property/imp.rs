@@ -26,8 +26,8 @@ use gtk::subclass::prelude::*;
 use std::cell::Cell;
 
 // Modules
-use crate::processor::Processor;
 use crate::formatter::Formatter;
+use crate::processor::Processor;
 
 // Object holding the state
 #[derive(Default)]
@@ -127,9 +127,7 @@ impl ObjectImpl for Property {
                 self.icon.replace(input_icon);
             }
             "gpu-count" => {
-                let input_gpu_count = value
-                    .get()
-                    .expect("The value needs to be of type `i32`.");
+                let input_gpu_count = value.get().expect("The value needs to be of type `i32`.");
                 self.gpu_count.replace(input_gpu_count);
             }
             "call-extension" => {
@@ -186,7 +184,7 @@ impl ObjectImpl for Property {
                 //TODO: this seems ridiculous..
                 let value = self.gpu_count.take();
 
-                self.gpu_count.set(value.clone());
+                self.gpu_count.set(value);
 
                 value.to_value()
             }

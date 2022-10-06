@@ -72,47 +72,46 @@ impl Formatter {
         Object::new(&[]).expect("Failed to create `Formatter`.")
     }
 
-
-    pub fn format(self, values: Vec<String>, func: fn(Vec<String>) -> Option<String>) -> Option<String>{
+    pub fn format(
+        self,
+        values: Vec<String>,
+        func: fn(Vec<String>) -> Option<String>,
+    ) -> Option<String> {
         let mut results: Vec<String> = Vec::new();
 
         // For each item in input list
         for i in values {
             // Remove all non-number characters
-            let cleaned_value: String = i.chars().filter(|c| {
-                // check if (base 10) digit
-                if c.is_digit(10) {
-                    true
-                } else {
-                    // check if full-stop
-                    if c.eq(&'.') {
+            let cleaned_value: String = i
+                .chars()
+                .filter(|c| {
+                    // check if (base 10) digit
+                    if c.is_digit(10) {
                         true
                     } else {
-                        false
+                        // check if full-stop
+                        c.eq(&'.')
                     }
-                }
-            }).collect();
+                })
+                .collect();
 
             // Convert to float
             match cleaned_value.parse::<f64>() {
                 Ok(parsed_value) => {
                     // Convert to string
                     results.push(parsed_value.to_string());
-                },
+                }
                 Err(err) => {
                     // Catch any errors..
                     println!("Not a valid number: {}", err);
-                },
+                }
             }
         }
 
         // Check for empty results
-        if results.len() > 0 {
+        if !results.is_empty() {
             // Apply any valid formatting
-            match func(results) {
-                Some(formatted_results) => Some(formatted_results),
-                None => return None,
-            }
+            func(results)
         } else {
             None
         }
@@ -140,4 +139,3 @@ impl Default for Formatter {
         Self::new()
     }
 }
-

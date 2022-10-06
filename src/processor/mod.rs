@@ -282,6 +282,6 @@ impl Processor {
  */
 impl Default for Processor {
     fn default() -> Self {
-        Self::new("","")
+        Self::new("", "")
     }
 }

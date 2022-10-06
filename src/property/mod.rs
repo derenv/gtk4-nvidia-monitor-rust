@@ -27,8 +27,8 @@ use gtk::glib;
 use gtk::prelude::ObjectExt;
 
 // Modules
+use crate::formatter::Formatter;
 use crate::processor::Processor;
-use crate::formatter::{Formatter};
 
 // GObject wrapper for Property
 glib::wrapper! {
@@ -78,7 +78,7 @@ impl Property {
         call_extension: &str,
         icon: &str,
         formatter: &Formatter,
-        gpu_count: &i32
+        gpu_count: &i32,
     ) -> Self {
         let obj: Property = Object::new(&[]).expect("Failed to create `Property`.");
 
@@ -96,7 +96,11 @@ impl Property {
     //https://doc.rust-lang.org/std/primitive.array.html
     //https://www.tutorialspoint.com/rust/rust_array.htm
     //https://doc.rust-lang.org/std/vec/struct.Vec.html
-    pub fn parse(self, values: Vec<Vec<String>>, func: fn(Vec<String>) -> Option<String>) -> Option<Vec<String>> {
+    pub fn parse(
+        self,
+        values: Vec<Vec<String>>,
+        func: fn(Vec<String>) -> Option<String>,
+    ) -> Option<Vec<String>> {
         let mut results: Vec<String> = Vec::new();
 
         // For each GPU
@@ -113,6 +117,6 @@ impl Property {
     }
 
     pub fn get_call_extension(&self) -> String {
-        self.property::<String>("call-extension").to_owned()
+        self.property::<String>("call-extension")
     }
 }
