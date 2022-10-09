@@ -7,9 +7,14 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-#adwaita = { version = "^0.1.1", package = "libadwaita"}
+adwaita = { version = "^0.1.1", package = "libadwaita"}
 gtk = { version = "^0.4.8", package = "gtk4" }
-#glib = { version = "^0.15.12", package = "glib" }
+shell = { version = "^0.4.4", package = "gtk-layer-shell" } #may not need
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 #gobject = { version = "^0.15.10", package = "gobject-sys" }
 libappindicator = { version = "^0.7.1", package = "libappindicator" }
+
+[build-dependencies]
+gtk = { version = "^0.4.8", package = "gtk4" }
