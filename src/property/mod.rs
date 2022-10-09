@@ -24,7 +24,7 @@ mod imp;
 // Imports
 use glib::Object;
 use gtk::glib;
-use gtk::prelude::ObjectExt;
+use gtk::prelude::*;
 
 // Modules
 use crate::formatter::Formatter;
@@ -118,5 +118,35 @@ impl Property {
 
     pub fn get_call_extension(&self) -> String {
         self.property::<String>("call-extension")
+    }
+
+    pub fn open_settings(&self) {
+        if self.property::<bool>("settings") {
+            //
+        } else {
+            //
+        }
+    }
+}
+
+/*
+ * Trait Name:
+ * Default
+ *
+ * Description:
+ * Default object
+ *
+ * Made:
+ * 09/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+impl Default for Property {
+    fn default() -> Self {
+        Self::new(&Processor::new("", ""), &"", &"", &Formatter::new(), &0)
     }
 }
