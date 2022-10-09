@@ -21,17 +21,27 @@
 // Custom GObjects
 mod imp;
 
+use crate::property::Property;
+
 // Imports
-use super::subprocess;
 use glib::Object;
-use gtk::{gio, glib, prelude::ObjectExt};
-use std::ffi::OsStr;
+use gtk::{ glib, prelude::ObjectExt };
+//use shell::*;
+use gtk::gio;
 
 // GObject wrapper for Provider
 glib::wrapper! {
     pub struct Provider(ObjectSubclass<imp::Provider>)
         @extends gtk::Widget,
         @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
+}
+
+#[derive(Default)]
+pub enum ProviderType {
+    #[default]
+    NvidiaSettings = 0,
+    NvidiaSmi = 1,
+    NvidiaOptimus = 2,
 }
 
 /*
@@ -67,13 +77,29 @@ impl Provider {
      * Notes:
      *
      */
-    pub fn new() -> Self {
+    pub fn new(func: fn() -> Vec<Property>/*, provider_type: ProviderType*/) -> Self {
         let obj: Provider = Object::new(&[]).expect("Failed to create `Provider`");
 
-        // TODO: set properties
-        //obj.set_property("call", base_call.to_string().clone());
+        //obj.set_property("provider-type", provider_type);
+
+        // Set properties
+        let properties: Vec<Property> = func();
+        obj.set_property("utilization", properties[0].clone());
+        obj.set_property("temperature", properties[1].clone());
+        obj.set_property("memory-usage", properties[2].clone());
+        obj.set_property("fan-speed", properties[3].clone());
+        if properties.len() == 5 {
+            obj.set_property("power-usage", properties[4].clone());
+        }
 
         obj
+    }
+
+    pub fn open_settings() {
+        //let defaultAppSystem = Shell.AppSystem.get_default();
+        //let nvidiaSettingsApp = defaultAppSystem.lookup_app('nvidia-settings.desktop');
+        //let def = shell::Edge::Top;
+        let dd = gio::DesktopAppInfo::from_filename("nvidia-settings.desktop");
     }
 }
 
@@ -95,6 +121,6 @@ impl Provider {
  */
 impl Default for Provider {
     fn default() -> Self {
-        Self::new()
+        Self::new(|| Vec::new()/*, ProviderType::NvidiaSettings*/)
     }
 }
