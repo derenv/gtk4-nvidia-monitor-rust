@@ -38,7 +38,7 @@ use gtk::glib::once_cell::sync::OnceCell;
 //use crate::utils::data_path;
 
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/org/gtk_rs/NvidiaExtensionRust/window.ui")]
+#[template(resource = "/org/gtk_d/NvidiaExtensionRust/window.ui")]
 pub struct Window {
     pub settings: OnceCell<Settings>,
 }
@@ -79,7 +79,6 @@ impl ObjectImpl for Window {
 impl WidgetImpl for Window {}
 
 // Trait shared by all windows
-//impl WindowImpl for Window {
 impl WindowImpl for Window {
     fn close_request(&self, window: &Self::Type) -> Inhibit {
         /*
@@ -102,7 +101,8 @@ impl WindowImpl for Window {
         self.parent_close_request(window)
     }
 }
+impl AdwWindowImpl for Window {}
 
 // Trait shared by all application windows
 impl ApplicationWindowImpl for Window {}
-//impl AdwApplicationWindowImpl for Window {}
+impl AdwApplicationWindowImpl for Window {}
