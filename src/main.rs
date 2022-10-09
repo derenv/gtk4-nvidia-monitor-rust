@@ -21,19 +21,18 @@
 // Modules
 mod custom_button;
 //use custom_button::CustomButton;
+mod subprocess;
 mod processor;
 mod property;
-mod subprocess;
 use property::Property;
 mod formatter;
 use formatter::Formatter;
+mod provider;
+use provider::Provider;
+mod window;
+use window::Window;
 
 // Imports
-use gtk::prelude::*;
-use gtk::{
-    /* Libraries */ gio, /* Application */ Application, ApplicationWindow,
-    /* Widgets */ Button,
-};
 use processor::Processor;
 use std::ffi::OsStr;
 //use std::env;
@@ -42,27 +41,57 @@ use std::ffi::OsStr;
 //    /* SysTray */ AppIndicator, AppIndicatorStatus
 //};
 
+use adwaita::prelude::*;
+use adwaita::{
+    /* Libraries */ gio, /* Application */ Application, ApplicationWindow,
+    SplitButton
+};
+use gio::Menu;
+
 // Constants
-const APP_ID: &str = "org.gtk_rs.NvidiaExtensionRust";
+const APP_ID: &str = "org.gtk_d.NvidiaExtensionRust";
 
 // Main Function
 fn main() {
+    // Resources
+    gio::resources_register_include!("nvidiaextensionrust.gresource")
+    .expect("Failed to register resources.");
+
+    // Intialise GTK
     gtk::init().expect("Failed to initialise gtk");
 
     // Create a new application
     let app = Application::builder().application_id(APP_ID).build();
 
     // Connect to "activate" signal of `app`
+    //app.connect_startup(setup_shortcuts);
     app.connect_activate(build_ui);
 
     // Run the application
     app.run();
 }
 
+/*
+//https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/todo/5/main.rs
+//https://gtk-rs.org/gtk4-rs/stable/latest/book/todo_3.html
+fn setup_shortcuts(app: &Application) {
+    app.set_accels_for_action("win.filter('All')", &["<Ctrl>a"]);
+    app.set_accels_for_action("win.filter('Open')", &["<Ctrl>o"]);
+    app.set_accels_for_action("win.filter('Done')", &["<Ctrl>d"]);
+}
+*/
+
 // Build Function
 fn build_ui(app: &Application) {
+    // Create a new custom window and show it
+    let window = Window::new(app);
+    window.show();
+
+
+
+    /*
     // Button Child 1: exec_check (subprocess) launch nvidia-settings
-    let button1 = Button::builder()
+    let button1: SplitButton = SplitButton::builder()
         .label("Open Settings")
         .margin_top(12)
         .margin_bottom(12)
@@ -80,8 +109,8 @@ fn build_ui(app: &Application) {
         };
     });
     // Button Child 2: exec_communicate (subprocess) ask for GPU data
-    let button2 = Button::builder()
-        .label("Get GPU Names")
+    let button2: SplitButton = SplitButton::builder()
+        .label("Get GPU Names (SubProcess)")
         .margin_top(12)
         .margin_bottom(12)
         .margin_start(12)
@@ -129,8 +158,8 @@ fn build_ui(app: &Application) {
         };
     });
     // Button Child 3: Processor ask for GPU data
-    let button3 = Button::builder()
-        .label("Get GPU Names")
+    let button3: SplitButton = SplitButton::builder()
+        .label("Get GPU Names (Processor)")
         .margin_top(12)
         .margin_bottom(12)
         .margin_start(12)
@@ -153,9 +182,9 @@ fn build_ui(app: &Application) {
             Err(err) => println!("Process encountered an error, returning: `{}`", err),
         }
     });
-    // Button Child 4: formatter test
-    let button4 = Button::builder()
-        .label("Get GPU Names")
+    // Button Child 4: property test
+    let button4: SplitButton = SplitButton::builder()
+        .label("Test Formatter & Property")
         .margin_top(12)
         .margin_bottom(12)
         .margin_start(12)
@@ -380,10 +409,81 @@ fn build_ui(app: &Application) {
             None => println!("Something's gone really wrong when formatting TEMPERATURE info"),
         }
     });
+    // Button Child 5: provider test
+    let button5: SplitButton = SplitButton::builder()
+        .label("Test Providers")
+        .margin_top(12)
+        .margin_bottom(12)
+        .margin_start(12)
+        .margin_end(12)
+        .build();
+    // Connect to "clicked" signal of `button`
+    button5.connect_clicked(move |_| {
+        // SETTINGS
+        let settings_prov: Provider = Provider::new(|| {
+            let proc: Processor = Processor::new("nvidia-settings", "-q GpuUUID -t");
+            let form: Formatter = Formatter::new();
+            let gpu_count: i32 = 1;
+
+            vec![
+                Property::new(&proc, "utilization.gpu", "", &form, &gpu_count),
+                Property::new(&proc, "temperature.gpu", "", &form, &gpu_count),
+                Property::new(&proc, "memory.used,memory.total", "", &form, &gpu_count),
+                Property::new(&proc, "fan.speed", "", &form, &gpu_count),
+            ]
+        });
+
+        // SMI
+        let smi_prov: Provider = Provider::new(|| {
+            let proc: Processor = Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader");
+            let form: Formatter = Formatter::new();
+            let gpu_count: i32 = 1;
+
+            vec![
+                Property::new(&proc, "utilization.gpu", "", &form, &gpu_count),
+                Property::new(&proc, "temperature.gpu", "", &form, &gpu_count),
+                Property::new(&proc, "memory.used,memory.total", "", &form, &gpu_count),
+                Property::new(&proc, "fan.speed", "", &form, &gpu_count),
+                Property::new(&proc, "power.draw", "", &form, &gpu_count),
+            ]
+        });
+
+        // SETTINGS & SMI
+        let both_prov: Provider = Provider::new(|| {
+            let settings_proc: Processor = Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader");
+            let smi_proc: Processor = Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader");
+            let form: Formatter = Formatter::new();
+            let gpu_count: i32 = 1;
+
+            vec![
+                Property::new(&settings_proc, "utilization.gpu", "", &form, &gpu_count),
+                Property::new(&settings_proc, "temperature.gpu", "", &form, &gpu_count),
+                Property::new(&settings_proc, "memory.used,memory.total", "", &form, &gpu_count),
+                Property::new(&settings_proc, "fan.speed", "", &form, &gpu_count),
+                Property::new(&smi_proc, "power.draw", "", &form, &gpu_count),
+            ]
+        });
+
+        // OPTIMUS
+        let optimus_prov: Provider = Provider::new(|| {
+            let proc: Processor = Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader");
+            let form: Formatter = Formatter::new();
+            let gpu_count: i32 = 1;
+
+            vec![
+                Property::new(&proc, "utilization.gpu", "", &form, &gpu_count),
+                Property::new(&proc, "temperature.gpu", "", &form, &gpu_count),
+                Property::new(&proc, "memory.used,memory.total", "", &form, &gpu_count),
+                Property::new(&proc, "fan.speed", "", &form, &gpu_count),
+                Property::new(&proc, "power.draw", "", &form, &gpu_count),
+            ]
+        });
+
+    });
 
     // Menu Child
-    let menu = gio::Menu::new();
-    let item = gio::Menu::new();
+    let menu: Menu = Menu::new();
+    let item: Menu = Menu::new();
     item.append(Some("Utilisation"), Some("app.util"));
     item.append(Some("Temperature"), Some("app.temp"));
     item.append(Some("Memory Usage"), Some("app.memo"));
@@ -402,7 +502,7 @@ fn build_ui(app: &Application) {
     //indicator.set_menu(&mut menu);
 
     // Create Parent window
-    let window = ApplicationWindow::new(app);
+    let window: ApplicationWindow = ApplicationWindow::new(app);
     window.set_title(Some("Nvidia App"));
     window.set_default_size(400, 400);
     window.set_show_menubar(true);
@@ -411,8 +511,10 @@ fn build_ui(app: &Application) {
     //window.set_child(Some(&button1));
     //window.set_child(Some(&button2));
     //window.set_child(Some(&button3));
-    window.set_child(Some(&button4));
+    //window.set_child(Some(&button4));
+    //window.set_child(Some(&button5));
 
     // Present window
     window.show();
+    */
 }
