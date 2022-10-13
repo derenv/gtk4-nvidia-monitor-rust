@@ -99,7 +99,8 @@ impl Provider {
         //let defaultAppSystem = Shell.AppSystem.get_default();
         //let nvidiaSettingsApp = defaultAppSystem.lookup_app('nvidia-settings.desktop');
         //let def = shell::Edge::Top;
-        let dd = gio::DesktopAppInfo::from_filename("nvidia-settings.desktop");
+        //let dd = gio::DesktopAppInfo::from_filename("nvidia-settings.desktop");
+        todo!()
     }
 }
 
