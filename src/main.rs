@@ -64,7 +64,7 @@ fn main() {
     app.connect_activate(build_ui);
 
     // Run the application
-    app.run();
+    println!("{}",app.run());
 }
 
 /*

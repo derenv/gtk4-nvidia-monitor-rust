@@ -27,6 +27,7 @@ use gtk::{subclass::prelude::*, CompositeTemplate}; //, Entry, ListBox, Template
 // Modules
 //use crate::utils::data_path;
 
+// Object holding the State
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/settings-window.ui")]
 pub struct SettingsWindow {

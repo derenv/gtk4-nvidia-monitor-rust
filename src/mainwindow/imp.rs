@@ -26,14 +26,31 @@ use glib::{
     subclass::InitializingObject, ParamSpec, Value,
 };
 use gtk::{subclass::prelude::*, CompositeTemplate}; //, Entry, ListBox, TemplateChild};
+use std::{cell::Cell, cell::RefCell, rc::Rc};
 
 // Modules
 //use crate::utils::data_path;
+use crate::settingswindow::SettingsWindow;
 
+// Structure for storing SettingsWindow and info
+pub struct SettingsWindowContainer {
+    pub window: Option<SettingsWindow>,
+    pub open: bool,
+    //... other values associated to that window
+}
+impl Default for SettingsWindowContainer {
+    fn default() -> Self {
+        Self { window: Default::default(), open: false }
+    }
+}
+
+// Object holding the State
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/main-window.ui")]
 pub struct MainWindow {
     pub settings: OnceCell<Settings>,
+    pub app_id: Cell<String>,
+    pub settings_window: Rc<RefCell<SettingsWindowContainer>>,
 }
 
 // The central trait for subclassing a GObject
@@ -135,6 +152,18 @@ impl WindowImpl for MainWindow {
             .expect("Could not write data to json file");
 
         */
+        // Set app-settings state in settings
+        let settings: &Settings = window.settings();
+        settings
+            .set_boolean("app-settings-open", false)
+            .expect("Could not set setting.");
+
+        // Set nvidia-settings state in settings
+        let settings: &Settings = window.settings();
+        settings
+            .set_boolean("nvidia-settings-open", false)
+            .expect("Could not set setting.");
+
         // Pass close request on to the parent
         self.parent_close_request(window)
     }

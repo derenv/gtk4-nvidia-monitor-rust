@@ -20,12 +20,13 @@
 
 // Custom GObjects
 mod imp;
+use imp::SettingsWindowContainer;
 
 // Imports
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::{Settings, SimpleAction};
 use glib::{clone, Object};
-use std::ffi::OsStr;
+use std::{ffi::OsStr, cell::RefMut};
 
 // Modules
 use crate::{formatter, processor, property, provider, settingswindow, subprocess, APP_ID};
@@ -596,34 +597,68 @@ impl MainWindow {
         }));
         self.add_action(&providers);
 
-        // Create action from key "open_app_settings" and add to action group "win"
+        //self.emit_activate_focus()
+
         let open_app_settings: SimpleAction = SimpleAction::new("open_app_settings", None);
         open_app_settings.connect_activate(clone!(@weak self as window => move |_, _| {
-            // Get state from settings
+            // Borrow (mutable) the window's container
+            let mut settings_window_container: RefMut<SettingsWindowContainer> = window.imp().settings_window.borrow_mut();
+
+            // Clone settings object
             let settings: &Settings = window.settings();
-            let app_settings_open: bool = settings.boolean("app-settings-open");
 
-            if !app_settings_open {
-                // Create new application
-                let app: adwaita::Application = adwaita::Application::builder().application_id(APP_ID).build();
+            // Get state from settings
+            settings_window_container.open = settings.boolean("app-settings-open").clone();
 
-                // Create settings window
-                let settings_window: SettingsWindow = SettingsWindow::new(&app);
+            // Check if an object is stored
+            match &settings_window_container.window {
+                Some(window) => {
+                    println!("..window exists");//DEBUG
 
-                // Show settings window
-                settings_window.show();
+                    // Check if the window is already open
+                    match settings_window_container.open {
+                        false => {
+                            println!("....opening window");//DEBUG
 
-                // Set state in settings
-                settings.set_boolean("app-settings-open", true).expect("Could not set setting.");
+                            // Create an app object
+                            let app: adwaita::Application = adwaita::Application::builder().application_id(APP_ID).build();
+
+                            // Create new settings window
+                            let new_settings_window: SettingsWindow = SettingsWindow::new(&app);
+
+                            // Show new settings window
+                            new_settings_window.show();
+
+                            // Store object and state back in container
+                            settings_window_container.open = true;
+                            settings_window_container.window = Some(new_settings_window);
+                        },
+                        true => {
+                            println!("....window already open");//DEBUG
+                        },
+                    }
+                },
+                None => {
+                    println!("..window does not exist");//DEBUG
+                    println!("....opening window");//DEBUG
+
+                    // Create an app object
+                    let app: adwaita::Application = adwaita::Application::builder().application_id(APP_ID).build();
+
+                    // Create settings window
+                    let new_settings_window: SettingsWindow = SettingsWindow::new(&app);
+
+                    // Show new settings window
+                    new_settings_window.show();
+
+                    // Store object and state back in container
+                    settings_window_container.open = true;
+                    settings_window_container.window = Some(new_settings_window);
+                },
             }
-            /*
-             else {
-                // Set settings window as focus
-                //
-                settings_window.focus();
-                self.focus_child();
-            }
-            */
+
+            // Set new state in settings
+            settings.set_boolean("app-settings-open", settings_window_container.open).expect("Could not set `app-settings-open` setting.");
         }));
         self.add_action(&open_app_settings);
 
