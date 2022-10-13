@@ -40,7 +40,10 @@ pub struct SettingsWindowContainer {
 }
 impl Default for SettingsWindowContainer {
     fn default() -> Self {
-        Self { window: Default::default(), open: false }
+        Self {
+            window: Default::default(),
+            open: false,
+        }
     }
 }
 

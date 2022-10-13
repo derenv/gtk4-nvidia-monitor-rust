@@ -26,7 +26,7 @@ use imp::SettingsWindowContainer;
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::{Settings, SimpleAction};
 use glib::{clone, Object};
-use std::{ffi::OsStr, cell::RefMut};
+use std::{cell::RefMut, ffi::OsStr};
 
 // Modules
 use crate::{formatter, processor, property, provider, settingswindow, subprocess, APP_ID};
