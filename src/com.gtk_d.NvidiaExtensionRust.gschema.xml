@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-FileCopyrightText: 2022 Deren Vural
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<schemalist>
+  <schema id="com.gtk_d.NvidiaExtensionRust" path="/com/gtk_d/NvidiaExtensionRust/">
+    <key name="nvidia-settings-open" type="b">
+      <default>false</default>
+      <summary>Default nvidia settings open state</summary>
+    </key>
+    <key name="app-settings-open" type="b">
+      <default>false</default>
+      <summary>Default nvidia settings open state</summary>
+    </key>
+  </schema>
+</schemalist>

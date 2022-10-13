@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-SPDX-FileCopyrightText: 2022 Deren Vural
-SPDX-License-Identifier: GPL-3.0-or-later
--->
-<schemalist>
-  <schema id="org.gtk_d.NvidiaExtensionRust" path="/org/gtk_d/NvidiaExtensionRust/">
-  </schema>
-</schemalist>
