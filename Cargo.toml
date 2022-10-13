@@ -17,4 +17,4 @@ serde_json = "1.0"
 libappindicator = { version = "^0.7.1", package = "libappindicator" }
 
 [build-dependencies]
-gtk = { version = "^0.4.8", package = "gtk4" }
+adwaita = { version = "^0.1.1", package = "libadwaita" }
