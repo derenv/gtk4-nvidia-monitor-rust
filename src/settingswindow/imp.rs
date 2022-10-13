@@ -6,10 +6,10 @@
  * imp.rs
  *
  * Description:
- * Implementation of our custom GObject class (Window)
+ * Implementation of our custom GObject class (SettingsWindow)
  *
  * Made:
- * 09/10/2022
+ * 10/10/2022
  *
  * Made by:
  * Deren Vural
@@ -19,8 +19,6 @@
  */
 
 // Imports
-use std::cell::RefCell;
-
 use adwaita::subclass::prelude::*;
 use gtk::subclass::prelude::*;
 
@@ -29,26 +27,24 @@ use glib::signal::Inhibit;
 use glib::subclass::InitializingObject;
 
 use adwaita::prelude::*;
-use gtk::{gio, glib, CompositeTemplate, Entry, ListBox, TemplateChild};
+use gtk::{gio, glib, CompositeTemplate, TemplateChild};//, Entry, ListBox, };
 use gtk::glib::once_cell::sync::OnceCell;
 
-//use crate::task_object::{TaskData, TaskObject};
-//use crate::utils::data_path;
-
+// Modules
 //use crate::utils::data_path;
 
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/org/gtk_d/NvidiaExtensionRust/window.ui")]
-pub struct Window {
+#[template(resource = "/settings-window.ui")]
+pub struct SettingsWindow {
     pub settings: OnceCell<Settings>,
 }
 
 // The central trait for subclassing a GObject
 #[glib::object_subclass]
-impl ObjectSubclass for Window {
+impl ObjectSubclass for SettingsWindow {
     // `NAME` needs to match `class` attribute of template
-    const NAME: &'static str = "NvidiaExtensionWindow";
-    type Type = super::Window;
+    const NAME: &'static str = "NvidiaExtensionSettingsWindow";
+    type Type = super::SettingsWindow;
     type ParentType = gtk::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
@@ -60,8 +56,23 @@ impl ObjectSubclass for Window {
     }
 }
 
-// Trait shared by all GObjects
-impl ObjectImpl for Window {
+/*
+ * Trait Name:
+ * ObjectImpl
+ *
+ * Description:
+ * Trait shared by all GObjects
+ *
+ * Made:
+ * 10/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+impl ObjectImpl for SettingsWindow {
     fn constructed(&self, obj: &Self::Type) {
         // Call "constructed" on parent
         self.parent_constructed(obj);
@@ -75,11 +86,41 @@ impl ObjectImpl for Window {
     }
 }
 
-// Trait shared by all widgets
-impl WidgetImpl for Window {}
+/*
+ * Trait Name:
+ * WidgetImpl
+ *
+ * Description:
+ * Trait shared by all widgets
+ *
+ * Made:
+ * 10/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+impl WidgetImpl for SettingsWindow {}
 
-// Trait shared by all windows
-impl WindowImpl for Window {
+/*
+ * Trait Name:
+ * WindowImpl
+ *
+ * Description:
+ * Trait shared by all Window's
+ *
+ * Made:
+ * 10/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+impl WindowImpl for SettingsWindow {
     fn close_request(&self, window: &Self::Type) -> Inhibit {
         /*
         // Store task data in vector
@@ -97,12 +138,66 @@ impl WindowImpl for Window {
             .expect("Could not write data to json file");
 
         */
+
+        // Set state in settings
+        let settings: &Settings = window.settings();
+        settings.set_boolean("app-settings-open", false).expect("Could not set setting.");
+
         // Pass close request on to the parent
         self.parent_close_request(window)
     }
 }
-impl AdwWindowImpl for Window {}
 
-// Trait shared by all application windows
-impl ApplicationWindowImpl for Window {}
-impl AdwApplicationWindowImpl for Window {}
+/*
+ * Trait Name:
+ * AdwWindowImpl
+ *
+ * Description:
+ * Trait shared by all AdwWindow's
+ *
+ * Made:
+ * 10/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+impl AdwWindowImpl for MainWindow {}
+
+/*
+ * Trait Name:
+ * ApplicationWindowImpl
+ *
+ * Description:
+ * Trait shared by all ApplicationWindow's
+ *
+ * Made:
+ * 10/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+impl ApplicationWindowImpl for MainWindow {}
+
+/*
+ * Trait Name:
+ * AdwApplicationWindowImpl
+ *
+ * Description:
+ * Trait shared by all AdwApplicationWindow's
+ *
+ * Made:
+ * 10/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+impl AdwApplicationWindowImpl for MainWindow {}
