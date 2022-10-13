@@ -5,11 +5,14 @@ SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
 <!--
-    https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/todo/6/resources/resources.gresource.xml
+  RESOURCES:
+https://blog.devgenius.io/bundling-templates-into-resources-in-rust-for-the-gtk4-ui-eb387a7918bf
+https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/todo/6/resources/resources.gresource.xml
 -->
 
 <gresources>
-  <gresource prefix="/org/gtk_d/NvidiaExtensionRust/">
-    <file compressed="true" preprocess="xml-stripblanks">window.ui</file>
+  <gresource>
+    <file compressed="true" preprocess="xml-stripblanks">main-window.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">settings-window.ui</file>
   </gresource>
 </gresources>
