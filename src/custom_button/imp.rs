@@ -19,8 +19,7 @@
  */
 
 // Imports
-use gtk::glib;
-use gtk::subclass::prelude::*;
+use gtk::{glib, subclass::prelude::*};
 
 // Object holding the state
 #[derive(Default)]

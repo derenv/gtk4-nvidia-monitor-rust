@@ -19,11 +19,9 @@
  */
 
 // Imports
-use gtk::glib::once_cell::sync::Lazy;
-use gtk::glib::{self, ParamSpec, Value};
-use gtk::subclass::prelude::*;
+use glib::{once_cell::sync::Lazy, ParamSpec, ToValue, Value};
+use gtk::{glib, subclass::prelude::*};
 use std::cell::Cell;
-use glib::ToValue;
 
 // Modules
 use crate::formatter::Formatter;

@@ -22,14 +22,12 @@
 mod imp;
 
 // Imports
-use adwaita::subclass::prelude::*;
-use adwaita::prelude::*;
-use gio::{ Settings, SimpleAction };
-use glib::{ Object, clone };
-use adwaita::{ gio, glib };
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
+use gio::{Settings, SimpleAction};
+use glib::{clone, Object};
 
 // Modules
-use crate::{APP_ID};
+use crate::APP_ID;
 
 // GObject wrapper for Property
 glib::wrapper! {

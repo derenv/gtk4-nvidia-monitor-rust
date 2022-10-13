@@ -7,7 +7,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-adwaita = { version = "^0.1.1", package = "libadwaita"}
+adwaita = { version = "^0.1.1", package = "libadwaita" }
 gtk = { version = "^0.4.8", package = "gtk4" }
 shell = { version = "^0.4.4", package = "gtk-layer-shell" } #may not need
 serde = { version = "1.0", features = ["derive"] }

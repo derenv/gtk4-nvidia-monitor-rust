@@ -22,17 +22,15 @@
 mod imp;
 
 // Imports
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
+use gio::{Settings, SimpleAction};
+use glib::{clone, Object};
 use std::ffi::OsStr;
-use adwaita::subclass::prelude::*;
-use adwaita::prelude::*;
-use gio::{ Settings, SimpleAction };
-use glib::{ Object, clone };
-use adwaita::{ gio, glib };
 
 // Modules
-use crate::{APP_ID, subprocess, processor, formatter, property, provider, settingswindow};
-use processor::Processor;
+use crate::{formatter, processor, property, provider, settingswindow, subprocess, APP_ID};
 use formatter::Formatter;
+use processor::Processor;
 use property::Property;
 use provider::Provider;
 use settingswindow::SettingsWindow;
@@ -79,7 +77,7 @@ impl MainWindow {
      *
      */
     pub fn new(app: &adwaita::Application) -> Self {
-        Object::new(&[("application", app),]).expect("`MainWindow` should be  instantiable.")
+        Object::new(&[("application", app)]).expect("`MainWindow` should be  instantiable.")
     }
 
     /*
@@ -326,7 +324,8 @@ impl MainWindow {
         self.add_action(&processor);
 
         // Create action from key "formatter_and_property" and add to action group "win"
-        let formatter_and_property: SimpleAction = SimpleAction::new("formatter_and_property", None);
+        let formatter_and_property: SimpleAction =
+            SimpleAction::new("formatter_and_property", None);
         formatter_and_property.connect_activate(clone!(@weak self as window => move |_, _| {
             // GENERIC
             let proc: Processor = Processor::new("nvidia-settings", "-q GpuUUID -t");
@@ -596,7 +595,6 @@ impl MainWindow {
             });
         }));
         self.add_action(&providers);
-
 
         // Create action from key "open_app_settings" and add to action group "win"
         let open_app_settings: SimpleAction = SimpleAction::new("open_app_settings", None);

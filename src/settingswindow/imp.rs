@@ -19,16 +19,10 @@
  */
 
 // Imports
-use adwaita::subclass::prelude::*;
-use gtk::subclass::prelude::*;
-
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
-use glib::signal::Inhibit;
-use glib::subclass::InitializingObject;
-
-use adwaita::prelude::*;
-use gtk::{gio, glib, CompositeTemplate, TemplateChild};//, Entry, ListBox, };
-use gtk::glib::once_cell::sync::OnceCell;
+use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject};
+use gtk::{subclass::prelude::*, CompositeTemplate}; //, Entry, ListBox, TemplateChild}; //Value, once_cell::sync::Lazy, ParamSpec,
 
 // Modules
 //use crate::utils::data_path;
@@ -141,7 +135,9 @@ impl WindowImpl for SettingsWindow {
 
         // Set state in settings
         let settings: &Settings = window.settings();
-        settings.set_boolean("app-settings-open", false).expect("Could not set setting.");
+        settings
+            .set_boolean("app-settings-open", false)
+            .expect("Could not set setting.");
 
         // Pass close request on to the parent
         self.parent_close_request(window)
@@ -164,7 +160,7 @@ impl WindowImpl for SettingsWindow {
  * Notes:
  *
  */
-impl AdwWindowImpl for MainWindow {}
+impl AdwWindowImpl for SettingsWindow {}
 
 /*
  * Trait Name:
@@ -182,7 +178,7 @@ impl AdwWindowImpl for MainWindow {}
  * Notes:
  *
  */
-impl ApplicationWindowImpl for MainWindow {}
+impl ApplicationWindowImpl for SettingsWindow {}
 
 /*
  * Trait Name:
@@ -200,4 +196,4 @@ impl ApplicationWindowImpl for MainWindow {}
  * Notes:
  *
  */
-impl AdwApplicationWindowImpl for MainWindow {}
+impl AdwApplicationWindowImpl for SettingsWindow {}

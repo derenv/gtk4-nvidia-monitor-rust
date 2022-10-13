@@ -19,16 +19,13 @@
  */
 
 // Imports
-use adwaita::subclass::prelude::*;
-use gtk::subclass::prelude::*;
-
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
-use glib::signal::Inhibit;
-use glib::subclass::InitializingObject;
-
-use adwaita::prelude::*;
-use gtk::{gio, glib, CompositeTemplate};//, Entry, ListBox, TemplateChild};
-use glib::{once_cell::sync::OnceCell, Value, once_cell::sync::Lazy, ParamSpec};
+use glib::{
+    once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
+    subclass::InitializingObject, ParamSpec, Value,
+};
+use gtk::{subclass::prelude::*, CompositeTemplate}; //, Entry, ListBox, TemplateChild};
 
 // Modules
 //use crate::utils::data_path;

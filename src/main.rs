@@ -19,12 +19,12 @@
  */
 
 // Modules
-mod subprocess;
-mod processor;
 mod formatter;
+mod mainwindow;
+mod processor;
 mod property;
 mod provider;
-mod mainwindow;
+mod subprocess;
 use mainwindow::MainWindow;
 mod settingswindow;
 
@@ -38,8 +38,9 @@ mod settingswindow;
 use adwaita::prelude::*;
 //use gtk::Application;
 use adwaita::{
-    /* Libraries */ gio, /* Application */ Application,
-//    SplitButton
+    /* Libraries */ gio,
+    /* Application */ Application,
+    //    SplitButton
 };
 use gio::{resources_register_include, Settings};
 
@@ -50,7 +51,7 @@ const APP_ID: &str = "com.gtk_d.NvidiaExtensionRust";
 fn main() {
     // Resources
     resources_register_include!("nvidiaextensionrust.gresource")
-    .expect("Failed to register resources.");
+        .expect("Failed to register resources.");
 
     // Intialise GTK
     gtk::init().expect("Failed to initialise gtk");

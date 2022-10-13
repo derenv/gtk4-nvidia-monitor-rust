@@ -19,9 +19,8 @@
  */
 
 // Imports
-use gtk::glib::once_cell::sync::Lazy;
-use gtk::glib::{self, ParamSpec, Value};
-use gtk::subclass::prelude::*;
+use glib::{once_cell::sync::Lazy, ParamSpec, Value};
+use gtk::{glib, subclass::prelude::*};
 
 // Modules
 //
