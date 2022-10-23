@@ -34,6 +34,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
       <attribute name="label" translatable="yes">Test Providers</attribute>
       <attribute name="action">win.providers</attribute>
     </item>
+    <item>
+      <attribute name="label" translatable="yes">About</attribute>
+      <attribute name="action">win.about</attribute>
+    </item>
   </menu>
 
   <!-- Header Implementation (implements main-menu) -->
@@ -71,6 +75,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
                 <!-- Content Implementation -->
                 <child>
                   <!--
+                  <object class="GtkLabel" id="temp">
+                  </object>
+
                   <object class="GtkEntry" id="entry">
                     <property name="placeholder-text" translatable="yes">Enter a Task…</property>
                     <property name="secondary-icon-name">list-add-symbolic</property>

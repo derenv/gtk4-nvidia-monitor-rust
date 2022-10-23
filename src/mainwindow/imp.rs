@@ -22,8 +22,8 @@
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
 use glib::{
-    once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
-    subclass::InitializingObject, ParamSpec, Value,
+    once_cell::sync::OnceCell, signal::Inhibit,
+    subclass::InitializingObject,
 };
 use gtk::{subclass::prelude::*, CompositeTemplate}; //, Entry, ListBox, TemplateChild};
 use std::{cell::Cell, cell::RefCell, rc::Rc};
@@ -155,14 +155,11 @@ impl WindowImpl for MainWindow {
             .expect("Could not write data to json file");
 
         */
-        // Set app-settings state in settings
+        // Set state in settings
         let settings: &Settings = window.settings();
         settings
             .set_boolean("app-settings-open", false)
             .expect("Could not set setting.");
-
-        // Set nvidia-settings state in settings
-        let settings: &Settings = window.settings();
         settings
             .set_boolean("nvidia-settings-open", false)
             .expect("Could not set setting.");

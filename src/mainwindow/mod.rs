@@ -612,7 +612,7 @@ impl MainWindow {
 
             // Check if an object is stored
             match &settings_window_container.window {
-                Some(window) => {
+                Some(_window) => {
                     println!("..window exists");//DEBUG
 
                     // Check if the window is already open
@@ -661,6 +661,13 @@ impl MainWindow {
             settings.set_boolean("app-settings-open", settings_window_container.open).expect("Could not set `app-settings-open` setting.");
         }));
         self.add_action(&open_app_settings);
+
+        let about: SimpleAction = SimpleAction::new("about", None);
+        about.connect_activate(clone!(@weak self as window => move |_, _| {
+            // Show About info pop-up
+            println!("About pop-up not yet implemented..");//TODO
+        }));
+        self.add_action(&about);
 
         /*
         // Create action from key "filter" and add to action group "win"
