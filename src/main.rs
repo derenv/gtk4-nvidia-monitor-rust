@@ -29,28 +29,22 @@ use mainwindow::MainWindow;
 mod settingswindow;
 
 // Imports
-//use std::env;
-//use std::path::Path;
-//use libappindicator::{
-//    /* SysTray */ AppIndicator, AppIndicatorStatus
-//};
-
 use adwaita::prelude::*;
-//use gtk::Application;
 use adwaita::{
     /* Libraries */ gio,
     /* Application */ Application,
-    //    SplitButton
 };
-use gio::{resources_register_include, Settings};
+use gtk::{CssProvider, StyleContext};
+use gio::{resources_register_include};
+use gdk::{Display};
 
 // Constants
-const APP_ID: &str = "com.gtk_d.NvidiaExtensionRust";
+const APP_ID: &str = "com.gtk_d.NvidiaMonitorRust";
 
 // Main Function
 fn main() {
     // Resources
-    resources_register_include!("nvidiaextensionrust.gresource")
+    resources_register_include!("nvidiamonitorrust.gresource")
         .expect("Failed to register resources.");
 
     // Intialise GTK
@@ -59,8 +53,9 @@ fn main() {
     // Create a new application
     let app: Application = Application::builder().application_id(APP_ID).build();
 
-    // Connect to "activate" signal of `app`
+    // Connect to signals of `app`
     //app.connect_startup(setup_shortcuts);
+    app.connect_startup(|_| load_css());
     app.connect_activate(build_ui);
 
     // Run the application
@@ -76,6 +71,20 @@ fn setup_shortcuts(app: &Application) {
     app.set_accels_for_action("win.filter('Done')", &["<Ctrl>d"]);
 }
 */
+
+// Load CSS styles
+fn load_css() {
+    // Load the CSS file and add it to the provider
+    let provider = CssProvider::new();
+    provider.load_from_path("style.css");
+
+    // Add the provider to the default screen
+    StyleContext::add_provider_for_display(
+        &Display::default().expect("..Could not connect to a display."),
+        &provider,
+        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
+}
 
 // Build Function
 fn build_ui(app: &Application) {
