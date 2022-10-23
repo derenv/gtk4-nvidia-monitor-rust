@@ -4,3 +4,7 @@
 listview row box label {
   min-width: 195px;
 }
+
+spinbutton {
+    margin: 10px;
+}
