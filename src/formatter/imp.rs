@@ -33,7 +33,7 @@ pub struct Formatter;
 #[glib::object_subclass]
 impl ObjectSubclass for Formatter {
     //Crate+Obj to avoid collisions
-    const NAME: &'static str = "NvidiaExtensionRustFormatter";
+    const NAME: &'static str = "NvidiaMonitorRustFormatter";
     // the actual GObject that will be created
     type Type = super::Formatter;
     // Parent GObject we inherit from

@@ -41,7 +41,7 @@ pub struct Property {
 #[glib::object_subclass]
 impl ObjectSubclass for Property {
     //Crate+Obj to avoid collisions
-    const NAME: &'static str = "NvidiaExtensionRustProperty";
+    const NAME: &'static str = "NvidiaMonitorRustProperty";
     // the actual GObject that will be created
     type Type = super::Property;
     // Parent GObject we inherit from

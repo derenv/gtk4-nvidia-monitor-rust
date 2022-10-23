@@ -40,7 +40,7 @@ pub struct Provider {
 #[glib::object_subclass]
 impl ObjectSubclass for Provider {
     //Crate+Obj to avoid collisions
-    const NAME: &'static str = "NvidiaExtensionRustProcessor";
+    const NAME: &'static str = "NvidiaMonitorRustProcessor";
     // the actual GObject that will be created
     type Type = super::Provider;
     // Parent GObject we inherit from

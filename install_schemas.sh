@@ -22,7 +22,7 @@
 
 # Variables
 SCHEMA_DIR="$HOME/.local/share/glib-2.0/schemas"
-SCHEMA_FILE="com.gtk_d.NvidiaExtensionRust.gschema.xml"
+SCHEMA_FILE="com.gtk_d.NvidiaMonitorRust.gschema.xml"
 
 # Create schema directory if it doesn't exist
 if [[ -d "$SCHEMA_DIR" ]]; then

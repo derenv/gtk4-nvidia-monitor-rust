@@ -47,6 +47,6 @@ fn main() {
     compile_resources(
         "src/resources",
         "src/resources/resources.gresource.xml",
-        "nvidiaextensionrust.gresource",
+        "nvidiamonitorrust.gresource",
     );
 }
