@@ -19,10 +19,10 @@
  */
 
 // Imports
-use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ComboRow};
 use gio::Settings;
 use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject};
-use gtk::{subclass::prelude::*, CompositeTemplate}; //, Entry, ListBox, TemplateChild}; //Value, once_cell::sync::Lazy, ParamSpec,
+use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild, SpinButton, CheckButton};
 
 // Modules
 //use crate::utils::data_path;
@@ -32,6 +32,14 @@ use gtk::{subclass::prelude::*, CompositeTemplate}; //, Entry, ListBox, Template
 #[template(resource = "/settings-window.ui")]
 pub struct SettingsWindow {
     pub settings: OnceCell<Settings>,
+    #[template_child]
+    pub refreshrate_input: TemplateChild<SpinButton>,
+    #[template_child]
+    pub temp_unit_c: TemplateChild<CheckButton>,
+    #[template_child]
+    pub temp_unit_f: TemplateChild<CheckButton>,
+    #[template_child]
+    pub provider_input: TemplateChild<ComboRow>,
 }
 
 // The central trait for subclassing a GObject
@@ -40,14 +48,78 @@ impl ObjectSubclass for SettingsWindow {
     // `NAME` needs to match `class` attribute of template
     const NAME: &'static str = "NvidiaExtensionSettingsWindow";
     type Type = super::SettingsWindow;
+    //type ParentType = adwaita::PreferencesWindow;
     type ParentType = gtk::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
         klass.bind_template();
+        klass.bind_template_callbacks();
     }
 
     fn instance_init(obj: &InitializingObject<Self>) {
         obj.init_template();
+    }
+}
+
+/*
+ * Name:
+ * SettingsWindow
+ *
+ * Description:
+ * Trait shared by all SettingsWindow objects
+ *
+ * Made:
+ * 13/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+#[gtk::template_callbacks]
+impl SettingsWindow {
+    #[template_callback]
+    fn refreshrate_set(&self, button: &SpinButton) {
+        // Get new refresh rate input
+        let new_value: i32 = button.value_as_int();
+
+        // Set refresh rate property
+        let settings = self.settings.get().expect("..Cannot retrieve settings");
+        settings.set_int("refreshrate", new_value).expect("..Cannot set `tempformat` setting");
+    }
+
+    #[template_callback]
+    fn temp_unit_set(&self, button: &CheckButton) {
+        // Get list of buttons
+        let check_buttons: [&CheckButton; 2] = [&self.temp_unit_c, &self.temp_unit_f];
+
+        // For each button in the group
+        for current_button in check_buttons {
+            // Check if current button active
+            if current_button.is_active() {
+                // Get new unit
+                let unit: String = button.label().expect("..Could not fetch contents of temperature unit button label").to_string();
+
+                // Set appropriate setting
+                match unit.as_str() {
+                    "Celcius (C)" => {
+                        // Set temperature unit as C
+                        let settings = self.settings.get().expect("..Cannot retrieve settings");
+                        settings.set_int("tempformat", 0).expect("..Cannot set `tempformat` setting");
+                    },
+                    "Fahrenheit (F)" => {
+                        // Set temperature unit as F
+                        let settings = self.settings.get().expect("..Cannot retrieve settings");
+                        settings.set_int("tempformat", 1).expect("..Cannot set `tempformat` setting");
+                    },
+                    _ => {
+                        // Display error message
+                        panic!("..Unexpected temperature unit");
+                    },
+                }
+            }
+        }
     }
 }
 
@@ -74,8 +146,8 @@ impl ObjectImpl for SettingsWindow {
 
         // Setup
         obj.setup_settings();
-        //obj.setup_tasks();
         obj.restore_data();
+        obj.setup_widgets();
         obj.setup_callbacks();
         obj.setup_actions();
     }
@@ -163,6 +235,7 @@ impl WindowImpl for SettingsWindow {
  */
 impl AdwWindowImpl for SettingsWindow {}
 
+
 /*
  * Trait Name:
  * ApplicationWindowImpl
@@ -171,7 +244,7 @@ impl AdwWindowImpl for SettingsWindow {}
  * Trait shared by all ApplicationWindow's
  *
  * Made:
- * 10/10/2022
+ * 09/10/2022
  *
  * Made by:
  * Deren Vural
@@ -189,7 +262,7 @@ impl ApplicationWindowImpl for SettingsWindow {}
  * Trait shared by all AdwApplicationWindow's
  *
  * Made:
- * 10/10/2022
+ * 09/10/2022
  *
  * Made by:
  * Deren Vural

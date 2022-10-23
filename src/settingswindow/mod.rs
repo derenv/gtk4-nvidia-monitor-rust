@@ -22,9 +22,10 @@
 mod imp;
 
 // Imports
-use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
-use gio::{Settings, SimpleAction};
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ComboRow};
+use gio::{Settings};
 use glib::{clone, Object};
+use gtk::{Adjustment, CheckButton, StringList};
 
 // Modules
 use crate::APP_ID;
@@ -124,6 +125,79 @@ impl SettingsWindow {
 
     /*
      * Name:
+     * setup_widgets
+     *
+     * Description:
+     * Set up all buttons/drop downs/other widgets
+     *
+     * Made:
+     * 22/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    fn setup_widgets(&self) {
+
+
+        // Create adjustment settings for refresh rate SpinButton
+        let current_refresh_rate: f64 = self.settings().int("refreshrate").into();
+        let adjustment: Adjustment = Adjustment::new(current_refresh_rate, 1.0, 20.0, 1.0, 5.0, 0.0);
+        self.imp()
+            .refreshrate_input
+            .configure(Some(&adjustment), 1.0, 0);
+
+        // Group together Temp-Unit CheckButtons
+        let group: &CheckButton = &self.imp().temp_unit_f;
+        self.imp()
+            .temp_unit_c
+            .set_group(Some(group));
+
+        // Retrieve temperature unit from settings
+        match self.settings().int("tempformat") {
+            0 => {
+                self.imp().temp_unit_c.set_active(true);
+                self.imp().temp_unit_f.set_active(false);
+            },
+            1 => {
+                self.imp().temp_unit_f.set_active(true);
+                self.imp().temp_unit_c.set_active(false);
+            },
+            _ => panic!("..Unknown temp unit in settings"),
+        }
+
+        // Set options for provider
+        let items: [&str; 4]  = [
+            "Nvidia Settings and Nvidia SMI",
+            "Nvidia Settings",
+            "Nvidia SMI",
+            "Nvidia Optimus",
+        ];
+        let model = StringList::new(&items);
+        self.imp().provider_input.set_model(Some(&model));
+
+        // Set current selected option from settings
+        match self.settings().int("provider") {
+            0 => {
+                self.imp().provider_input.set_selected(0);
+            },
+            1 => {
+                self.imp().provider_input.set_selected(1);
+            },
+            2 => {
+                self.imp().provider_input.set_selected(2);
+            },
+            3 => {
+                self.imp().provider_input.set_selected(3);
+            },
+            _ => panic!("..Unknown provider value in settings"),
+        }
+    }
+
+    /*
+     * Name:
      * restore_data
      *
      * Description:
@@ -175,21 +249,51 @@ impl SettingsWindow {
      * TODO
      */
     fn setup_callbacks(&self) {
-        // Setup callback for activation of the entry
-        /*
+        // Setup callback for changing provider choice
         self.imp()
-            .entry
-            .connect_activate(clone!(@weak self as window => move |_| {
-                window.new_task();
-            }));
+            .provider_input
+            .connect_selected_notify(clone!(@weak self as window => move |_| {
+                // Get new provider choice
+                let row: &ComboRow = &window.imp().provider_input;
+                let item: u32 = row.selected();
 
-        // Setup callback for clicking (and the releasing) the icon of the entry
-        self.imp().entry.connect_icon_release(
-            clone!(@weak self as window => move |_,_| {
-                window.new_task();
-            }),
-        );
-        */
+                // Validate and set new provider choice
+                match item {
+                    0 => {
+                        // Validation
+                        //TODO: check if provider program exists, call subprocess?
+
+                        // Store chosen provider type
+                        let settings = window.imp().settings.get().expect("..Cannot retrieve settings");
+                        settings.set_int("provider", 0).expect("..Cannot set `provider` setting");
+                    },
+                    1 => {
+                        // Validation
+                        //TODO: check if provider program exists, call subprocess?
+
+                        // Store chosen provider type
+                        let settings = window.imp().settings.get().expect("..Cannot retrieve settings");
+                        settings.set_int("provider", 1).expect("..Cannot set `provider` setting");
+                    },
+                    2 => {
+                        // Validation
+                        //TODO: check if provider program exists, call subprocess?
+
+                        // Store chosen provider type
+                        let settings = window.imp().settings.get().expect("..Cannot retrieve settings");
+                        settings.set_int("provider", 2).expect("..Cannot set `provider` setting");
+                    },
+                    3 => {
+                        // Validation
+                        //TODO: check if provider program exists, call subprocess?
+
+                        // Store chosen provider type
+                        let settings = window.imp().settings.get().expect("..Cannot retrieve settings");
+                        settings.set_int("provider", 3).expect("..Cannot set `provider` setting");
+                    },
+                    _ => panic!("..Unknown provider chosen"),
+                }
+            }));
     }
 
     /*
