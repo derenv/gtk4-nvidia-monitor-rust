@@ -23,7 +23,7 @@ mod imp;
 
 // Imports
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ComboRow};
-use gio::{Settings};
+use gio::Settings;
 use glib::{clone, Object};
 use gtk::{Adjustment, CheckButton, StringList};
 
@@ -140,36 +140,33 @@ impl SettingsWindow {
      *
      */
     fn setup_widgets(&self) {
-
-
         // Create adjustment settings for refresh rate SpinButton
         let current_refresh_rate: f64 = self.settings().int("refreshrate").into();
-        let adjustment: Adjustment = Adjustment::new(current_refresh_rate, 1.0, 20.0, 1.0, 5.0, 0.0);
+        let adjustment: Adjustment =
+            Adjustment::new(current_refresh_rate, 1.0, 20.0, 1.0, 5.0, 0.0);
         self.imp()
             .refreshrate_input
             .configure(Some(&adjustment), 1.0, 0);
 
         // Group together Temp-Unit CheckButtons
         let group: &CheckButton = &self.imp().temp_unit_f;
-        self.imp()
-            .temp_unit_c
-            .set_group(Some(group));
+        self.imp().temp_unit_c.set_group(Some(group));
 
         // Retrieve temperature unit from settings
         match self.settings().int("tempformat") {
             0 => {
                 self.imp().temp_unit_c.set_active(true);
                 self.imp().temp_unit_f.set_active(false);
-            },
+            }
             1 => {
                 self.imp().temp_unit_f.set_active(true);
                 self.imp().temp_unit_c.set_active(false);
-            },
+            }
             _ => panic!("..Unknown temp unit in settings"),
         }
 
         // Set options for provider
-        let items: [&str; 4]  = [
+        let items: [&str; 4] = [
             "Nvidia Settings and Nvidia SMI",
             "Nvidia Settings",
             "Nvidia SMI",
@@ -182,16 +179,16 @@ impl SettingsWindow {
         match self.settings().int("provider") {
             0 => {
                 self.imp().provider_input.set_selected(0);
-            },
+            }
             1 => {
                 self.imp().provider_input.set_selected(1);
-            },
+            }
             2 => {
                 self.imp().provider_input.set_selected(2);
-            },
+            }
             3 => {
                 self.imp().provider_input.set_selected(3);
-            },
+            }
             _ => panic!("..Unknown provider value in settings"),
         }
     }

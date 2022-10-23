@@ -30,13 +30,10 @@ mod settingswindow;
 
 // Imports
 use adwaita::prelude::*;
-use adwaita::{
-    /* Libraries */ gio,
-    /* Application */ Application,
-};
+use adwaita::{gio, Application};
+use gdk::Display;
+use gio::resources_register_include;
 use gtk::{CssProvider, StyleContext};
-use gio::{resources_register_include};
-use gdk::{Display};
 
 // Constants
 const APP_ID: &str = "com.gtk_d.NvidiaMonitorRust";

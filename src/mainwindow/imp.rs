@@ -21,10 +21,7 @@
 // Imports
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
-use glib::{
-    once_cell::sync::OnceCell, signal::Inhibit,
-    subclass::InitializingObject,
-};
+use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject};
 use gtk::{subclass::prelude::*, CompositeTemplate}; //, Entry, ListBox, TemplateChild};
 use std::{cell::Cell, cell::RefCell, rc::Rc};
 

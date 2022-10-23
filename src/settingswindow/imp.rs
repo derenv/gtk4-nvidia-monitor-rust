@@ -22,7 +22,7 @@
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ComboRow};
 use gio::Settings;
 use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject};
-use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild, SpinButton, CheckButton};
+use gtk::{subclass::prelude::*, CheckButton, CompositeTemplate, SpinButton, TemplateChild};
 
 // Modules
 //use crate::utils::data_path;
@@ -86,7 +86,9 @@ impl SettingsWindow {
 
         // Set refresh rate property
         let settings = self.settings.get().expect("..Cannot retrieve settings");
-        settings.set_int("refreshrate", new_value).expect("..Cannot set `tempformat` setting");
+        settings
+            .set_int("refreshrate", new_value)
+            .expect("..Cannot set `tempformat` setting");
     }
 
     #[template_callback]
@@ -99,24 +101,31 @@ impl SettingsWindow {
             // Check if current button active
             if current_button.is_active() {
                 // Get new unit
-                let unit: String = button.label().expect("..Could not fetch contents of temperature unit button label").to_string();
+                let unit: String = button
+                    .label()
+                    .expect("..Could not fetch contents of temperature unit button label")
+                    .to_string();
 
                 // Set appropriate setting
                 match unit.as_str() {
                     "Celcius (C)" => {
                         // Set temperature unit as C
                         let settings = self.settings.get().expect("..Cannot retrieve settings");
-                        settings.set_int("tempformat", 0).expect("..Cannot set `tempformat` setting");
-                    },
+                        settings
+                            .set_int("tempformat", 0)
+                            .expect("..Cannot set `tempformat` setting");
+                    }
                     "Fahrenheit (F)" => {
                         // Set temperature unit as F
                         let settings = self.settings.get().expect("..Cannot retrieve settings");
-                        settings.set_int("tempformat", 1).expect("..Cannot set `tempformat` setting");
-                    },
+                        settings
+                            .set_int("tempformat", 1)
+                            .expect("..Cannot set `tempformat` setting");
+                    }
                     _ => {
                         // Display error message
                         panic!("..Unexpected temperature unit");
-                    },
+                    }
                 }
             }
         }
@@ -234,7 +243,6 @@ impl WindowImpl for SettingsWindow {
  *
  */
 impl AdwWindowImpl for SettingsWindow {}
-
 
 /*
  * Trait Name:
