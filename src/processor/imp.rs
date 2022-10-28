@@ -39,7 +39,7 @@ pub struct Processor {
 #[glib::object_subclass]
 impl ObjectSubclass for Processor {
     //Crate+Obj to avoid collisions
-    const NAME: &'static str = "NvidiaExtensionRustProcessor";
+    const NAME: &'static str = "NvidiaMonitorRustProcessor";
     // the actual GObject that will be created
     type Type = super::Processor;
     // Parent GObject we inherit from

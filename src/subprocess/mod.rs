@@ -18,10 +18,9 @@
  * https://blog.logrocket.com/a-practical-guide-to-async-in-rust/
  */
 
-use gtk::glib::Bytes;
 // Imports
-use gtk::prelude::*;
-use gtk::{gio, glib};
+use glib::Bytes;
+use gtk::{gio, glib, prelude::*};
 use std::ffi::OsStr;
 
 /*

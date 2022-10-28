@@ -23,8 +23,7 @@ mod imp;
 
 // Imports
 use glib::Object;
-use gtk::glib;
-use gtk::prelude::*;
+use gtk::{glib, prelude::*};
 
 // Modules
 use crate::formatter::Formatter;

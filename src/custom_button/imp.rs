@@ -19,8 +19,7 @@
  */
 
 // Imports
-use gtk::glib;
-use gtk::subclass::prelude::*;
+use gtk::{glib, subclass::prelude::*};
 
 // Object holding the state
 #[derive(Default)]
@@ -30,7 +29,7 @@ pub struct CustomButton;
 #[glib::object_subclass]
 impl ObjectSubclass for CustomButton {
     //Crate+Obj to avoid collisions
-    const NAME: &'static str = "NvidiaExtensionRustCustomButton";
+    const NAME: &'static str = "NvidiaMonitorRustCustomButton";
     // the actual GObject that will be created
     type Type = super::CustomButton;
     // Parent GObject we inherit from

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-FileCopyrightText: 2022 Deren Vural
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
+<!--
+  RESOURCES:
+https://blog.devgenius.io/bundling-templates-into-resources-in-rust-for-the-gtk4-ui-eb387a7918bf
+https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/todo/6/resources/resources.gresource.xml
+-->
+
+<gresources>
+  <gresource>
+    <file compressed="true" preprocess="xml-stripblanks">main-window.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">settings-window.ui</file>
+  </gresource>
+</gresources>

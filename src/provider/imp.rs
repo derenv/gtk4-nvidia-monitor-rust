@@ -19,10 +19,8 @@
  */
 
 // Imports
-use gtk::glib::once_cell::sync::Lazy;
-use gtk::glib::{self, ParamSpec, Value};
-use gtk::prelude::*;
-use gtk::subclass::prelude::*;
+use glib::{once_cell::sync::Lazy, ParamSpec, Value};
+use gtk::{glib, prelude::*, subclass::prelude::*};
 use std::cell::Cell;
 
 // Modules
@@ -42,7 +40,7 @@ pub struct Provider {
 #[glib::object_subclass]
 impl ObjectSubclass for Provider {
     //Crate+Obj to avoid collisions
-    const NAME: &'static str = "NvidiaExtensionRustProcessor";
+    const NAME: &'static str = "NvidiaMonitorRustProcessor";
     // the actual GObject that will be created
     type Type = super::Provider;
     // Parent GObject we inherit from
@@ -91,13 +89,15 @@ impl ObjectImpl for Provider {
      * glib::ParamSpecObject::builder("formatter").build(),
      */
     fn properties() -> &'static [ParamSpec] {
-        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| vec![
-            glib::ParamSpecObject::builder("utilization-property", glib::Type::OBJECT).build(),
-            glib::ParamSpecObject::builder("temperature-property", glib::Type::OBJECT).build(),
-            glib::ParamSpecObject::builder("memory-usage-property", glib::Type::OBJECT).build(),
-            glib::ParamSpecObject::builder("fan-speed-property", glib::Type::OBJECT).build(),
-            glib::ParamSpecObject::builder("power-usage-property", glib::Type::OBJECT).build(),
-        ]);
+        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
+            vec![
+                glib::ParamSpecObject::builder("utilization-property", glib::Type::OBJECT).build(),
+                glib::ParamSpecObject::builder("temperature-property", glib::Type::OBJECT).build(),
+                glib::ParamSpecObject::builder("memory-usage-property", glib::Type::OBJECT).build(),
+                glib::ParamSpecObject::builder("fan-speed-property", glib::Type::OBJECT).build(),
+                glib::ParamSpecObject::builder("power-usage-property", glib::Type::OBJECT).build(),
+            ]
+        });
 
         //println!("PROPERTIES: {:?}", PROPERTIES);//TEST
         //println!("trying to add `base_call`: {:?}", glib::ParamSpecString::builder("base_call").build());//TEST

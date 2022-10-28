@@ -25,9 +25,7 @@ use crate::property::Property;
 
 // Imports
 use glib::Object;
-use gtk::{ glib, prelude::ObjectExt };
-//use shell::*;
-use gtk::gio;
+use gtk::{glib, prelude::ObjectExt};
 
 // GObject wrapper for Provider
 glib::wrapper! {
@@ -40,8 +38,8 @@ glib::wrapper! {
 pub enum ProviderType {
     #[default]
     NvidiaSettings = 0,
-    NvidiaSmi = 1,
-    NvidiaOptimus = 2,
+    _NvidiaSmi = 1,
+    _NvidiaOptimus = 2,
 }
 
 /*
@@ -77,7 +75,7 @@ impl Provider {
      * Notes:
      *
      */
-    pub fn new(func: fn() -> Vec<Property>/*, provider_type: ProviderType*/) -> Self {
+    pub fn new(func: fn() -> Vec<Property> /*, provider_type: ProviderType*/) -> Self {
         let obj: Provider = Object::new(&[]).expect("Failed to create `Provider`");
 
         //obj.set_property("provider-type", provider_type);
@@ -99,7 +97,8 @@ impl Provider {
         //let defaultAppSystem = Shell.AppSystem.get_default();
         //let nvidiaSettingsApp = defaultAppSystem.lookup_app('nvidia-settings.desktop');
         //let def = shell::Edge::Top;
-        let dd = gio::DesktopAppInfo::from_filename("nvidia-settings.desktop");
+        //let dd = gio::DesktopAppInfo::from_filename("nvidia-settings.desktop");
+        todo!()
     }
 }
 
@@ -121,6 +120,6 @@ impl Provider {
  */
 impl Default for Provider {
     fn default() -> Self {
-        Self::new(|| Vec::new()/*, ProviderType::NvidiaSettings*/)
+        Self::new(|| Vec::new() /*, ProviderType::NvidiaSettings*/)
     }
 }

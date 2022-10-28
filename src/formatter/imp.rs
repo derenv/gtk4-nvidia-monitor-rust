@@ -19,9 +19,8 @@
  */
 
 // Imports
-use gtk::glib::once_cell::sync::Lazy;
-use gtk::glib::{self, ParamSpec, Value};
-use gtk::subclass::prelude::*;
+use glib::{once_cell::sync::Lazy, ParamSpec, Value};
+use gtk::{glib, subclass::prelude::*};
 
 // Modules
 //
@@ -34,7 +33,7 @@ pub struct Formatter;
 #[glib::object_subclass]
 impl ObjectSubclass for Formatter {
     //Crate+Obj to avoid collisions
-    const NAME: &'static str = "NvidiaExtensionRustFormatter";
+    const NAME: &'static str = "NvidiaMonitorRustFormatter";
     // the actual GObject that will be created
     type Type = super::Formatter;
     // Parent GObject we inherit from

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-FileCopyrightText: 2022 Deren Vural
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<schemalist>
+  <schema id="com.gtk_d.NvidiaMonitorRust" path="/com/gtk_d/NvidiaMonitorRust/">
+    <key name="nvidia-settings-open" type="b">
+      <default>false</default>
+      <summary>Nvidia settings state</summary>
+      <description>
+        Nvidia settings open/closed
+      </description>
+    </key>
+    <key name="app-settings-open" type="b">
+      <default>false</default>
+      <summary>App settings state</summary>
+      <description>
+        App settings window open/closed
+      </description>
+    </key>
+
+    <key name="refreshrate" type="i">
+      <default>5</default>
+      <summary>Refresh Interval (s)</summary>
+      <description>
+        The time between refreshes in seconds
+      </description>
+    </key>
+    <key name="tempformat" type="i">
+      <default>0</default>
+      <summary>Temperature Unit</summary>
+      <description>
+        Set the temperature unit to be displayed in either Celcius (0) or Fahrenheit (1)
+      </description>
+    </key>
+    <key name="provider" type="i">
+      <default>0</default>
+      <summary>Properties Provider</summary>
+      <description>
+        Select the properties provider to use, Nvidia Settings and Nvidia SMI (0), Nvidia Settings only (1), Nvidia SMI only (2), or Optimus (3)
+      </description>
+    </key>
+
+    <!-- Not entirely sure what these are for..-->
+    <key name="settingsconfig" type="as">
+      <default>[]</default>
+    </key>
+    <key name="smiconfig" type="as">
+      <default>[]</default>
+    </key>
+    <key name="settingsandsmiconfig" type="as">
+      <default>[]</default>
+    </key>
+    <key name="optimusconfig" type="as">
+      <default>[]</default>
+    </key>
+  </schema>
+</schemalist>
