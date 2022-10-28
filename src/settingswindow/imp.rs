@@ -110,14 +110,16 @@ impl SettingsWindow {
                 match unit.as_str() {
                     "Celcius (C)" => {
                         // Set temperature unit as C
-                        let settings: &Settings = self.settings.get().expect("..Cannot retrieve settings");
+                        let settings: &Settings =
+                            self.settings.get().expect("..Cannot retrieve settings");
                         settings
                             .set_int("tempformat", 0)
                             .expect("..Cannot set `tempformat` setting");
                     }
                     "Fahrenheit (F)" => {
                         // Set temperature unit as F
-                        let settings: &Settings = self.settings.get().expect("..Cannot retrieve settings");
+                        let settings: &Settings =
+                            self.settings.get().expect("..Cannot retrieve settings");
                         settings
                             .set_int("tempformat", 1)
                             .expect("..Cannot set `tempformat` setting");
