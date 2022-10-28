@@ -130,6 +130,26 @@ impl MainWindow {
 
     /*
      * Name:
+     * setup_widgets
+     *
+     * Description:
+     * Set up all widgets
+     *
+     * Made:
+     * 23/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    fn setup_widgets(&self) {
+        //
+    }
+
+    /*
+     * Name:
      * restore_data
      *
      * Description:
@@ -235,24 +255,57 @@ impl MainWindow {
         actions.add_action(&action_close);
         */
 
-        // settings
-        //let task1 = self.settings().create_action("task1");
-
         // Create action from key "open_nvidia_settings" and add to action group "win"
         let open_nvidia_settings: SimpleAction = SimpleAction::new("open_nvidia_settings", None);
         open_nvidia_settings.connect_activate(clone!(@weak self as window => move |_, _| {
             // Get state from settings
-            let settings: &Settings = window.settings();
-            let app_settings_open: bool = settings.boolean("nvidia-settings-open");
+            let settings: Settings = window.settings().clone();
+            let app_settings_open: bool = settings.boolean("nvidia-settings-open").clone();
+
+            //let defaultAppSystem = Shell.AppSystem.get_default();
+            //let nvidiaSettingsApp = defaultAppSystem.lookup_app('nvidia-settings.desktop');
+            //let def = shell::Edge::Top;
+            //let dd = gio::DesktopAppInfo::from_filename("nvidia-settings.desktop");
 
             if !app_settings_open {
-                match subprocess::exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
-                    Ok(_x) => println!("Opening the Nvidia Settings app.."),
-                    Err(y) => println!(
-                        "An error occured while opening the Nvidia Settings app: {}",
-                        y.message()
-                    ),
-                };
+                // Tell Provider to start settings
+                let mut provider: Option<Provider> = window.imp().provider.take();
+
+                // Check if provider exists
+                match provider {
+                    Some(prov) => {
+                        // Open Nvidia Settings
+                        match prov.open_settings() {
+                            Ok(_result) => {
+                                println!("Opening the Nvidia Settings app..");
+                            },
+                            Err(err) => println!(
+                                "An error occured: {}",
+                                err
+                            ),
+                        }
+                    },
+                    None => {
+                        // Check provider type
+                        let provider_type: i32 = window.settings().int("provider");
+
+                        // Create new provider
+                        println!("Creating new Provider..");//TEST
+                        provider = Some(imp::MainWindow::create_provider(provider_type));
+
+                        // Open Nvidia Settings
+                        println!("Opening the Nvidia Settings app..");//TEST
+                        match provider.expect("Provider Invalid").open_settings() {
+                            Ok(_result) => {
+                                println!("Opening the Nvidia Settings app..");
+                            },
+                            Err(err) => println!(
+                                "An error occured: {}",
+                                err
+                            ),
+                        }
+                    }
+                }
 
                 // Set state in settings
                 settings.set_boolean("nvidia-settings-open", true).expect("Could not set setting.");
@@ -260,6 +313,7 @@ impl MainWindow {
         }));
         self.add_action(&open_nvidia_settings);
 
+        /*
         // Create action from key "subprocess" and add to action group "win"
         let subprocess: SimpleAction = SimpleAction::new("subprocess", None);
         subprocess.connect_activate(clone!(@weak self as window => move |_, _| {
@@ -560,7 +614,7 @@ impl MainWindow {
                     Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "memory.used,memory.total", "", &Formatter::new(), &1),
                     Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "fan.speed",                "", &Formatter::new(), &1),
                 ]
-            });
+            }, 0);
 
             // SMI
             let _smi_prov: Provider = Provider::new(|| {
@@ -571,7 +625,7 @@ impl MainWindow {
                     Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "fan.speed",                "", &Formatter::new(), &1),
                     Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
                 ]
-            });
+            }, 1);
 
             // SETTINGS & SMI
             let _both_prov: Provider = Provider::new(|| {
@@ -582,7 +636,7 @@ impl MainWindow {
                     Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "fan.speed",                "", &Formatter::new(), &1),
                     Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
                 ]
-            });
+            }, 2);
 
             // OPTIMUS
             let _optimus_prov: Provider = Provider::new(|| {
@@ -593,11 +647,12 @@ impl MainWindow {
                     Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "fan.speed",                "", &Formatter::new(), &1),
                     Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
                 ]
-            });
+            }, 3);
         }));
         self.add_action(&providers);
 
         //self.emit_activate_focus()
+        */
 
         let open_app_settings: SimpleAction = SimpleAction::new("open_app_settings", None);
         open_app_settings.connect_activate(clone!(@weak self as window => move |_, _| {

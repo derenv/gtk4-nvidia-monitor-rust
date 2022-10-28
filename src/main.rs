@@ -27,6 +27,7 @@ mod provider;
 mod subprocess;
 use mainwindow::MainWindow;
 mod settingswindow;
+mod custom_button;
 
 // Imports
 use adwaita::prelude::*;

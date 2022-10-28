@@ -95,7 +95,7 @@ impl Processor {
      * Notes:
      * we'll know what possible sizes will exist (wherever this gets implemented)
      */
-    pub fn process(self) -> Result<Option<String>, glib::Error> {
+    pub fn process(self) -> Result<Option<Vec<String>>, glib::Error> {
         // Create call stack of program and args
         let tail_call = self.property::<String>("tail-call");
         let mut call_stack = self.property::<String>("call");
@@ -255,12 +255,19 @@ impl Processor {
      * Notes:
      * This function is designed to be overloaded by subclasses
      */
-    fn parse(self, input: &str) -> String {
+    fn parse(self, input: &str) -> Vec<String> {
         //NOTE: leaving this here for future use..
         //let mut output = input.replace("\n", "").to_owned();
         //output.push_str("-FUCK");
 
-        input.replace("\n", "")
+        let mut return_val: Vec<String> = vec![];
+
+        for item in input.lines().collect::<Vec<&str>>() {
+            return_val.push(item.to_string());
+            //return_val.insert(0, item.to_string());
+        }
+
+        return_val
     }
 }
 

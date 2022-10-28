@@ -21,25 +21,20 @@
 // Custom GObjects
 mod imp;
 
-use crate::property::Property;
-
 // Imports
+use std::ffi::OsStr;
 use glib::Object;
-use gtk::{glib, prelude::ObjectExt};
+use adwaita::{glib, gio};
+use gtk::prelude::*;
+
+// Crates
+use crate::{property::Property, subprocess, processor::Processor};
 
 // GObject wrapper for Provider
 glib::wrapper! {
     pub struct Provider(ObjectSubclass<imp::Provider>)
         @extends gtk::Widget,
         @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
-}
-
-#[derive(Default)]
-pub enum ProviderType {
-    #[default]
-    NvidiaSettings = 0,
-    _NvidiaSmi = 1,
-    _NvidiaOptimus = 2,
 }
 
 /*
@@ -73,12 +68,16 @@ impl Provider {
      * Deren Vural
      *
      * Notes:
+     * NvidiaSettingsandNvidiaSmi = 0,
+     * NvidiaSettings = 0,
+     * NvidiaSmi = 1,
+     * NvidiaOptimus = 2,
      *
      */
-    pub fn new(func: fn() -> Vec<Property> /*, provider_type: ProviderType*/) -> Self {
+    pub fn new(func: fn() -> Vec<Property>, provider_type: i32) -> Self {
         let obj: Provider = Object::new(&[]).expect("Failed to create `Provider`");
 
-        //obj.set_property("provider-type", provider_type);
+        obj.set_property("provider-type", provider_type);
 
         // Set properties
         let properties: Vec<Property> = func();
@@ -93,12 +92,182 @@ impl Provider {
         obj
     }
 
-    pub fn open_settings() {
-        //let defaultAppSystem = Shell.AppSystem.get_default();
-        //let nvidiaSettingsApp = defaultAppSystem.lookup_app('nvidia-settings.desktop');
-        //let def = shell::Edge::Top;
-        //let dd = gio::DesktopAppInfo::from_filename("nvidia-settings.desktop");
-        todo!()
+    /*
+     * Name:
+     * get_gpu_uuids
+     *
+     * Description:
+     * Get list of all GPU uuid's
+     *
+     * Made:
+     * 24/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+        //NOTE: Leaving this here for future use..
+        //p.set_property("base-call", "nvidia-settings");
+        //p.set_property("call", "nvidia-settings");
+        //p.set_property("tail-call", "t");
+     */
+    pub fn get_gpu_uuids(&self) -> Result<Vec<String>, String> {
+        // Check provider type
+        match self.property::<i32>("provider-type") {
+            // Nvidia Settings/SMI
+            0 => {
+                // Create a processor object with appropriate args
+                let processor: Processor = Processor::new("nvidia-settings", "-q GpuUUID -t");
+
+                // Validate output
+                match processor.process() {
+                    Ok(output) => match output {
+                        Some(valid_output) => {
+                            // If a valid output given, finally return to main window
+                            return Ok(valid_output);
+                        },
+                        None => {
+                            // Return error..
+                            return Err("Process encountered an unknown error..".to_string());
+                        },
+                    },
+                    Err(err) => {
+                        // Return error..
+                        return Err(err.message().to_owned());
+                    },
+                }
+            },
+            // Nvidia Settings
+            1 => {
+                // Create a processor object with appropriate args
+                let processor: Processor = Processor::new("nvidia-settings", "-q GpuUUID -t");
+
+                // Validate output
+                match processor.process() {
+                    Ok(output) => match output {
+                        Some(valid_output) => {
+                            // If a valid output given, finally return to main window
+                            return Ok(valid_output);
+                        },
+                        None => {
+                            // Return error..
+                            return Err("Process encountered an unknown error..".to_string());
+                        },
+                    },
+                    Err(err) => {
+                        // Return error..
+                        return Err(err.message().to_owned());
+                    },
+                }
+            },
+            // Nvidia SMI
+            2 => {
+                // Create a processor object with appropriate args
+                let processor: Processor = Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader");
+
+                // Validate output
+                match processor.process() {
+                    Ok(output) => match output {
+                        Some(valid_output) => {
+                            // If a valid output given, finally return to main window
+                            return Ok(valid_output);
+                        },
+                        None => {
+                            // Return error..
+                            return Err("Process encountered an unknown error..".to_string());
+                        },
+                    },
+                    Err(err) => {
+                        // Return error..
+                        return Err(err.message().to_owned());
+                    },
+                }
+            },
+            // Nvidia Optimus
+            3 => {
+                // Create a processor object with appropriate args
+                let processor: Processor = Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader");
+
+                // Validate output
+                match processor.process() {
+                    Ok(output) => match output {
+                        Some(valid_output) => {
+                            // If a valid output given, finally return to main window
+                            return Ok(valid_output);
+                        },
+                        None => {
+                            // Return error..
+                            return Err("Process encountered an unknown error..".to_string());
+                        },
+                    },
+                    Err(err) => {
+                        // Return error..
+                        return Err(err.message().to_owned());
+                    },
+                }
+            },
+            _ => {
+                // Return error..
+                Err("Invalid provider, check preferences..".to_string())
+            },
+        }
+    }
+
+    /*
+     * Name:
+     * open_settings
+     *
+     * Description:
+     * Open settings if provider is capable
+     *
+     * Made:
+     * 24/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn open_settings(&self) -> Result<(), &str> {
+        // Check provider type
+        match self.property::<i32>("provider-type") {
+            // Open Nvidia Settings
+            0 => {
+                match subprocess::exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
+                    Ok(result) => {
+                        Ok(result)
+                    },
+                    Err(err) => {
+                        Err(err.message())
+                    },
+                };
+
+                Err("Something has gone very wrong..")
+            },
+            1 => {
+                match subprocess::exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
+                    Ok(result) => {
+                        Ok(result)
+                    },
+                    Err(err) => {
+                        Err(err.message())
+                    },
+                };
+
+                Err("Something has gone very wrong..")
+            },
+            // Error Message
+            2 => {
+                Err("Nvidia Settings is not enabled in preferences..")
+            },
+            3 => {
+                Err("Nvidia Settings is not enabled in preferences..")
+            },
+            _ => {
+                Err("Invalid provider, check preferences..")
+            },
+        }
     }
 }
 
@@ -120,6 +289,6 @@ impl Provider {
  */
 impl Default for Provider {
     fn default() -> Self {
-        Self::new(|| Vec::new() /*, ProviderType::NvidiaSettings*/)
+        Self::new(|| Vec::new(), 0)
     }
 }
