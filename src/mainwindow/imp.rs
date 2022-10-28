@@ -22,7 +22,7 @@
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ActionRow};
 use gio::Settings;
 use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject};
-use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild, ListBox};
+use gtk::{subclass::prelude::*, CompositeTemplate, ListBox, TemplateChild};
 use std::{cell::Cell, cell::RefCell, rc::Rc};
 
 use crate::formatter::Formatter;
@@ -31,21 +31,14 @@ use crate::property::Property;
 use crate::provider::Provider;
 // Modules
 //use crate::utils::data_path;
-use crate::settingswindow::SettingsWindow;
 use crate::custom_button::CustomButton;
+use crate::settingswindow::SettingsWindow;
 
 // Structure for storing SettingsWindow and info
+#[derive(Default)]
 pub struct SettingsWindowContainer {
     pub window: Option<SettingsWindow>,
     pub open: bool,
-}
-impl Default for SettingsWindowContainer {
-    fn default() -> Self {
-        Self {
-            window: Default::default(),
-            open: false,
-        }
-    }
 }
 
 // Object holding the State
@@ -110,66 +103,261 @@ impl MainWindow {
             0 => {
                 // Nvidia Settings and Nvidia SMI
                 // Create new provider
-                Provider::new(|| {
-                    vec![
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "utilization.gpu",          "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "temperature.gpu",          "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "memory.used,memory.total", "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "fan.speed",                "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
-                    ]
-                }, 0)
+                Provider::new(
+                    || {
+                        vec![
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "utilization.gpu",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "temperature.gpu",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "memory.used,memory.total",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "fan.speed",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new(
+                                    "nvidia-smi",
+                                    "--query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "power.draw",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                        ]
+                    },
+                    0,
+                )
             }
             1 => {
                 // Nvidia Settings
                 // Create new provider
-                Provider::new(|| {
-                    vec![
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "utilization.gpu",          "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "temperature.gpu",          "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "memory.used,memory.total", "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "fan.speed",                "", &Formatter::new(), &1),
-                    ]
-                }, 1)
+                Provider::new(
+                    || {
+                        vec![
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "utilization.gpu",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "temperature.gpu",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "memory.used,memory.total",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "fan.speed",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                        ]
+                    },
+                    1,
+                )
             }
             2 => {
                 // Nvidia SMI
                 // Create new provider
-                Provider::new(|| {
-                    vec![
-                        Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "utilization.gpu",          "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "temperature.gpu",          "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "memory.used,memory.total", "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "fan.speed",                "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
-                    ]
-                }, 2)
+                Provider::new(
+                    || {
+                        vec![
+                            Property::new(
+                                &Processor::new(
+                                    "nvidia-smi",
+                                    "--query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "utilization.gpu",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new(
+                                    "nvidia-smi",
+                                    "--query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "temperature.gpu",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new(
+                                    "nvidia-smi",
+                                    "--query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "memory.used,memory.total",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new(
+                                    "nvidia-smi",
+                                    "--query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "fan.speed",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new(
+                                    "nvidia-smi",
+                                    "--query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "power.draw",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                        ]
+                    },
+                    2,
+                )
             }
             3 => {
                 // Nvidia Optimus
                 // Create new provider
-                Provider::new(|| {
-                    vec![
-                        Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "utilization.gpu",          "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "temperature.gpu",          "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "memory.used,memory.total", "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "fan.speed",                "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
-                    ]
-                }, 3)
-            },
+                Provider::new(
+                    || {
+                        vec![
+                            Property::new(
+                                &Processor::new(
+                                    "optirun",
+                                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "utilization.gpu",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new(
+                                    "optirun",
+                                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "temperature.gpu",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new(
+                                    "optirun",
+                                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "memory.used,memory.total",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new(
+                                    "optirun",
+                                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "fan.speed",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new(
+                                    "optirun",
+                                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "power.draw",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                        ]
+                    },
+                    3,
+                )
+            }
             _ => {
                 // Assume Default (Nvidia Settings and Nvidia SMI)
                 // Create new provider
-                Provider::new(|| {
-                    vec![
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "utilization.gpu",          "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "temperature.gpu",          "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "memory.used,memory.total", "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "fan.speed",                "", &Formatter::new(), &1),
-                        Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
-                    ]
-                }, 0)
+                Provider::new(
+                    || {
+                        vec![
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "utilization.gpu",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "temperature.gpu",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "memory.used,memory.total",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "fan.speed",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new(
+                                    "nvidia-smi",
+                                    "--query-gpu=gpu_name --format=csv,noheader",
+                                ),
+                                "power.draw",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                        ]
+                    },
+                    0,
+                )
             }
         }
     }
@@ -182,7 +370,7 @@ impl MainWindow {
 
         // Clear current ActionRow objects from GtkListBox
         let mut done: bool = false;
-        while done == false {
+        while !done {
             // Try to grab a child
             let current_child: Option<gtk::Widget> = self.cards_list.get().first_child();
 
@@ -210,7 +398,7 @@ impl MainWindow {
             Some(existing_provider) => {
                 // Update GPU list
                 //let gpu_uuids = existing_provider.gpus;
-                let gpu_uuids = ["",""];
+                let gpu_uuids = ["", ""];
 
                 // Store GPU list in settings
                 settings
@@ -222,13 +410,17 @@ impl MainWindow {
             }
             None => {
                 // Check provider type
-                let provider_type: i32 = self.settings.get().expect("..cannot fetch settings").int("provider");
+                let provider_type: i32 = self
+                    .settings
+                    .get()
+                    .expect("..cannot fetch settings")
+                    .int("provider");
 
                 let new_provider: Provider = MainWindow::create_provider(provider_type);
 
                 // Update GPU list
                 //let gpu_uuids = new_provider.gpus;
-                let gpu_uuids = ["",""];
+                let gpu_uuids = ["", ""];
 
                 // Store new provider
                 self.provider.set(Some(new_provider));
@@ -247,19 +439,21 @@ impl MainWindow {
         //let gpus: Vec<GString> = settings.strv("gpus");
 
         // For each scanned GPU
-        let gpus = vec![("title 1","subtitle 1"), ("title 2","subtitle 2"), ("title 3","subtitle 3")];//TEST
+        let gpus = vec![
+            ("title 1", "subtitle 1"),
+            ("title 2", "subtitle 2"),
+            ("title 3", "subtitle 3"),
+        ]; //TEST
         for i in 0..gpus.len() {
             // Get GPU data
-            let title: &str = gpus[i].0;//TEST
-            let subtitle: &str = gpus[i].1;//TEST
-            //let gpu_name = provider.get_gpu_data(&gpus[i], "name");
-            //let gpu_uuid = provider.get_gpu_data(&gpus[i], "UUID");
+            let title: &str = gpus[i].0; //TEST
+            let subtitle: &str = gpus[i].1; //TEST
+                                            //let gpu_name = provider.get_gpu_data(&gpus[i], "name");
+                                            //let gpu_uuid = provider.get_gpu_data(&gpus[i], "UUID");
 
             // Create new ActionRow object
-            let current_row: ActionRow = ActionRow::builder()
-                                                    .title(title)
-                                                    .subtitle(subtitle)
-                                                    .build();
+            let current_row: ActionRow =
+                ActionRow::builder().title(title).subtitle(subtitle).build();
 
             // Append new ActionRow object to GtkListBox
             self.cards_list.append(&current_row);

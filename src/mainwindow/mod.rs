@@ -26,13 +26,10 @@ use imp::SettingsWindowContainer;
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::{Settings, SimpleAction};
 use glib::{clone, Object};
-use std::{cell::RefMut, ffi::OsStr};
+use std::cell::RefMut;
 
 // Modules
-use crate::{formatter, processor, property, provider, settingswindow, subprocess, APP_ID};
-use formatter::Formatter;
-use processor::Processor;
-use property::Property;
+use crate::{provider, settingswindow, APP_ID};
 use provider::Provider;
 use settingswindow::SettingsWindow;
 
@@ -260,7 +257,7 @@ impl MainWindow {
         open_nvidia_settings.connect_activate(clone!(@weak self as window => move |_, _| {
             // Get state from settings
             let settings: Settings = window.settings().clone();
-            let app_settings_open: bool = settings.boolean("nvidia-settings-open").clone();
+            let app_settings_open: bool = settings.boolean("nvidia-settings-open");
 
             //let defaultAppSystem = Shell.AppSystem.get_default();
             //let nvidiaSettingsApp = defaultAppSystem.lookup_app('nvidia-settings.desktop');

@@ -22,13 +22,13 @@
 mod imp;
 
 // Imports
-use std::ffi::OsStr;
+use adwaita::{gio, glib};
 use glib::Object;
-use adwaita::{glib, gio};
 use gtk::prelude::*;
+use std::ffi::OsStr;
 
 // Crates
-use crate::{property::Property, subprocess, processor::Processor};
+use crate::{processor::Processor, property::Property, subprocess};
 
 // GObject wrapper for Provider
 glib::wrapper! {
@@ -106,10 +106,10 @@ impl Provider {
      * Deren Vural
      *
      * Notes:
-        //NOTE: Leaving this here for future use..
-        //p.set_property("base-call", "nvidia-settings");
-        //p.set_property("call", "nvidia-settings");
-        //p.set_property("tail-call", "t");
+    //NOTE: Leaving this here for future use..
+    //p.set_property("base-call", "nvidia-settings");
+    //p.set_property("call", "nvidia-settings");
+    //p.set_property("tail-call", "t");
      */
     pub fn get_gpu_uuids(&self) -> Result<Vec<String>, String> {
         // Check provider type
@@ -124,19 +124,19 @@ impl Provider {
                     Ok(output) => match output {
                         Some(valid_output) => {
                             // If a valid output given, finally return to main window
-                            return Ok(valid_output);
-                        },
+                            Ok(valid_output)
+                        }
                         None => {
                             // Return error..
-                            return Err("Process encountered an unknown error..".to_string());
-                        },
+                            Err("Process encountered an unknown error..".to_string())
+                        }
                     },
                     Err(err) => {
                         // Return error..
                         return Err(err.message().to_owned());
-                    },
+                    }
                 }
-            },
+            }
             // Nvidia Settings
             1 => {
                 // Create a processor object with appropriate args
@@ -147,69 +147,73 @@ impl Provider {
                     Ok(output) => match output {
                         Some(valid_output) => {
                             // If a valid output given, finally return to main window
-                            return Ok(valid_output);
-                        },
+                            Ok(valid_output)
+                        }
                         None => {
                             // Return error..
-                            return Err("Process encountered an unknown error..".to_string());
-                        },
+                            Err("Process encountered an unknown error..".to_string())
+                        }
                     },
                     Err(err) => {
                         // Return error..
                         return Err(err.message().to_owned());
-                    },
+                    }
                 }
-            },
+            }
             // Nvidia SMI
             2 => {
                 // Create a processor object with appropriate args
-                let processor: Processor = Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader");
+                let processor: Processor =
+                    Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader");
 
                 // Validate output
                 match processor.process() {
                     Ok(output) => match output {
                         Some(valid_output) => {
                             // If a valid output given, finally return to main window
-                            return Ok(valid_output);
-                        },
+                            Ok(valid_output)
+                        }
                         None => {
                             // Return error..
-                            return Err("Process encountered an unknown error..".to_string());
-                        },
+                            Err("Process encountered an unknown error..".to_string())
+                        }
                     },
                     Err(err) => {
                         // Return error..
                         return Err(err.message().to_owned());
-                    },
+                    }
                 }
-            },
+            }
             // Nvidia Optimus
             3 => {
                 // Create a processor object with appropriate args
-                let processor: Processor = Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader");
+                let processor: Processor = Processor::new(
+                    "optirun",
+                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader",
+                );
 
                 // Validate output
                 match processor.process() {
                     Ok(output) => match output {
                         Some(valid_output) => {
                             // If a valid output given, finally return to main window
-                            return Ok(valid_output);
-                        },
+                            Ok(valid_output)
+                        }
                         None => {
                             // Return error..
-                            return Err("Process encountered an unknown error..".to_string());
-                        },
+                            Err("Process encountered an unknown error..".to_string())
+                        }
                     },
                     Err(err) => {
                         // Return error..
                         return Err(err.message().to_owned());
-                    },
+                    }
                 }
-            },
+            }
             _ => {
                 // Return error..
                 Err("Invalid provider, check preferences..".to_string())
-            },
+            }
         }
     }
 
@@ -234,39 +238,31 @@ impl Provider {
         match self.property::<i32>("provider-type") {
             // Open Nvidia Settings
             0 => {
-                match subprocess::exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
-                    Ok(result) => {
-                        Ok(result)
-                    },
-                    Err(err) => {
-                        Err(err.message())
-                    },
+                match subprocess::exec_check(
+                    &[OsStr::new("nvidia-settings")],
+                    None::<&gio::Cancellable>,
+                ) {
+                    Ok(result) => Ok(result),
+                    Err(err) => Err(err.message()),
                 };
 
                 Err("Something has gone very wrong..")
-            },
+            }
             1 => {
-                match subprocess::exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
-                    Ok(result) => {
-                        Ok(result)
-                    },
-                    Err(err) => {
-                        Err(err.message())
-                    },
+                match subprocess::exec_check(
+                    &[OsStr::new("nvidia-settings")],
+                    None::<&gio::Cancellable>,
+                ) {
+                    Ok(result) => Ok(result),
+                    Err(err) => Err(err.message()),
                 };
 
                 Err("Something has gone very wrong..")
-            },
+            }
             // Error Message
-            2 => {
-                Err("Nvidia Settings is not enabled in preferences..")
-            },
-            3 => {
-                Err("Nvidia Settings is not enabled in preferences..")
-            },
-            _ => {
-                Err("Invalid provider, check preferences..")
-            },
+            2 => Err("Nvidia Settings is not enabled in preferences.."),
+            3 => Err("Nvidia Settings is not enabled in preferences.."),
+            _ => Err("Invalid provider, check preferences.."),
         }
     }
 }
@@ -289,6 +285,6 @@ impl Provider {
  */
 impl Default for Provider {
     fn default() -> Self {
-        Self::new(|| Vec::new(), 0)
+        Self::new(Vec::new, 0)
     }
 }

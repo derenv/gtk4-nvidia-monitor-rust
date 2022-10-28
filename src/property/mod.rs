@@ -118,14 +118,6 @@ impl Property {
     pub fn get_call_extension(&self) -> String {
         self.property::<String>("call-extension")
     }
-
-    pub fn open_settings(&self) {
-        if self.property::<bool>("settings") {
-            //
-        } else {
-            //
-        }
-    }
 }
 
 /*
