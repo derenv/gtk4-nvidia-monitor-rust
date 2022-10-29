@@ -229,9 +229,9 @@ impl ObjectImpl for Provider {
             }
             "provider-type" => {
                 //TODO: this seems ridiculous..
-                let value = self.provider_type.take();
+                let value = self.provider_type.get();
 
-                self.provider_type.set(value.clone());
+                self.provider_type.set(value);
 
                 value.to_value()
             }

@@ -82,7 +82,7 @@ impl Provider {
 
         // Set properties
         let properties: Vec<Property> = func();
-        if properties.len() != 0 {
+        if !properties.is_empty() {
             obj.set_property("utilization-property", properties[0].clone());
             obj.set_property("temperature-property", properties[1].clone());
             obj.set_property("memory-usage-property", properties[2].clone());
@@ -121,19 +121,31 @@ impl Provider {
         match self.property::<i32>("provider-type") {
             // Nvidia Settings/SMI
             0 => {
-                processor_args = ["nvidia-settings", "-q GpuUUID -t"];
+                processor_args = [
+                    "nvidia-settings",
+                    "-q GpuUUID -t"
+                ];
             }
             // Nvidia Settings
             1 => {
-                processor_args = ["nvidia-settings", "-q GpuUUID -t"];
+                processor_args = [
+                    "nvidia-settings",
+                    "-q GpuUUID -t"
+                ];
             }
             // Nvidia SMI
             2 => {
-                processor_args = ["nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"];
+                processor_args = [
+                    "nvidia-smi",
+                    "--query-gpu=gpu_name --format=csv,noheader"
+                ];
             }
             // Nvidia Optimus
             3 => {
-                processor_args = ["optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"];
+                processor_args = [
+                    "optirun",
+                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"
+                ];
             }
             _ => {
                 // Return error..
@@ -227,7 +239,11 @@ impl Provider {
      * Notes:
      *
      */
-    pub fn update_property_value<T: ToValue + std::marker::Copy>(&self, property_name: &str, value: T) -> Result<(),String>{
+    pub fn update_property_value<T: ToValue + std::marker::Copy>(
+        &self,
+        property_name: &str,
+        value: T
+    ) -> Result<(),String>{
         // Fetch the list of properties (dependant on provider type)
         match self.property::<i32>("provider-type") {
             1 => {
@@ -266,8 +282,8 @@ impl Provider {
                 }
 
                 // Return sucess
-                return Ok(());
-            },
+                Ok(())
+            }
             _ => {
                 // Fetch list
                 let properties: [Property; 5] = [
@@ -308,8 +324,8 @@ impl Provider {
                 }
 
                 // Return sucess
-                return Ok(());
-            },
+                Ok(())
+            }
         }
     }
 }

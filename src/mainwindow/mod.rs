@@ -533,7 +533,7 @@ impl MainWindow {
             let settings: &Settings = window.settings();
 
             // Get state from settings
-            settings_window_container.open = settings.boolean("app-settings-open").clone();
+            settings_window_container.open = settings.boolean("app-settings-open");
 
             // Check if an object is stored
             match &settings_window_container.window {
