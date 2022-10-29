@@ -7,32 +7,20 @@ SPDX-License-Identifier: GPL-3.0-or-later
   <!-- Main Menu -->
   <menu id="main-menu">
     <submenu>
-      <attribute name="label" translatable="yes">Get GPU Names</attribute>
+      <attribute name="label" translatable="yes">Preferences</attribute>
       <item>
-        <attribute name="label" translatable="yes">SubProcess</attribute>
-        <attribute name="action">win.subprocess</attribute>
+        <attribute name="label" translatable="yes">Open Nvidia Settings</attribute>
+        <attribute name="action">win.open_nvidia_settings</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">Processor</attribute>
-        <attribute name="action">win.processor</attribute>
+        <attribute name="label" translatable="yes">Open App Settings</attribute>
+        <attribute name="action">win.open_app_settings</attribute>
       </item>
     </submenu>
 
     <item>
-      <attribute name="label" translatable="yes">Open Nvidia Settings</attribute>
-      <attribute name="action">win.open_nvidia_settings</attribute>
-    </item>
-    <item>
-      <attribute name="label" translatable="yes">Open App Settings</attribute>
-      <attribute name="action">win.open_app_settings</attribute>
-    </item>
-    <item>
       <attribute name="label" translatable="yes">Test Formatter and Property</attribute>
       <attribute name="action">win.formatter_and_property</attribute>
-    </item>
-    <item>
-      <attribute name="label" translatable="yes">Test Providers</attribute>
-      <attribute name="action">win.providers</attribute>
     </item>
     <item>
       <attribute name="label" translatable="yes">About</attribute>
@@ -119,6 +107,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
                         <!-- Children -->
                         <child>
                           <object class="GtkListBox" id="cards_list">
+                            <property name="show-separators">True</property>
+                            <signal name="row_activated" handler="card_selected" swapped="true"/>
                             <!-- Properties -->
                             <!--
                             <property name="valign">start</property>
@@ -130,21 +120,21 @@ SPDX-License-Identifier: GPL-3.0-or-later
                               <class name="boxed-list" />
                             </style>
 
-                            <!-- Children -->
+                            <!-- Children - ->
                             <child>
                               <object class="AdwActionRow">
-                                <!-- Properties -->
+                                <!- - Properties - ->
                                 <property name="title">Card 1</property>
                                 <property name="subtitle">Nvidia 9090 Ti</property>
                                 <property name="activatable">true</property>
                                 <property name="selectable">true</property>
-                                <!-- Signals -->
+                                <!- - Signals - ->
                                 <signal name="activated" handler="card_selected"/>
                               </object>
                             </child>
                             <child>
                               <object class="AdwActionRow">
-                                <!-- Properties -->
+                                <!- - Properties - ->
                                 <property name="title">Card 2</property>
                                 <property name="subtitle">Nvidia Infinity and Beyond</property>
                                 <property name="activatable">true</property>
@@ -153,6 +143,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
                                 <signal name="activated" handler="card_selected"/>
                               </object>
                             </child>
+                            <!- - -->
 
                           </object>
                         </child>

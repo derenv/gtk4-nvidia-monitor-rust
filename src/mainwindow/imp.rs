@@ -25,14 +25,8 @@ use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObj
 use gtk::{subclass::prelude::*, CompositeTemplate, ListBox, TemplateChild};
 use std::{cell::Cell, cell::RefCell, rc::Rc};
 
-use crate::formatter::Formatter;
-use crate::processor::Processor;
-use crate::property::Property;
-use crate::provider::Provider;
 // Modules
-//use crate::utils::data_path;
-use crate::custom_button::CustomButton;
-use crate::settingswindow::SettingsWindow;
+use crate::{custom_button::CustomButton, settingswindow::SettingsWindow, formatter::Formatter, processor::Processor, property::Property, provider::Provider};
 
 // Structure for storing SettingsWindow and info
 #[derive(Default)]
@@ -49,6 +43,8 @@ pub struct MainWindow {
     pub app_id: Cell<String>,
     pub settings_window: Rc<RefCell<SettingsWindowContainer>>,
     pub provider: Cell<Option<Provider>>,
+
+    //pub pages: Cell<Vec<GtkBox>>,
 
     #[template_child]
     pub cards_list: TemplateChild<ListBox>,
@@ -93,11 +89,68 @@ impl ObjectSubclass for MainWindow {
  */
 #[gtk::template_callbacks]
 impl MainWindow {
+    /*
+     * Name:
+     * card_selected
+     *
+     * Description:
+     * Template callback for GPU card/row item selection
+     *
+     * Made:
+     * 28/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     * (placeholder, needs updated when right hand pane is working)
+     */
     #[template_callback]
     fn card_selected(&self, row: &ActionRow) {
-        println!("CARD CHOSEN: {}", row.title());
+        println!("CARD CHOSEN: {}", row.title());//TEST
+
+        /*
+        // Activate appropriate page of right pane
+        // For each of the currently stored pages
+        let exists: bool = false;
+        for page in self.pages.take() {
+            // Check if the page exists
+            if page.uuid == row.subtitle() {
+                exists = true;
+
+                // Set current_page
+                //set current_page to page(row.subtitle())
+            }
+        }
+        if !exists {
+        //    // Create new page using UUID
+        //    create new_page using row.subtitle()
+        //
+        //    // Add new page to list of currently stored pages
+        //    add new_page to self.pages
+        //
+        //    // Set current_page
+        //    set current_page to new_page
+        }
+        */
     }
 
+    /*
+     * Name:
+     * create_provider
+     *
+     * Description:
+     * Creates a provider object of a certain type (given as input parameter)
+     *
+     * Made:
+     * 28/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     * ??causes crash??
+     */
     pub fn create_provider(provider_type: i32) -> Provider {
         match provider_type {
             0 => {
@@ -111,38 +164,35 @@ impl MainWindow {
                                 "utilization.gpu",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                             Property::new(
                                 &Processor::new("nvidia-settings", "-q GpuUUID -t"),
                                 "temperature.gpu",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                             Property::new(
                                 &Processor::new("nvidia-settings", "-q GpuUUID -t"),
                                 "memory.used,memory.total",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                             Property::new(
                                 &Processor::new("nvidia-settings", "-q GpuUUID -t"),
                                 "fan.speed",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                             Property::new(
-                                &Processor::new(
-                                    "nvidia-smi",
-                                    "--query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
                                 "power.draw",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                         ]
                     },
@@ -160,28 +210,28 @@ impl MainWindow {
                                 "utilization.gpu",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                             Property::new(
                                 &Processor::new("nvidia-settings", "-q GpuUUID -t"),
                                 "temperature.gpu",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                             Property::new(
                                 &Processor::new("nvidia-settings", "-q GpuUUID -t"),
                                 "memory.used,memory.total",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                             Property::new(
                                 &Processor::new("nvidia-settings", "-q GpuUUID -t"),
                                 "fan.speed",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                         ]
                     },
@@ -195,54 +245,39 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new(
-                                    "nvidia-smi",
-                                    "--query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
                                 "utilization.gpu",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                             Property::new(
-                                &Processor::new(
-                                    "nvidia-smi",
-                                    "--query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
                                 "temperature.gpu",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                             Property::new(
-                                &Processor::new(
-                                    "nvidia-smi",
-                                    "--query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
                                 "memory.used,memory.total",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                             Property::new(
-                                &Processor::new(
-                                    "nvidia-smi",
-                                    "--query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
                                 "fan.speed",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                             Property::new(
-                                &Processor::new(
-                                    "nvidia-smi",
-                                    "--query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
                                 "power.draw",
                                 "",
                                 &Formatter::new(),
-                                &1,
+                                &0,
                             ),
                         ]
                     },
@@ -256,50 +291,35 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new(
-                                    "optirun",
-                                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
                                 "utilization.gpu",
                                 "",
                                 &Formatter::new(),
                                 &1,
                             ),
                             Property::new(
-                                &Processor::new(
-                                    "optirun",
-                                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
                                 "temperature.gpu",
                                 "",
                                 &Formatter::new(),
                                 &1,
                             ),
                             Property::new(
-                                &Processor::new(
-                                    "optirun",
-                                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
                                 "memory.used,memory.total",
                                 "",
                                 &Formatter::new(),
                                 &1,
                             ),
                             Property::new(
-                                &Processor::new(
-                                    "optirun",
-                                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
                                 "fan.speed",
                                 "",
                                 &Formatter::new(),
                                 &1,
                             ),
                             Property::new(
-                                &Processor::new(
-                                    "optirun",
-                                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
                                 "power.draw",
                                 "",
                                 &Formatter::new(),
@@ -317,38 +337,35 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
                                 "utilization.gpu",
                                 "",
                                 &Formatter::new(),
                                 &1,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
                                 "temperature.gpu",
                                 "",
                                 &Formatter::new(),
                                 &1,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
                                 "memory.used,memory.total",
                                 "",
                                 &Formatter::new(),
                                 &1,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
                                 "fan.speed",
                                 "",
                                 &Formatter::new(),
                                 &1,
                             ),
                             Property::new(
-                                &Processor::new(
-                                    "nvidia-smi",
-                                    "--query-gpu=gpu_name --format=csv,noheader",
-                                ),
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
                                 "power.draw",
                                 "",
                                 &Formatter::new(),
@@ -362,6 +379,22 @@ impl MainWindow {
         }
     }
 
+    /*
+     * Name:
+     * refresh_cards
+     *
+     * Description:
+     * Template callback for GPU list refresh button
+     *
+     * Made:
+     * 28/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
     #[template_callback]
     fn refresh_cards(&self, button: &CustomButton) {
         //TEST: Grab button label
@@ -387,9 +420,6 @@ impl MainWindow {
             }
         }
 
-        // Grab settings
-        let settings: &Settings = self.settings.get().expect("..Cannot retrieve settings");
-
         // Grab provider
         let provider: Option<Provider> = self.provider.take();
 
@@ -397,13 +427,37 @@ impl MainWindow {
         match provider {
             Some(existing_provider) => {
                 // Update GPU list
-                //let gpu_uuids = existing_provider.gpus;
-                let gpu_uuids = ["", ""];
+                match existing_provider.get_gpu_uuids() {
+                    Ok(gpu_uuids) => {
+                        // Get GPU list
+                        let gpu_count: i32 = gpu_uuids.len() as i32;
 
-                // Store GPU list in settings
-                settings
-                    .set_strv("gpus", &gpu_uuids)
-                    .expect("..Cannot store list of GPU UUID in `gpus` setting");
+                        // Update each property
+                        match existing_provider.update_property_value::<i32>("gpu-count", gpu_count) {
+                            Ok(_result) => {}
+                            Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
+                        }
+
+                        // Construct a row for each GPU
+                        for uuid in gpu_uuids {
+                            // Get GPU data
+                            let gpu_name = "GPU NAME XXQ";//existing_provider.get_gpu_data(uuid, "name");
+
+                            // Create new ActionRow object
+                            let current_row: ActionRow =
+                                ActionRow::builder()
+                                .title(gpu_name)
+                                .subtitle(&uuid)
+                                .activatable(true)
+                                .selectable(true)
+                                .build();
+
+                            // Append new ActionRow object to GtkListBox
+                            self.cards_list.append(&current_row);
+                        }
+                    }
+                    Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
+                }
 
                 // Re-Store provider
                 self.provider.set(Some(existing_provider));
@@ -419,48 +473,42 @@ impl MainWindow {
                 let new_provider: Provider = MainWindow::create_provider(provider_type);
 
                 // Update GPU list
-                //let gpu_uuids = new_provider.gpus;
-                let gpu_uuids = ["", ""];
+                match new_provider.get_gpu_uuids() {
+                    Ok(gpu_uuids) => {
+                        // Get GPU list
+                        let gpu_count: i32 = gpu_uuids.len() as i32;
+
+                        // Update each property
+                        match new_provider.update_property_value::<i32>("gpu-count", gpu_count) {
+                            Ok(_result) => {}
+                            Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
+                        }
+
+                        // Construct a row for each GPU
+                        for uuid in gpu_uuids {
+                            // Get GPU data
+                            let gpu_name = "GPU NAME QXX";//existing_provider.get_gpu_data(uuid, "name");
+
+                            // Create new ActionRow object
+                            let current_row: ActionRow =
+                                ActionRow::builder()
+                                .title(gpu_name)
+                                .subtitle(&uuid)
+                                .activatable(true)
+                                .selectable(true)
+                                .build();
+
+                            // Append new ActionRow object to GtkListBox
+                            self.cards_list.append(&current_row);
+                        }
+                    }
+                    Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
+                }
 
                 // Store new provider
                 self.provider.set(Some(new_provider));
-
-                // Store GPU list in settings
-                settings
-                    .set_strv("gpus", &gpu_uuids)
-                    .expect("..Cannot store list of GPU UUID in `gpus` setting");
             }
         }
-
-        // Grab provider
-        let provider: Option<Provider> = self.provider.take();
-
-        // Fetch updated GPU list
-        //let gpus: Vec<GString> = settings.strv("gpus");
-
-        // For each scanned GPU
-        let gpus = vec![
-            ("title 1", "subtitle 1"),
-            ("title 2", "subtitle 2"),
-            ("title 3", "subtitle 3"),
-        ]; //TEST
-        for i in 0..gpus.len() {
-            // Get GPU data
-            let title: &str = gpus[i].0; //TEST
-            let subtitle: &str = gpus[i].1; //TEST
-                                            //let gpu_name = provider.get_gpu_data(&gpus[i], "name");
-                                            //let gpu_uuid = provider.get_gpu_data(&gpus[i], "UUID");
-
-            // Create new ActionRow object
-            let current_row: ActionRow =
-                ActionRow::builder().title(title).subtitle(subtitle).build();
-
-            // Append new ActionRow object to GtkListBox
-            self.cards_list.append(&current_row);
-        }
-
-        // Put provider back
-        self.provider.set(provider);
     }
 }
 /*

@@ -29,9 +29,7 @@ use glib::{clone, Object};
 use std::cell::RefMut;
 
 // Modules
-use crate::{provider, settingswindow, APP_ID};
-use provider::Provider;
-use settingswindow::SettingsWindow;
+use crate::{APP_ID, provider::Provider, settingswindow::SettingsWindow};
 
 // GObject wrapper for Property
 glib::wrapper! {
@@ -243,15 +241,6 @@ impl MainWindow {
      * have a single globally accessible action instead, we call add_action on our application instead.
      */
     fn setup_actions(&self) {
-        /*
-        let action_close = SimpleAction::new("close", None);
-        action_close.connect_activate(clone!(@weak self as window => move |_, _| {
-            window.close();
-        }));
-        self.add_action(&action_close);
-        actions.add_action(&action_close);
-        */
-
         // Create action from key "open_nvidia_settings" and add to action group "win"
         let open_nvidia_settings: SimpleAction = SimpleAction::new("open_nvidia_settings", None);
         open_nvidia_settings.connect_activate(clone!(@weak self as window => move |_, _| {
@@ -311,70 +300,6 @@ impl MainWindow {
         self.add_action(&open_nvidia_settings);
 
         /*
-        // Create action from key "subprocess" and add to action group "win"
-        let subprocess: SimpleAction = SimpleAction::new("subprocess", None);
-        subprocess.connect_activate(clone!(@weak self as window => move |_, _| {
-            match subprocess::exec_communicate(
-                &[
-                    OsStr::new("nvidia-settings"),
-                    OsStr::new("-q"),
-                    OsStr::new("GpuUUID"),
-                    OsStr::new("-t"),
-                ],
-                None::<&gio::Cancellable>,
-            ) {
-                Ok(return_val) => match return_val {
-                    (None, None) => println!("no stdout or stderr, something went really wrong..."),
-                    (None, Some(stderr_buffer)) => match std::str::from_utf8(&stderr_buffer) {
-                        Ok(stderr_buffer_contents) => {
-                            println!("Process failed with error: {}", stderr_buffer_contents)
-                        }
-                        Err(err) => panic!("{}", err),
-                    },
-                    (Some(stdout_buffer), None) => match std::str::from_utf8(&stdout_buffer) {
-                        Ok(stdout_buffer_contents) => {
-                            println!("Process suceeded, returning: `{}`", stdout_buffer_contents)
-                        }
-                        Err(err) => panic!("{}", err),
-                    },
-                    (Some(stdout_buffer), Some(stderr_buffer)) => {
-                        match std::str::from_utf8(&stdout_buffer) {
-                            Ok(stdout_buffer_contents) => match std::str::from_utf8(&stderr_buffer) {
-                                Ok(stderr_buffer_contents) => println!(
-                                    "Process suceeded, returning: `{}` but with error: `{}`",
-                                    stdout_buffer_contents, stderr_buffer_contents
-                                ),
-                                Err(err) => panic!("{}", err),
-                            },
-                            Err(err) => panic!("{}", err),
-                        }
-                    }
-                },
-                Err(err) => println!("something went wrong: {}", err),
-            };
-        }));
-        self.add_action(&subprocess);
-
-        // Create action from key "processor" and add to action group "win"
-        let processor: SimpleAction = SimpleAction::new("processor", None);
-        processor.connect_activate(clone!(@weak self as window => move |_, _| {
-            let p: Processor = Processor::new("nvidia-settings", "-q GpuUUID -t");
-
-            //NOTE: Leaving this here for future use..
-            //p.set_property("base-call", "nvidia-settings");
-            //p.set_property("call", "nvidia-settings");
-            //p.set_property("tail-call", "t");
-
-            match p.process() {
-                Ok(output) => match output {
-                    Some(valid_output) => println!("Process suceeded, returning: `{}`", valid_output),
-                    None => println!("Process encountered an unknown error.."),
-                },
-                Err(err) => println!("Process encountered an error, returning: `{}`", err),
-            }
-        }));
-        self.add_action(&processor);
-
         // Create action from key "formatter_and_property" and add to action group "win"
         let formatter_and_property: SimpleAction =
             SimpleAction::new("formatter_and_property", None);
@@ -597,58 +522,6 @@ impl MainWindow {
             }
         }));
         self.add_action(&formatter_and_property);
-
-        // Create action from key "providers" and add to action group "win"
-        let providers: SimpleAction = SimpleAction::new("providers", None);
-        providers.connect_activate(clone!(@weak self as window => move |_, _| {
-            let _gpu_count: i32 = 1;
-
-            // SETTINGS
-            let _settings_prov: Provider = Provider::new(|| {
-                vec![
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "utilization.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "temperature.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "memory.used,memory.total", "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "fan.speed",                "", &Formatter::new(), &1),
-                ]
-            }, 0);
-
-            // SMI
-            let _smi_prov: Provider = Provider::new(|| {
-                vec![
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "utilization.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "temperature.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "memory.used,memory.total", "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "fan.speed",                "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
-                ]
-            }, 1);
-
-            // SETTINGS & SMI
-            let _both_prov: Provider = Provider::new(|| {
-                vec![
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "utilization.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "temperature.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "memory.used,memory.total", "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "fan.speed",                "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
-                ]
-            }, 2);
-
-            // OPTIMUS
-            let _optimus_prov: Provider = Provider::new(|| {
-                vec![
-                    Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "utilization.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "temperature.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "memory.used,memory.total", "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "fan.speed",                "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
-                ]
-            }, 3);
-        }));
-        self.add_action(&providers);
-
-        //self.emit_activate_focus()
         */
 
         let open_app_settings: SimpleAction = SimpleAction::new("open_app_settings", None);

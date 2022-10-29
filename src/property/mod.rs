@@ -81,16 +81,32 @@ impl Property {
     ) -> Self {
         let obj: Property = Object::new(&[]).expect("Failed to create `Property`.");
 
-        // TODO: set properties
+        // Set properties
         obj.set_property("processor", processor);
         obj.set_property("call-extension", call_extension.to_string());
         obj.set_property("icon", icon.to_string());
         obj.set_property("formatter", formatter);
-        obj.set_property("gpu_count", gpu_count);
+        obj.set_property("gpu-count", gpu_count);
 
         obj
     }
 
+    /*
+     * Name:
+     * parse
+     *
+     * Description:
+     *
+     *
+     * Made:
+     * 06/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
     // Parsing
     //https://doc.rust-lang.org/std/primitive.array.html
     //https://www.tutorialspoint.com/rust/rust_array.htm
@@ -104,7 +120,7 @@ impl Property {
 
         // For each GPU
         for i in 0..self.property::<i32>("gpu-count") {
-            // format properties using formatter and add to return values
+            // Format properties using formatter and add to return values
             let formatter = self.property::<Formatter>("formatter");
             match formatter.format(values.get(i as usize).unwrap().clone(), func) {
                 Some(result) => results.push(result),
@@ -115,8 +131,46 @@ impl Property {
         Some(results)
     }
 
+    /*
+     * Name:
+     * get_call_extension
+     *
+     * Description:
+     * Get the call extension property
+     *
+     * Made:
+     * 06/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
     pub fn get_call_extension(&self) -> String {
+        // Return the call-extension property
         self.property::<String>("call-extension")
+    }
+
+    /*
+     * Name:
+     * update_value
+     *
+     * Description:
+     * Update a property with a new value
+     *
+     * Made:
+     * 29/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn update_value<T: ToValue>(&self, property_name: &str, value: T) {
+        // Update property with new value
+        self.set_property(property_name, value);
     }
 }
 

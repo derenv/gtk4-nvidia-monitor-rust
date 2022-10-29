@@ -68,10 +68,10 @@ impl Processor {
      * Notes:
      *
      */
-    pub fn new(base_call: &'static str, tail_call: &'static str) -> Self {
+    pub fn new(base_call: &str, tail_call: &str) -> Self {
         let obj: Processor = Object::new(&[]).expect("Failed to create `Processor`");
 
-        // TODO: set properties
+        // Set properties
         obj.set_property("base-call", base_call.to_string());
         obj.set_property("call", base_call.to_string().clone());
         obj.set_property("tail-call", tail_call.to_string());
