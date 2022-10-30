@@ -180,6 +180,84 @@ impl Provider {
 
     /*
      * Name:
+     * get_gpu_data
+     *
+     * Description:
+     * Grab gpu data from provider program given a GPU uuid and property name
+     *
+     * Made:
+     * 30/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     * Designed to be expanded on later when more data needed..
+     */
+    pub fn get_gpu_data(&self, uuid: &str, property: &str) -> Result<String, String> {
+        // Check provider type
+        let processor_args: [String; 2];
+        match self.property::<i32>("provider-type") {
+            // Nvidia Settings+SMI / Nvidia SMI
+            0 | 2 => {
+                match property {
+                    "name" => {
+                        processor_args = [
+                            String::from("nvidia-smi"),
+                            String::from("--query-gpu=gpu_name --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    _ => {
+                        // Return error..
+                        return Err(String::from("Invalid property name, check provider preferences.."))
+                    }
+                }
+            }
+            // Nvidia Optimus
+            3 => {
+                match property {
+                    "name" => {
+                        processor_args = [
+                            String::from("optirun"),
+                            String::from("nvidia-smi --query-gpu=gpu_name --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    _ => {
+                        // Return error..
+                        return Err(String::from("Invalid property name, check provider preferences.."))
+                    }
+                }
+            }
+            _ => {
+                // Return error..
+                return Err(String::from("Invalid provider, check preferences.."))
+            }
+        }
+
+        // Create a processor object with appropriate args
+        let processor: Processor = Processor::new(
+            &processor_args[0],
+            &processor_args[1],
+        );
+
+        // Validate output
+        match processor.process() {
+            Ok(output) => match output {
+                Some(valid_output) => {
+                    // If a valid output given, check if correct length (1)
+                    match valid_output.len() {
+                        1 => return Ok(String::from(valid_output[0].as_str())),
+                        _ => return Err(String::from("Process encountered an unknown error.."))
+                    }
+                }
+                None => return Err(String::from("Process encountered an unknown error.."))
+            },
+            Err(err) => return Err(String::from(err.message()))
+        }
+    }
+
+    /*
+     * Name:
      * open_settings
      *
      * Description:

@@ -138,9 +138,87 @@ impl Processor {
 
         // Build OsStr array from vector (if matching a specific size)
         match call_stack_items.len() {
-            4 => {
+            6 => {
+                //optirun nvidia-smi --query-gpu=gpu_name --format=csv,noheader -i uuid
                 // Build array
-                let argv = [
+                let argv: [&OsStr; 6] = [
+                    call_stack_items[0],
+                    call_stack_items[1],
+                    call_stack_items[2],
+                    call_stack_items[3],
+                    call_stack_items[4],
+                    call_stack_items[5],
+                ];
+
+                // Run process, get output
+                match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
+                    Ok(return_val) => match return_val {
+                        // ACTUAL
+                        (None, None) => return Ok(None),
+
+                        (None, Some(stderr_buffer)) => {
+                            println!(
+                                "Process failed with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer)
+                            );
+                        }
+
+                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
+
+                        (Some(stdout_buffer), Some(stderr_buffer)) => {
+                            println!(
+                                "Process succeeded, but with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer)
+                            );
+
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))));
+                        }
+                    },
+                    Err(err) => return Err(err),
+                };
+            }
+            5 => {
+                //nvidia-smi --query-gpu=gpu_name --format=csv,noheader -i uuid
+                // Build array
+                let argv: [&OsStr; 5] = [
+                    call_stack_items[0],
+                    call_stack_items[1],
+                    call_stack_items[2],
+                    call_stack_items[3],
+                    call_stack_items[4],
+                ];
+
+                // Run process, get output
+                match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
+                    Ok(return_val) => match return_val {
+                        // ACTUAL
+                        (None, None) => return Ok(None),
+
+                        (None, Some(stderr_buffer)) => {
+                            println!(
+                                "Process failed with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer)
+                            );
+                        }
+
+                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
+
+                        (Some(stdout_buffer), Some(stderr_buffer)) => {
+                            println!(
+                                "Process failed with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer)
+                            );
+
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))));
+                        }
+                    },
+                    Err(err) => return Err(err),
+                };
+            }
+            4 => {
+                //nvidia-settings -q GpuUUID -t
+                // Build array
+                let argv: [&OsStr; 4] = [
                     call_stack_items[0],
                     call_stack_items[1],
                     call_stack_items[2],
@@ -175,8 +253,9 @@ impl Processor {
                 };
             }
             2 => {
+                //??
                 // Build array
-                let argv = [call_stack_items[0], call_stack_items[1]];
+                let argv: [&OsStr; 2] = [call_stack_items[0], call_stack_items[1]];
 
                 // Run process, get output
                 match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
@@ -210,18 +289,6 @@ impl Processor {
 
         Ok(None)
     }
-
-    /*
-    fn add_property(self, call_extension: &str) {
-        todo!()
-        //self.call.push(call_extension);
-    }
-
-    fn get_name(self) -> () {//&str {
-        todo!()
-        //self.name.
-    }
-    */
 
     /*
      * Name:

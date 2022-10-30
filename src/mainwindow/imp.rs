@@ -496,19 +496,36 @@ impl MainWindow {
                                 // Construct a row for each GPU
                                 for uuid in gpu_uuids {
                                     // Get GPU data
-                                    let gpu_name = "GPU NAME XXQ";//existing_provider.get_gpu_data(uuid, "name");
+                                    match existing_provider.get_gpu_data(&uuid, "name") {
+                                        Ok(gpu_name) => {
+                                            // Create new ActionRow object
+                                            let current_row: ActionRow =
+                                            ActionRow::builder()
+                                                .title(&gpu_name)
+                                                .subtitle(&uuid)
+                                                .activatable(true)
+                                                .selectable(true)
+                                                .build();
 
-                                    // Create new ActionRow object
-                                    let current_row: ActionRow =
-                                        ActionRow::builder()
-                                        .title(gpu_name)
-                                        .subtitle(&uuid)
-                                        .activatable(true)
-                                        .selectable(true)
-                                        .build();
+                                            // Append new ActionRow object to GtkListBox
+                                            self.cards_list.append(&current_row);
+                                        },
+                                        Err(err) => {
+                                            println!("..Attempt to read GPU name failed, returning: {}", err);
 
-                                    // Append new ActionRow object to GtkListBox
-                                    self.cards_list.append(&current_row);
+                                            // Create new ActionRow object
+                                            let current_row: ActionRow =
+                                            ActionRow::builder()
+                                                .title(&uuid)
+                                                .subtitle(&uuid)
+                                                .activatable(true)
+                                                .selectable(true)
+                                                .build();
+
+                                            // Append new ActionRow object to GtkListBox
+                                            self.cards_list.append(&current_row);
+                                        }
+                                    }
                                 }
                             }
                             Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
@@ -538,19 +555,36 @@ impl MainWindow {
                                 // Construct a row for each GPU
                                 for uuid in gpu_uuids {
                                     // Get GPU data
-                                    let gpu_name = "GPU NAME QXX";//existing_provider.get_gpu_data(uuid, "name");
+                                    match new_provider.get_gpu_data(&uuid, "name") {
+                                        Ok(gpu_name) => {
+                                            // Create new ActionRow object
+                                            let current_row: ActionRow =
+                                            ActionRow::builder()
+                                                .title(&gpu_name)
+                                                .subtitle(&uuid)
+                                                .activatable(true)
+                                                .selectable(true)
+                                                .build();
 
-                                    // Create new ActionRow object
-                                    let current_row: ActionRow =
-                                        ActionRow::builder()
-                                        .title(gpu_name)
-                                        .subtitle(&uuid)
-                                        .activatable(true)
-                                        .selectable(true)
-                                        .build();
+                                            // Append new ActionRow object to GtkListBox
+                                            self.cards_list.append(&current_row);
+                                        },
+                                        Err(err) => {
+                                            println!("..Attempt to read GPU name failed, returning: {}", err);
 
-                                    // Append new ActionRow object to GtkListBox
-                                    self.cards_list.append(&current_row);
+                                            // Create new ActionRow object
+                                            let current_row: ActionRow =
+                                            ActionRow::builder()
+                                                .title(&uuid)
+                                                .subtitle(&uuid)
+                                                .activatable(true)
+                                                .selectable(true)
+                                                .build();
+
+                                            // Append new ActionRow object to GtkListBox
+                                            self.cards_list.append(&current_row);
+                                        }
+                                    }
                                 }
                             }
                             Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
