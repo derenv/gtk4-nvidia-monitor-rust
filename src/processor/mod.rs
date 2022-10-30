@@ -72,9 +72,9 @@ impl Processor {
         let obj: Processor = Object::new(&[]).expect("Failed to create `Processor`");
 
         // Set properties
-        obj.set_property("base-call", base_call.to_string());
-        obj.set_property("call", base_call.to_string().clone());
-        obj.set_property("tail-call", tail_call.to_string());
+        obj.set_property("base-call", String::from(base_call));
+        obj.set_property("call", String::from(base_call).clone());
+        obj.set_property("tail-call", String::from(tail_call));
 
         obj
     }
@@ -156,27 +156,19 @@ impl Processor {
                         (None, Some(stderr_buffer)) => {
                             println!(
                                 "Process failed with error: {}",
-                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                                String::from_utf8_lossy(&stderr_buffer)
                             );
                         }
 
-                        (Some(stdout_buffer), None) => {
-                            let stdout_buffer_contents =
-                                String::from_utf8_lossy(&stdout_buffer).into_owned();
-
-                            return Ok(Some(self.parse(&stdout_buffer_contents)));
-                        }
+                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
-                            let stdout_buffer_contents =
-                                String::from_utf8_lossy(&stdout_buffer).into_owned();
-
                             println!(
                                 "Process failed with error: {}",
-                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                                String::from_utf8_lossy(&stderr_buffer)
                             );
 
-                            return Ok(Some(self.parse(&stdout_buffer_contents)));
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))));
                         }
                     },
                     Err(err) => return Err(err),
@@ -195,27 +187,19 @@ impl Processor {
                         (None, Some(stderr_buffer)) => {
                             println!(
                                 "Process failed with error: {}",
-                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                                String::from_utf8_lossy(&stderr_buffer)
                             );
                         }
 
-                        (Some(stdout_buffer), None) => {
-                            let stdout_buffer_contents =
-                                String::from_utf8_lossy(&stdout_buffer).into_owned();
-
-                            return Ok(Some(self.parse(&stdout_buffer_contents)));
-                        }
+                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
-                            let stdout_buffer_contents =
-                                String::from_utf8_lossy(&stdout_buffer).into_owned();
-
                             println!(
                                 "Process failed with error: {}",
-                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                                String::from_utf8_lossy(&stderr_buffer)
                             );
 
-                            return Ok(Some(self.parse(&stdout_buffer_contents)));
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))));
                         }
                     },
                     Err(err) => return Err(err),
@@ -263,8 +247,8 @@ impl Processor {
         let mut return_val: Vec<String> = vec![];
 
         for item in input.lines().collect::<Vec<&str>>() {
-            return_val.push(item.to_string());
-            //return_val.insert(0, item.to_string());
+            return_val.push(String::from(item));
+            //return_val.insert(0, String::from(item));
         }
 
         return_val

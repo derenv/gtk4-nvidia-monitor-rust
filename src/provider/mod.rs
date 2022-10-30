@@ -149,7 +149,7 @@ impl Provider {
             }
             _ => {
                 // Return error..
-                return Err("Invalid provider, check preferences..".to_string())
+                return Err(String::from("Invalid provider, check preferences.."))
             }
         }
 
@@ -168,12 +168,12 @@ impl Provider {
                 }
                 None => {
                     // Return error..
-                    Err("Process encountered an unknown error..".to_string())
+                    Err(String::from("Process encountered an unknown error.."))
                 }
             },
             Err(err) => {
                 // Return error..
-                return Err(err.message().to_owned());
+                return Err(String::from(err.message()));
             }
         }
     }
@@ -204,7 +204,7 @@ impl Provider {
                     None::<&gio::Cancellable>,
                 ) {
                     Ok(result) => return Ok(result),
-                    Err(err) => return Err(err.message().to_owned()),
+                    Err(err) => return Err(String::from(err.message())),
                 };
             }
             1 => {
@@ -213,13 +213,13 @@ impl Provider {
                     None::<&gio::Cancellable>,
                 ) {
                     Ok(result) => return Ok(result),
-                    Err(err) => return Err(err.message().to_owned()),
+                    Err(err) => return Err(String::from(err.message())),
                 };
             }
             // Error Message
-            2 => Err("Nvidia Settings is not enabled in preferences..".to_string()),
-            3 => Err("Nvidia Settings is not enabled in preferences..".to_string()),
-            _ => Err("Invalid provider, check preferences..".to_string()),
+            2 => Err(String::from("Nvidia Settings is not enabled in preferences..")),
+            3 => Err(String::from("Nvidia Settings is not enabled in preferences..")),
+            _ => Err(String::from("Invalid provider, check preferences..")),
         }
     }
 
@@ -259,26 +259,6 @@ impl Provider {
                 for prop in properties {
                     // Update internal value, if this fails there is a panic
                     prop.update_value(property_name, value);
-
-                    /*
-                    // Store internal value
-                    let property_name: &str = &prop.get_call_extension();
-                    match property_name {
-                        "utilization.gpu" => {
-                            self.set_property("utilization-property", prop);
-                        }
-                        "temperature.gpu" => {
-                            self.set_property("temperature-property", prop);
-                        }
-                        "memory.used,memory.total" => {
-                            self.set_property("memory-usage-property", prop);
-                        }
-                        "fan.speed" => {
-                            self.set_property("fan-speed-property", prop);
-                        }
-                        _ => return Err("Unknown property..".to_string())
-                    }
-                    */
                 }
 
                 // Return sucess
@@ -298,29 +278,6 @@ impl Provider {
                 for prop in properties {
                     // Update internal value, if this fails there is a panic
                     prop.update_value(property_name, value);
-
-                    /*
-                    // Store internal value
-                    let property_name: &str = &prop.get_call_extension();
-                    match property_name {
-                        "utilization.gpu" => {
-                            self.set_property("utilization-property", prop);
-                        }
-                        "temperature.gpu" => {
-                            self.set_property("temperature-property", prop);
-                        }
-                        "memory.used,memory.total" => {
-                            self.set_property("memory-usage-property", prop);
-                        }
-                        "fan.speed" => {
-                            self.set_property("fan-speed-property", prop);
-                        }
-                        "power.draw" => {
-                            self.set_property("power-usage-property", prop);
-                        }
-                        _ => return Err("Unknown property..".to_string())
-                    }
-                    */
                 }
 
                 // Return sucess

@@ -245,8 +245,7 @@ impl MainWindow {
         let open_nvidia_settings: SimpleAction = SimpleAction::new("open_nvidia_settings", None);
         open_nvidia_settings.connect_activate(clone!(@weak self as window => move |_, _| {
             // Get state from settings
-            let settings: Settings = window.settings().clone();
-            let app_settings_open: bool = settings.boolean("nvidia-settings-open");
+            let app_settings_open: bool = window.imp().get_setting::<bool>("nvidia-settings-open");
 
             //let defaultAppSystem = Shell.AppSystem.get_default();
             //let nvidiaSettingsApp = defaultAppSystem.lookup_app('nvidia-settings.desktop');
@@ -254,8 +253,8 @@ impl MainWindow {
             //let dd = gio::DesktopAppInfo::from_filename("nvidia-settings.desktop");
 
             if !app_settings_open {
-                // Tell Provider to start settings
-                let mut provider: Option<Provider> = window.imp().provider.take();
+                // Grab current stored provider
+                let mut provider: Option<Provider> = window.property("provider");
 
                 // Check if provider exists
                 match provider {
@@ -273,28 +272,37 @@ impl MainWindow {
                     },
                     None => {
                         // Check provider type
-                        let provider_type: i32 = window.settings().int("provider");
+                        let provider_type: i32 = window.imp().get_setting::<i32>("provider");
 
                         // Create new provider
                         println!("Creating new Provider..");//TEST
-                        provider = Some(imp::MainWindow::create_provider(provider_type));
+                        window.set_property("provider", Some(imp::MainWindow::create_provider(provider_type)));
+
+                        // Grab new provider
+                        provider = window.property("provider");
 
                         // Open Nvidia Settings
                         println!("Opening the Nvidia Settings app..");//TEST
-                        match provider.expect("Provider Invalid").open_settings() {
-                            Ok(_result) => {
-                                println!("Opening the Nvidia Settings app..");
+                        match provider {
+                            Some(prov) => {
+                                // Open Nvidia Settings
+                                match prov.open_settings() {
+                                    Ok(_result) => {
+                                        println!("Opening the Nvidia Settings app..");
+                                    },
+                                    Err(err) => println!(
+                                        "An error occured: {}",
+                                        err
+                                    ),
+                                }
                             },
-                            Err(err) => println!(
-                                "An error occured: {}",
-                                err
-                            ),
+                            None => panic!("Cannot find `Provider`!")
                         }
                     }
                 }
 
                 // Set state in settings
-                settings.set_boolean("nvidia-settings-open", true).expect("Could not set setting.");
+                window.imp().update_setting::<bool>("nvidia-settings-open", true);
             }
         }));
         self.add_action(&open_nvidia_settings);
@@ -310,11 +318,11 @@ impl MainWindow {
             let p: Property = Property::new(&proc, "", "", &form, &1);
 
             let vecc: Vec<Vec<String>> = vec![
-                vec!["1.68".to_string(), "2.01".to_string()],
-                vec!["3.83".to_string(), "4.22".to_string()],
+                vec![String::from("1.68"), String::from("2.01")],
+                vec![String::from("3.83"), String::from("4.22")],
             ];
             match p.parse(vecc, |input: Vec<String>| {
-                Some(input.get(0).unwrap().to_string())
+                Some(String::from(input.get(0).unwrap()))
             }) {
                 Some(results) => {
                     println!("size: {}", results.len());
@@ -330,12 +338,12 @@ impl MainWindow {
             let form: Formatter = Formatter::new();
             let p: Property = Property::new(&proc, "", "", &form, &1);
             let vecc: Vec<Vec<String>> = vec![
-                vec!["1.68".to_string(), "2.01".to_string()],
-                vec!["3.83".to_string(), "4.22".to_string()],
+                vec![String::from("1.68"), String::from("2.01")],
+                vec![String::from("3.83"), String::from("4.22")],
             ];
             match p.parse(vecc, |input: Vec<String>| {
                 // Grab input
-                let mut output: String = input.get(0).unwrap().to_string();
+                let mut output: String = String::from(input.get(0).unwrap());
 
                 // Apply formatting
                 output.push('%');
@@ -357,12 +365,12 @@ impl MainWindow {
             let form: Formatter = Formatter::new();
             let p: Property = Property::new(&proc, "", "", &form, &1);
             let vecc: Vec<Vec<String>> = vec![
-                vec!["1.68".to_string(), "2.01".to_string()],
-                vec!["3.83".to_string(), "4.22".to_string()],
+                vec![String::from("1.68"), String::from("2.01")],
+                vec![String::from("3.83"), String::from("4.22")],
             ];
             match p.parse(vecc, |input: Vec<String>| {
                 // Grab input
-                let input_str: String = input.get(0).unwrap().to_string();
+                let input_str: String = String::from(input.get(0).unwrap());
 
                 // Convert to float
                 match input_str.parse::<f64>() {
@@ -371,7 +379,7 @@ impl MainWindow {
                         let rounded_value: f64 = parsed_value.floor();
 
                         // Convert to string
-                        let mut output: String = rounded_value.to_string();
+                        let mut output: String = String::from(rounded_value);
 
                         // Apply formatting
                         output.push('W');
@@ -401,13 +409,13 @@ impl MainWindow {
             let form: Formatter = Formatter::new();
             let p: Property = Property::new(&proc, "", "", &form, &1);
             let vecc: Vec<Vec<String>> = vec![
-                vec!["1.68".to_string(), "2.01".to_string()],
-                vec!["3.83".to_string(), "4.22".to_string()],
+                vec![String::from("1.68"), String::from("2.01")],
+                vec![String::from("3.83"), String::from("4.22")],
             ];
             match p.parse(vecc, |input: Vec<String>| {
                 // Grab input
-                let current: String = input.get(0).unwrap().to_string();
-                let max: String = input.get(1).unwrap().to_string();
+                let current: String = String::from(input.get(0).unwrap());
+                let max: String = String::from(input.get(1).unwrap());
 
                 // Convert to float
                 match current.parse::<f64>() {
@@ -421,7 +429,7 @@ impl MainWindow {
                                 let rounded_value: f64 = usage.floor();
 
                                 // Convert to string
-                                let mut output: String = rounded_value.to_string();
+                                let mut output: String = String::from(rounded_value);
 
                                 // Apply formatting
                                 output.push('%');
@@ -460,12 +468,12 @@ impl MainWindow {
             let form: Formatter = Formatter::new();
             let p: Property = Property::new(&proc, "", "", &form, &1);
             let vecc: Vec<Vec<String>> = vec![
-                vec!["1.68".to_string(), "2.01".to_string()],
-                vec!["3.83".to_string(), "4.22".to_string()],
+                vec![String::from("1.68"), String::from("2.01")],
+                vec![String::from("3.83"), String::from("4.22")],
             ];
             match p.parse(vecc, |input: Vec<String>| {
                 // Grab input
-                let mut output: String = input.get(0).unwrap().to_string();
+                let mut output: String = String::from(input.get(0).unwrap());
 
                 //TODO: needs moved to settings
                 #[derive(Debug, PartialEq, Eq)]
@@ -491,7 +499,7 @@ impl MainWindow {
                             let rounded_value: f64 = fahrenheit_temp.floor();
 
                             // Convert to string
-                            let mut f_output: String = rounded_value.to_string();
+                            let mut f_output: String = String::from(rounded_value);
 
                             // Apply temperature unit
                             f_output.push(char::from_u32(0x00B0).unwrap());
@@ -529,11 +537,8 @@ impl MainWindow {
             // Borrow (mutable) the window's container
             let mut settings_window_container: RefMut<SettingsWindowContainer> = window.imp().settings_window.borrow_mut();
 
-            // Clone settings object
-            let settings: &Settings = window.settings();
-
             // Get state from settings
-            settings_window_container.open = settings.boolean("app-settings-open");
+            settings_window_container.open = window.imp().get_setting::<bool>("app-settings-open");
 
             // Check if an object is stored
             match &settings_window_container.window {
@@ -583,7 +588,7 @@ impl MainWindow {
             }
 
             // Set new state in settings
-            settings.set_boolean("app-settings-open", settings_window_container.open).expect("Could not set `app-settings-open` setting.");
+            window.imp().update_setting::<bool>("app-settings-open", settings_window_container.open);
         }));
         self.add_action(&open_app_settings);
 
@@ -593,34 +598,5 @@ impl MainWindow {
             println!("About pop-up not yet implemented..");//TODO
         }));
         self.add_action(&about);
-
-        /*
-        // Create action from key "filter" and add to action group "win"
-        let action_filter = self.settings().create_action("filter");
-        self.add_action(&action_filter);
-
-        // Create action to remove done tasks and add to action group "win"
-        let action_remove_done_tasks =
-            gio::SimpleAction::new("remove-done-tasks", None);
-        action_remove_done_tasks.connect_activate(
-            clone!(@weak self as window => move |_, _| {
-                let tasks = window.tasks();
-                let mut position = 0;
-                while let Some(item) = tasks.item(position) {
-                    // Get `TaskObject` from `glib::Object`
-                    let task_object = item
-                        .downcast_ref::<TaskObject>()
-                        .expect("The object needs to be of type `TaskObject`.");
-
-                    if task_object.is_completed() {
-                        tasks.remove(position);
-                    } else {
-                        position += 1;
-                    }
-                }
-            }),
-        );
-        self.add_action(&action_remove_done_tasks);
-        */
     }
 }

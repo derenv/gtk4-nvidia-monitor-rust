@@ -79,16 +79,42 @@ impl ObjectSubclass for SettingsWindow {
  */
 #[gtk::template_callbacks]
 impl SettingsWindow {
+    /*
+     * Name:
+     * update_setting
+     *
+     * Description:
+     * Generic function for updating setting values
+     *
+     * Made:
+     * 30/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn update_setting<T: ToVariant>(&self, name: &str, value: T) {
+        // Fetch settings
+        match self.settings.get() {
+            Some(settings) => {
+                match settings.set(name, &value) {
+                    Ok(_) => println!("..Setting `{}` updated!", name),
+                    Err(err) => panic!("..Cannot update `{}` setting: `{}`", name, err),
+                }
+            },
+            None => panic!("..Cannot retrieve settings")
+        }
+    }
+
     #[template_callback]
     fn refreshrate_set(&self, button: &SpinButton) {
         // Get new refresh rate input
         let new_value: i32 = button.value_as_int();
 
         // Set refresh rate property
-        let settings: &Settings = self.settings.get().expect("..Cannot retrieve settings");
-        settings
-            .set_int("refreshrate", new_value)
-            .expect("..Cannot set `tempformat` setting");
+        self.update_setting("refreshrate", new_value);
     }
 
     #[template_callback]
@@ -101,33 +127,22 @@ impl SettingsWindow {
             // Check if current button active
             if current_button.is_active() {
                 // Get new unit
-                let unit: String = button
-                    .label()
-                    .expect("..Could not fetch contents of temperature unit button label")
-                    .to_string();
-
-                // Set appropriate setting
-                match unit.as_str() {
-                    "Celcius (C)" => {
-                        // Set temperature unit as C
-                        let settings: &Settings =
-                            self.settings.get().expect("..Cannot retrieve settings");
-                        settings
-                            .set_int("tempformat", 0)
-                            .expect("..Cannot set `tempformat` setting");
-                    }
-                    "Fahrenheit (F)" => {
-                        // Set temperature unit as F
-                        let settings: &Settings =
-                            self.settings.get().expect("..Cannot retrieve settings");
-                        settings
-                            .set_int("tempformat", 1)
-                            .expect("..Cannot set `tempformat` setting");
-                    }
-                    _ => {
-                        // Display error message
-                        panic!("..Unexpected temperature unit");
-                    }
+                match button.label() {
+                    Some(unit) => {
+                        // Set appropriate setting
+                        match String::from(unit).as_str() {
+                            "Celcius (C)" => {
+                                // Set temperature unit as C
+                                self.update_setting("tempformat", 0);
+                            }
+                            "Fahrenheit (F)" => {
+                                // Set temperature unit as F
+                                self.update_setting("tempformat", 1);
+                            }
+                            _ => panic!("..Unexpected temperature unit")
+                        }
+                    },
+                    None => panic!("..Could not fetch contents of temperature unit button label"),
                 }
             }
         }
@@ -217,11 +232,17 @@ impl WindowImpl for SettingsWindow {
 
         */
 
-        // Set state in settings
-        let settings: &Settings = window.settings();
-        settings
-            .set_boolean("app-settings-open", false)
-            .expect("Could not set setting.");
+        // Fetch settings
+        match self.settings.get() {
+            Some(settings) => {
+                // Set state in settings
+                match settings.set_boolean("app-settings-open", false) {
+                    Ok(_) => println!("..Settings open/closed state updated!"),
+                    Err(_) => panic!("..Cannot set `app-settings-open` setting"),
+                }
+            },
+            None => panic!("..Cannot retrieve settings")
+        }
 
         // Pass close request on to the parent
         self.parent_close_request(window)

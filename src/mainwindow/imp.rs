@@ -21,7 +21,7 @@
 // Imports
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ActionRow};
 use gio::Settings;
-use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject};
+use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject, FromVariant, once_cell::sync::Lazy, ParamSpec, Value};
 use gtk::{subclass::prelude::*, CompositeTemplate, ListBox, TemplateChild};
 use std::{cell::Cell, cell::RefCell, rc::Rc};
 
@@ -40,7 +40,6 @@ pub struct SettingsWindowContainer {
 #[template(resource = "/main-window.ui")]
 pub struct MainWindow {
     pub settings: OnceCell<Settings>,
-    pub app_id: Cell<String>,
     pub settings_window: Rc<RefCell<SettingsWindowContainer>>,
     pub provider: Cell<Option<Provider>>,
 
@@ -89,6 +88,61 @@ impl ObjectSubclass for MainWindow {
  */
 #[gtk::template_callbacks]
 impl MainWindow {
+    /*
+     * Name:
+     * update_setting
+     *
+     * Description:
+     * Generic function for updating setting values
+     *
+     * Made:
+     * 30/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn update_setting<T: ToVariant>(&self, name: &str, value: T) {
+        // Fetch settings
+        match self.settings.get() {
+            Some(settings) => {
+                match settings.set(name, &value) {
+                    Ok(_) => println!("..Setting `{}` updated!", name),
+                    Err(err) => panic!("..Cannot update `{}` setting: `{}`", name, err),
+                }
+            },
+            None => panic!("..Cannot retrieve settings")
+        }
+    }
+
+    /*
+     * Name:
+     * get_setting
+     *
+     * Description:
+     * Generic function for getting setting value
+     *
+     * Made:
+     * 30/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn get_setting<T: FromVariant>(&self, name: &str) -> T {
+        // Return the value of the property
+        match self.settings.get() {
+            Some(settings) => {
+                settings.get::<T>(name)
+            },
+            None => panic!("`settings` should be set in `setup_settings`.")
+        }
+    }
+
     /*
      * Name:
      * card_selected
@@ -379,6 +433,8 @@ impl MainWindow {
         }
     }
 
+
+
     /*
      * Name:
      * refresh_cards
@@ -397,9 +453,11 @@ impl MainWindow {
      */
     #[template_callback]
     fn refresh_cards(&self, button: &CustomButton) {
-        //TEST: Grab button label
-        let label_val = button.label().expect("cannot grab label of refresh button");
-        println!("Button Pressed: {}", label_val);
+        //TEST
+        match button.label() {
+            Some(label_val) => println!("Button Pressed: {}", label_val),
+            None => panic!("..Cannot grab label of refresh button")
+        }
 
         // Clear current ActionRow objects from GtkListBox
         let mut done: bool = false;
@@ -434,29 +492,29 @@ impl MainWindow {
 
                         // Update each property
                         match existing_provider.update_property_value::<i32>("gpu-count", gpu_count) {
-                            Ok(_result) => {}
+                            Ok(_) => {
+                                // Construct a row for each GPU
+                                for uuid in gpu_uuids {
+                                    // Get GPU data
+                                    let gpu_name = "GPU NAME XXQ";//existing_provider.get_gpu_data(uuid, "name");
+
+                                    // Create new ActionRow object
+                                    let current_row: ActionRow =
+                                        ActionRow::builder()
+                                        .title(gpu_name)
+                                        .subtitle(&uuid)
+                                        .activatable(true)
+                                        .selectable(true)
+                                        .build();
+
+                                    // Append new ActionRow object to GtkListBox
+                                    self.cards_list.append(&current_row);
+                                }
+                            }
                             Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
                         }
-
-                        // Construct a row for each GPU
-                        for uuid in gpu_uuids {
-                            // Get GPU data
-                            let gpu_name = "GPU NAME XXQ";//existing_provider.get_gpu_data(uuid, "name");
-
-                            // Create new ActionRow object
-                            let current_row: ActionRow =
-                                ActionRow::builder()
-                                .title(gpu_name)
-                                .subtitle(&uuid)
-                                .activatable(true)
-                                .selectable(true)
-                                .build();
-
-                            // Append new ActionRow object to GtkListBox
-                            self.cards_list.append(&current_row);
-                        }
                     }
-                    Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
+                    Err(err) => println!("..Attempt to update GPU list failed, returning: {}", err),
                 }
 
                 // Re-Store provider
@@ -464,11 +522,7 @@ impl MainWindow {
             }
             None => {
                 // Check provider type
-                let provider_type: i32 = self
-                    .settings
-                    .get()
-                    .expect("..cannot fetch settings")
-                    .int("provider");
+                let provider_type: i32 = self.get_setting::<i32>("provider");
 
                 let new_provider: Provider = MainWindow::create_provider(provider_type);
 
@@ -480,29 +534,29 @@ impl MainWindow {
 
                         // Update each property
                         match new_provider.update_property_value::<i32>("gpu-count", gpu_count) {
-                            Ok(_result) => {}
+                            Ok(_) => {
+                                // Construct a row for each GPU
+                                for uuid in gpu_uuids {
+                                    // Get GPU data
+                                    let gpu_name = "GPU NAME QXX";//existing_provider.get_gpu_data(uuid, "name");
+
+                                    // Create new ActionRow object
+                                    let current_row: ActionRow =
+                                        ActionRow::builder()
+                                        .title(gpu_name)
+                                        .subtitle(&uuid)
+                                        .activatable(true)
+                                        .selectable(true)
+                                        .build();
+
+                                    // Append new ActionRow object to GtkListBox
+                                    self.cards_list.append(&current_row);
+                                }
+                            }
                             Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
                         }
-
-                        // Construct a row for each GPU
-                        for uuid in gpu_uuids {
-                            // Get GPU data
-                            let gpu_name = "GPU NAME QXX";//existing_provider.get_gpu_data(uuid, "name");
-
-                            // Create new ActionRow object
-                            let current_row: ActionRow =
-                                ActionRow::builder()
-                                .title(gpu_name)
-                                .subtitle(&uuid)
-                                .activatable(true)
-                                .selectable(true)
-                                .build();
-
-                            // Append new ActionRow object to GtkListBox
-                            self.cards_list.append(&current_row);
-                        }
                     }
-                    Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
+                    Err(err) => println!("..Attempt to update GPU list failed, returning: {}", err),
                 }
 
                 // Store new provider
@@ -538,6 +592,105 @@ impl ObjectImpl for MainWindow {
         obj.restore_data();
         obj.setup_callbacks();
         obj.setup_actions();
+    }
+
+    /*
+     * Name:
+     * properties
+     *
+     * Description:
+     * Create list of custom properties for our GObject
+     *
+     * Made:
+     * 06/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     * beware that you need to use kebab-case (https://en.wikipedia.org/wiki/Letter_case#Kebab_case)
+     *
+     * ParamSpec Examples:
+     * glib::ParamSpecString::builder("icon").build(),
+     * glib::ParamSpecUInt::builder("gpu_count").build(),
+     * glib::ParamSpecString::builder("call_extension").build(),
+     * TODO: these are from property class
+     * glib::ParamSpecBoxed::builder("processor").build(),
+     * glib::ParamSpecObject::builder("formatter").build(),
+     */
+    fn properties() -> &'static [ParamSpec] {
+        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
+            vec![
+                glib::ParamSpecObject::builder("provider", glib::Type::OBJECT).build(),
+            ]
+        });
+
+        //println!("PROPERTIES: {:?}", PROPERTIES);//TEST
+        //println!("trying to add `base_call`: {:?}", glib::ParamSpecString::builder("base_call").build());//TEST
+
+        PROPERTIES.as_ref()
+    }
+
+    /*
+     * Name:
+     * set_property
+     *
+     * Description:
+     * Mutator for custom GObject properties
+     *
+     * Made:
+     * 06/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    fn set_property(&self, _obj: &Self::Type, _id: usize, value: &Value, pspec: &ParamSpec) {
+        //println!("setting: {:?}", pspec.name());//TEST
+
+        match pspec.name() {
+            "provider" => {
+                let input_provider_property: Option<Provider> = value
+                    .get()
+                    .expect("The value needs to be of type `Provider`.");
+                self.provider.replace(input_provider_property);
+            }
+            _ => panic!("Property `{}` does not exist..", pspec.name())
+        }
+    }
+
+    /*
+     * Name:
+     * property
+     *
+     * Description:
+     * Accessor for custom GObject properties
+     *
+     * Made:
+     * 06/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    fn property(&self, _obj: &Self::Type, _id: usize, pspec: &ParamSpec) -> Value {
+        //println!("getting: {:?}", pspec.name());//TEST
+
+        match pspec.name() {
+            "provider" => {
+                //TODO: this seems ridiculous..
+                let value: Option<Provider> = self.provider.take();
+
+                self.provider.set(value.clone());
+
+                value.to_value()
+            }
+            _ => panic!("Property `{}` does not exist..", pspec.name())
+        }
     }
 }
 
@@ -594,13 +747,8 @@ impl WindowImpl for MainWindow {
 
         */
         // Set state in settings
-        let settings: &Settings = window.settings();
-        settings
-            .set_boolean("app-settings-open", false)
-            .expect("Could not set setting.");
-        settings
-            .set_boolean("nvidia-settings-open", false)
-            .expect("Could not set setting.");
+        self.update_setting("app-settings-open", false);
+        self.update_setting("nvidia-settings-open", false);
 
         // Pass close request on to the parent
         self.parent_close_request(window)
