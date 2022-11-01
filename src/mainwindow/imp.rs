@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * imp.rs
  *
@@ -70,7 +70,7 @@ impl ObjectSubclass for MainWindow {
     }
 }
 
-/*
+/**
  * Name:
  * MainWindow
  *
@@ -88,7 +88,7 @@ impl ObjectSubclass for MainWindow {
  */
 #[gtk::template_callbacks]
 impl MainWindow {
-    /*
+    /**
      * Name:
      * update_setting
      *
@@ -117,7 +117,7 @@ impl MainWindow {
         }
     }
 
-    /*
+    /**
      * Name:
      * get_setting
      *
@@ -143,7 +143,7 @@ impl MainWindow {
         }
     }
 
-    /*
+    /**
      * Name:
      * card_selected
      *
@@ -189,7 +189,7 @@ impl MainWindow {
         */
     }
 
-    /*
+    /**
      * Name:
      * create_provider
      *
@@ -435,7 +435,7 @@ impl MainWindow {
 
 
 
-    /*
+    /**
      * Name:
      * refresh_cards
      *
@@ -599,7 +599,7 @@ impl MainWindow {
         }
     }
 }
-/*
+/**
  * Trait Name:
  * ObjectImpl
  *
@@ -616,6 +616,22 @@ impl MainWindow {
  *
  */
 impl ObjectImpl for MainWindow {
+    /**
+     * Name:
+     * constructed
+     *
+     * Description:
+     * Called during construction, allows calling setup functions
+     *
+     * Made:
+     * 09/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
     fn constructed(&self, obj: &Self::Type) {
         // Call "constructed" on parent
         self.parent_constructed(obj);
@@ -628,7 +644,7 @@ impl ObjectImpl for MainWindow {
         obj.setup_actions();
     }
 
-    /*
+    /**
      * Name:
      * properties
      *
@@ -665,7 +681,7 @@ impl ObjectImpl for MainWindow {
         PROPERTIES.as_ref()
     }
 
-    /*
+    /**
      * Name:
      * set_property
      *
@@ -695,7 +711,7 @@ impl ObjectImpl for MainWindow {
         }
     }
 
-    /*
+    /**
      * Name:
      * property
      *
@@ -728,7 +744,7 @@ impl ObjectImpl for MainWindow {
     }
 }
 
-/*
+/**
  * Trait Name:
  * WidgetImpl
  *
@@ -746,7 +762,7 @@ impl ObjectImpl for MainWindow {
  */
 impl WidgetImpl for MainWindow {}
 
-/*
+/**
  * Trait Name:
  * WindowImpl
  *
@@ -789,7 +805,7 @@ impl WindowImpl for MainWindow {
     }
 }
 
-/*
+/**
  * Trait Name:
  * AdwWindowImpl
  *
@@ -807,7 +823,7 @@ impl WindowImpl for MainWindow {
  */
 impl AdwWindowImpl for MainWindow {}
 
-/*
+/**
  * Trait Name:
  * ApplicationWindowImpl
  *
@@ -825,7 +841,7 @@ impl AdwWindowImpl for MainWindow {}
  */
 impl ApplicationWindowImpl for MainWindow {}
 
-/*
+/**
  * Trait Name:
  * AdwApplicationWindowImpl
  *

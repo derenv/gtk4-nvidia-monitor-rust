@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * imp.rs
  *
@@ -46,7 +46,7 @@ impl ObjectSubclass for Processor {
     type ParentType = gtk::Widget;
 }
 
-/*
+/**
  * Trait Name:
  * ObjectImpl
  *
@@ -63,7 +63,7 @@ impl ObjectSubclass for Processor {
  *
  */
 impl ObjectImpl for Processor {
-    /*
+    /**
      * Name:
      * properties
      *
@@ -102,7 +102,7 @@ impl ObjectImpl for Processor {
         PROPERTIES.as_ref()
     }
 
-    /*
+    /**
      * Name:
      * set_property
      *
@@ -144,7 +144,7 @@ impl ObjectImpl for Processor {
         }
     }
 
-    /*
+    /**
      * Name:
      * property
      *
@@ -193,7 +193,7 @@ impl ObjectImpl for Processor {
     }
 }
 
-/*
+/**
  * Trait Name:
  * WidgetImpl
  *

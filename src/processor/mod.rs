@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * mod.rs
  *
@@ -35,7 +35,7 @@ glib::wrapper! {
         @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-/*
+/**
  * Trait Name:
  * Processor
  *
@@ -52,7 +52,7 @@ glib::wrapper! {
  *
  */
 impl Processor {
-    /*
+    /**
      * Name:
      * new
      *
@@ -79,7 +79,7 @@ impl Processor {
         obj
     }
 
-    /*
+    /**
      * Name:
      * process
      *
@@ -290,7 +290,7 @@ impl Processor {
         Ok(None)
     }
 
-    /*
+    /**
      * Name:
      * parse
      *
@@ -322,7 +322,7 @@ impl Processor {
     }
 }
 
-/*
+/**
  * Trait Name:
  * Default
  *

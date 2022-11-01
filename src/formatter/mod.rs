@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * mod.rs
  *
@@ -35,7 +35,7 @@ glib::wrapper! {
     @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-/*
+/**
  * Trait Name:
  * Formatter
  *
@@ -52,7 +52,7 @@ glib::wrapper! {
  *
  */
 impl Formatter {
-    /*
+    /**
      * Name:
      * new
      *
@@ -118,7 +118,7 @@ impl Formatter {
     }
 }
 
-/*
+/**
  * Trait Name:
  * Default
  *

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * mod.rs
  *
@@ -37,7 +37,7 @@ glib::wrapper! {
     @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-/*
+/**
  * Trait Name:
  * Property
  *
@@ -54,7 +54,7 @@ glib::wrapper! {
  *
  */
 impl Property {
-    /*
+    /**
      * Name:
      * new
      *
@@ -92,7 +92,7 @@ impl Property {
         obj
     }
 
-    /*
+    /**
      * Name:
      * parse
      *
@@ -141,7 +141,7 @@ impl Property {
         Some(results)
     }
 
-    /*
+    /**
      * Name:
      * get_value
      *
@@ -162,7 +162,7 @@ impl Property {
         self.property::<T>(name)
     }
 
-    /*
+    /**
      * Name:
      * update_value
      *
@@ -184,7 +184,7 @@ impl Property {
     }
 }
 
-/*
+/**
  * Trait Name:
  * Default
  *
