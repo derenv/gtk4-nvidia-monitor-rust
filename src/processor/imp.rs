@@ -27,7 +27,7 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use std::cell::Cell;
 
-// Object holding the State
+/// Object holding the State and any Template Children
 #[derive(Default)]
 pub struct Processor {
     base_call: Cell<String>,
@@ -35,7 +35,7 @@ pub struct Processor {
     tail_call: Cell<String>,
 }
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for Processor {
     //Crate+Obj to avoid collisions

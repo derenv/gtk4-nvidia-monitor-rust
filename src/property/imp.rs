@@ -27,7 +27,7 @@ use std::cell::Cell;
 use crate::formatter::Formatter;
 use crate::processor::Processor;
 
-// Object holding the state
+/// Object holding the State and any Template Children
 #[derive(Default)]
 pub struct Property {
     processor: Cell<Processor>,
@@ -37,7 +37,7 @@ pub struct Property {
     gpu_count: Cell<i32>,
 }
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for Property {
     //Crate+Obj to avoid collisions

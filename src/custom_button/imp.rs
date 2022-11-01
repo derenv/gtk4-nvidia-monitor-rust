@@ -21,11 +21,11 @@
 // Imports
 use gtk::{glib, subclass::prelude::*};
 
-// Object holding the state
+/// Object holding the State and any Template Children
 #[derive(Default)]
 pub struct CustomButton;
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for CustomButton {
     //Crate+Obj to avoid collisions

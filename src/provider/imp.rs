@@ -26,7 +26,7 @@ use std::cell::Cell;
 // Modules
 use crate::property::Property;
 
-// Object holding the State
+/// Object holding the State and any Template Children
 #[derive(Default)]
 pub struct Provider {
     utilization: Cell<Property>,
@@ -37,7 +37,7 @@ pub struct Provider {
     provider_type: Cell<i32>,
 }
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for Provider {
     //Crate+Obj to avoid collisions
