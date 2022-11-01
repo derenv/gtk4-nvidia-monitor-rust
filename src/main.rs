@@ -3,10 +3,10 @@
 
 /**
  * Name:
- * main.rs
+ * gtk4-nvidia-monitor-rust
  *
  * Description:
- * Rust Implementation of Nvidia Gnome Extension
+ * GTK-rs app for monitoring Nvidia GPU statistics
  *
  * Made:
  * 12/09/2022
@@ -17,7 +17,6 @@
  * Notes:
  *
  */
-
 // Modules
 mod formatter;
 mod mainwindow;
@@ -30,8 +29,7 @@ mod custom_button;
 mod settingswindow;
 
 // Imports
-use adwaita::prelude::*;
-use adwaita::{gio, Application};
+use adwaita::{gio, prelude::*, Application};
 use gdk::Display;
 use gio::resources_register_include;
 use gtk::{CssProvider, StyleContext};
@@ -39,7 +37,22 @@ use gtk::{CssProvider, StyleContext};
 // Constants
 const APP_ID: &str = "com.gtk_d.NvidiaMonitorRust";
 
-// Main Function
+/**
+ * Name:
+ * main
+ *
+ * Description:
+ * Load resources, initialise GTK, create application and connect signals
+ *
+ * Made:
+ * 13/09/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
 fn main() {
     // Resources
     resources_register_include!("nvidiamonitorrust.gresource")
@@ -60,9 +73,25 @@ fn main() {
     println!("{}", app.run());
 }
 
+/**
+ * Name:
+ * setup_shortcuts
+ *
+ * Description:
+ * Add keyboard shortcuts to the program
+ *
+ * Made:
+ * 09/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ * <https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/todo/5/main.rs>
+ * <https://gtk-rs.org/gtk4-rs/stable/latest/book/todo_3.html>
+ *
+ */
 /*
-//https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/todo/5/main.rs
-//https://gtk-rs.org/gtk4-rs/stable/latest/book/todo_3.html
 fn setup_shortcuts(app: &Application) {
     app.set_accels_for_action("win.filter('All')", &["<Ctrl>a"]);
     app.set_accels_for_action("win.filter('Open')", &["<Ctrl>o"]);
@@ -70,7 +99,22 @@ fn setup_shortcuts(app: &Application) {
 }
 */
 
-// Load CSS styles
+/**
+ * Name:
+ * load_css
+ *
+ * Description:
+ * Load css from file and add as style provider
+ *
+ * Made:
+ * 23/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
 fn load_css() {
     // Load the CSS file and add it to the provider
     let provider = CssProvider::new();
@@ -84,10 +128,27 @@ fn load_css() {
     );
 }
 
-// Build Function
+/**
+ * Name:
+ * build_ui
+ *
+ * Description:
+ * Build the main window (given the application object) and run
+ *
+ * Made:
+ * 13/09/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
 fn build_ui(app: &Application) {
     // Create a new custom window and show it
     let window: MainWindow = MainWindow::new(app);
+
+    // Present window
     window.show();
 
     /*

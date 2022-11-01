@@ -23,10 +23,12 @@
 mod imp;
 
 // Imports
-use super::subprocess;
 use glib::Object;
 use gtk::{gio, glib, prelude::ObjectExt};
 use std::ffi::OsStr;
+
+// Crates
+use crate::{subprocess::subprocess::exec_communicate};
 
 // GObject wrapper for Processor
 glib::wrapper! {
@@ -151,7 +153,7 @@ impl Processor {
                 ];
 
                 // Run process, get output
-                match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
+                match exec_communicate(&argv, None::<&gio::Cancellable>) {
                     Ok(return_val) => match return_val {
                         // ACTUAL
                         (None, None) => return Ok(None),
@@ -189,7 +191,7 @@ impl Processor {
                 ];
 
                 // Run process, get output
-                match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
+                match exec_communicate(&argv, None::<&gio::Cancellable>) {
                     Ok(return_val) => match return_val {
                         // ACTUAL
                         (None, None) => return Ok(None),
@@ -226,7 +228,7 @@ impl Processor {
                 ];
 
                 // Run process, get output
-                match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
+                match exec_communicate(&argv, None::<&gio::Cancellable>) {
                     Ok(return_val) => match return_val {
                         // ACTUAL
                         (None, None) => return Ok(None),
@@ -258,7 +260,7 @@ impl Processor {
                 let argv: [&OsStr; 2] = [call_stack_items[0], call_stack_items[1]];
 
                 // Run process, get output
-                match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
+                match exec_communicate(&argv, None::<&gio::Cancellable>) {
                     Ok(return_val) => match return_val {
                         // ACTUAL
                         (None, None) => return Ok(None),
