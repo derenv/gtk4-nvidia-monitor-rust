@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * mod.rs
  *
@@ -39,7 +39,7 @@ glib::wrapper! {
                     gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
-/*
+/**
  * Trait Name:
  * MainWindow
  *
@@ -56,7 +56,7 @@ glib::wrapper! {
  *
  */
 impl MainWindow {
-    /*
+    /**
      * Name:
      * new
      *
@@ -76,7 +76,7 @@ impl MainWindow {
         Object::new(&[("application", app)]).expect("`MainWindow` should be  instantiable.")
     }
 
-    /*
+    /**
      * Name:
      * setup_settings
      *
@@ -100,7 +100,7 @@ impl MainWindow {
             .expect("`settings` should not be set before calling `setup_settings`.");
     }
 
-    /*
+    /**
      * Name:
      * settings
      *
@@ -123,7 +123,7 @@ impl MainWindow {
             .expect("`settings` should be set in `setup_settings`.")
     }
 
-    /*
+    /**
      * Name:
      * setup_widgets
      *
@@ -143,7 +143,7 @@ impl MainWindow {
         //
     }
 
-    /*
+    /**
      * Name:
      * restore_data
      *
@@ -179,7 +179,7 @@ impl MainWindow {
         */
     }
 
-    /*
+    /**
      * Name:
      * setup_callbacks
      *
@@ -213,7 +213,7 @@ impl MainWindow {
         */
     }
 
-    /*
+    /**
      * Name:
      * setup_actions
      *

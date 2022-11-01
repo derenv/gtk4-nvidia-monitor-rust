@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * mod.rs
  *
@@ -23,7 +23,7 @@ use glib::Bytes;
 use gtk::{gio, glib, prelude::*};
 use std::ffi::OsStr;
 
-/*
+/**
  * Name:
  * execCheck
  *
@@ -57,7 +57,7 @@ pub fn exec_check(
     }
 }
 
-/*
+/**
  * Name:
  * exec_communicate
  *
