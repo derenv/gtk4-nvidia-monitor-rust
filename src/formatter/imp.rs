@@ -25,11 +25,11 @@ use gtk::{glib, subclass::prelude::*};
 // Modules
 //
 
-// Object holding the state
+/// Object holding the State and any Template Children
 #[derive(Default)]
 pub struct Formatter;
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for Formatter {
     //Crate+Obj to avoid collisions

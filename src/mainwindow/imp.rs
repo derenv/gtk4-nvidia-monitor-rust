@@ -28,14 +28,14 @@ use std::{cell::Cell, cell::RefCell, rc::Rc};
 // Modules
 use crate::{custom_button::CustomButton, settingswindow::SettingsWindow, formatter::Formatter, processor::Processor, property::Property, provider::Provider};
 
-// Structure for storing SettingsWindow and info
+/// Structure for storing a SettingsWindow object and any related information
 #[derive(Default)]
 pub struct SettingsWindowContainer {
     pub window: Option<SettingsWindow>,
     pub open: bool,
 }
 
-// Object holding the State
+/// Object holding the State and any Template Children
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/main-window.ui")]
 pub struct MainWindow {
@@ -52,7 +52,7 @@ pub struct MainWindow {
     pub refresh_button: TemplateChild<CustomButton>,
 }
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for MainWindow {
     // `NAME` needs to match `class` attribute of template
@@ -599,6 +599,7 @@ impl MainWindow {
         }
     }
 }
+
 /**
  * Trait Name:
  * ObjectImpl

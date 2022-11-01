@@ -27,7 +27,7 @@ use gtk::{subclass::prelude::*, CheckButton, CompositeTemplate, SpinButton, Temp
 // Modules
 //use crate::utils::data_path;
 
-// Object holding the State
+/// Object holding the State and any Template Children
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/settings-window.ui")]
 pub struct SettingsWindow {
@@ -42,7 +42,7 @@ pub struct SettingsWindow {
     pub provider_input: TemplateChild<ComboRow>,
 }
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for SettingsWindow {
     // `NAME` needs to match `class` attribute of template
