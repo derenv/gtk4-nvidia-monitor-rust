@@ -79,7 +79,7 @@ impl ObjectImpl for Provider {
      * Deren Vural
      *
      * Notes:
-     * beware that you need to use kebab-case (https://en.wikipedia.org/wiki/Letter_case#Kebab_case)
+     * beware that you need to use kebab-case (<https://en.wikipedia.org/wiki/Letter_case#Kebab_case>)
      *
      * ParamSpec Examples:
      * glib::ParamSpecString::builder("icon").build(),

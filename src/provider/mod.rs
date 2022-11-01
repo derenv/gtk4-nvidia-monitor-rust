@@ -28,7 +28,7 @@ use gtk::prelude::*;
 use std::ffi::OsStr;
 
 // Crates
-use crate::{processor::Processor, property::Property, subprocess};
+use crate::{processor::Processor, property::Property, subprocess::subprocess::exec_check};
 
 // GObject wrapper for Provider
 glib::wrapper! {
@@ -277,7 +277,7 @@ impl Provider {
         match self.property::<i32>("provider-type") {
             // Open Nvidia Settings
             0 => {
-                match subprocess::exec_check(
+                match exec_check(
                     &[OsStr::new("nvidia-settings")],
                     None::<&gio::Cancellable>,
                 ) {
@@ -286,7 +286,7 @@ impl Provider {
                 };
             }
             1 => {
-                match subprocess::exec_check(
+                match exec_check(
                     &[OsStr::new("nvidia-settings")],
                     None::<&gio::Cancellable>,
                 ) {

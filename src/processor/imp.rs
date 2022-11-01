@@ -15,9 +15,9 @@
  * Deren Vural
  *
  * Notes:
- * https://github.com/gtk-rs/gtk4-rs/blob/master/book/src/g_object_properties.md
- * https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/g_object_properties/4/custom_button/imp.rs
- * https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/g_object_properties/4/custom_button/mod.rs
+ * <https://github.com/gtk-rs/gtk4-rs/blob/master/book/src/g_object_properties.md>
+ * <https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/g_object_properties/4/custom_button/imp.rs>
+ * <https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/g_object_properties/4/custom_button/mod.rs>
  */
 
 // Imports
@@ -77,7 +77,7 @@ impl ObjectImpl for Processor {
      * Deren Vural
      *
      * Notes:
-     * beware that you need to use kebab-case (https://en.wikipedia.org/wiki/Letter_case#Kebab_case)
+     * beware that you need to use kebab-case (<https://en.wikipedia.org/wiki/Letter_case#Kebab_case>)
      *
      * ParamSpec Examples:
      * glib::ParamSpecString::builder("icon").build(),

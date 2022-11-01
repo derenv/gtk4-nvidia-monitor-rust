@@ -106,12 +106,10 @@ impl Property {
      * Deren Vural
      *
      * Notes:
-     *
+     * <https://doc.rust-lang.org/std/primitive.array.html>
+     * <https://www.tutorialspoint.com/rust/rust_array.htm>
+     * <https://doc.rust-lang.org/std/vec/struct.Vec.html>
      */
-    // Parsing
-    //https://doc.rust-lang.org/std/primitive.array.html
-    //https://www.tutorialspoint.com/rust/rust_array.htm
-    //https://doc.rust-lang.org/std/vec/struct.Vec.html
     pub fn parse(
         self,
         values: Vec<Vec<String>>,
