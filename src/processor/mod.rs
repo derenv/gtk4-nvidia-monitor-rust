@@ -68,13 +68,13 @@ impl Processor {
      * Notes:
      *
      */
-    pub fn new(base_call: &'static str, tail_call: &'static str) -> Self {
+    pub fn new(base_call: &str, tail_call: &str) -> Self {
         let obj: Processor = Object::new(&[]).expect("Failed to create `Processor`");
 
-        // TODO: set properties
-        obj.set_property("base-call", base_call.to_string());
-        obj.set_property("call", base_call.to_string().clone());
-        obj.set_property("tail-call", tail_call.to_string());
+        // Set properties
+        obj.set_property("base-call", String::from(base_call));
+        obj.set_property("call", String::from(base_call).clone());
+        obj.set_property("tail-call", String::from(tail_call));
 
         obj
     }
@@ -95,7 +95,7 @@ impl Processor {
      * Notes:
      * we'll know what possible sizes will exist (wherever this gets implemented)
      */
-    pub fn process(self) -> Result<Option<String>, glib::Error> {
+    pub fn process(self) -> Result<Option<Vec<String>>, glib::Error> {
         // Create call stack of program and args
         let tail_call = self.property::<String>("tail-call");
         let mut call_stack = self.property::<String>("call");
@@ -138,9 +138,87 @@ impl Processor {
 
         // Build OsStr array from vector (if matching a specific size)
         match call_stack_items.len() {
-            4 => {
+            6 => {
+                //optirun nvidia-smi --query-gpu=gpu_name --format=csv,noheader -i uuid
                 // Build array
-                let argv = [
+                let argv: [&OsStr; 6] = [
+                    call_stack_items[0],
+                    call_stack_items[1],
+                    call_stack_items[2],
+                    call_stack_items[3],
+                    call_stack_items[4],
+                    call_stack_items[5],
+                ];
+
+                // Run process, get output
+                match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
+                    Ok(return_val) => match return_val {
+                        // ACTUAL
+                        (None, None) => return Ok(None),
+
+                        (None, Some(stderr_buffer)) => {
+                            println!(
+                                "Process failed with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer)
+                            );
+                        }
+
+                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
+
+                        (Some(stdout_buffer), Some(stderr_buffer)) => {
+                            println!(
+                                "Process succeeded, but with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer)
+                            );
+
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))));
+                        }
+                    },
+                    Err(err) => return Err(err),
+                };
+            }
+            5 => {
+                //nvidia-smi --query-gpu=gpu_name --format=csv,noheader -i uuid
+                // Build array
+                let argv: [&OsStr; 5] = [
+                    call_stack_items[0],
+                    call_stack_items[1],
+                    call_stack_items[2],
+                    call_stack_items[3],
+                    call_stack_items[4],
+                ];
+
+                // Run process, get output
+                match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
+                    Ok(return_val) => match return_val {
+                        // ACTUAL
+                        (None, None) => return Ok(None),
+
+                        (None, Some(stderr_buffer)) => {
+                            println!(
+                                "Process failed with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer)
+                            );
+                        }
+
+                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
+
+                        (Some(stdout_buffer), Some(stderr_buffer)) => {
+                            println!(
+                                "Process failed with error: {}",
+                                String::from_utf8_lossy(&stderr_buffer)
+                            );
+
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))));
+                        }
+                    },
+                    Err(err) => return Err(err),
+                };
+            }
+            4 => {
+                //nvidia-settings -q GpuUUID -t
+                // Build array
+                let argv: [&OsStr; 4] = [
                     call_stack_items[0],
                     call_stack_items[1],
                     call_stack_items[2],
@@ -156,35 +234,28 @@ impl Processor {
                         (None, Some(stderr_buffer)) => {
                             println!(
                                 "Process failed with error: {}",
-                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                                String::from_utf8_lossy(&stderr_buffer)
                             );
                         }
 
-                        (Some(stdout_buffer), None) => {
-                            let stdout_buffer_contents =
-                                String::from_utf8_lossy(&stdout_buffer).into_owned();
-
-                            return Ok(Some(self.parse(&stdout_buffer_contents)));
-                        }
+                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
-                            let stdout_buffer_contents =
-                                String::from_utf8_lossy(&stdout_buffer).into_owned();
-
                             println!(
                                 "Process failed with error: {}",
-                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                                String::from_utf8_lossy(&stderr_buffer)
                             );
 
-                            return Ok(Some(self.parse(&stdout_buffer_contents)));
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))));
                         }
                     },
                     Err(err) => return Err(err),
                 };
             }
             2 => {
+                //??
                 // Build array
-                let argv = [call_stack_items[0], call_stack_items[1]];
+                let argv: [&OsStr; 2] = [call_stack_items[0], call_stack_items[1]];
 
                 // Run process, get output
                 match subprocess::exec_communicate(&argv, None::<&gio::Cancellable>) {
@@ -195,27 +266,19 @@ impl Processor {
                         (None, Some(stderr_buffer)) => {
                             println!(
                                 "Process failed with error: {}",
-                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                                String::from_utf8_lossy(&stderr_buffer)
                             );
                         }
 
-                        (Some(stdout_buffer), None) => {
-                            let stdout_buffer_contents =
-                                String::from_utf8_lossy(&stdout_buffer).into_owned();
-
-                            return Ok(Some(self.parse(&stdout_buffer_contents)));
-                        }
+                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
-                            let stdout_buffer_contents =
-                                String::from_utf8_lossy(&stdout_buffer).into_owned();
-
                             println!(
                                 "Process failed with error: {}",
-                                String::from_utf8_lossy(&stderr_buffer).into_owned()
+                                String::from_utf8_lossy(&stderr_buffer)
                             );
 
-                            return Ok(Some(self.parse(&stdout_buffer_contents)));
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))));
                         }
                     },
                     Err(err) => return Err(err),
@@ -226,18 +289,6 @@ impl Processor {
 
         Ok(None)
     }
-
-    /*
-    fn add_property(self, call_extension: &str) {
-        todo!()
-        //self.call.push(call_extension);
-    }
-
-    fn get_name(self) -> () {//&str {
-        todo!()
-        //self.name.
-    }
-    */
 
     /*
      * Name:
@@ -255,12 +306,19 @@ impl Processor {
      * Notes:
      * This function is designed to be overloaded by subclasses
      */
-    fn parse(self, input: &str) -> String {
+    fn parse(self, input: &str) -> Vec<String> {
         //NOTE: leaving this here for future use..
         //let mut output = input.replace("\n", "").to_owned();
         //output.push_str("-FUCK");
 
-        input.replace("\n", "")
+        let mut return_val: Vec<String> = vec![];
+
+        for item in input.lines().collect::<Vec<&str>>() {
+            return_val.push(String::from(item));
+            //return_val.insert(0, String::from(item));
+        }
+
+        return_val
     }
 }
 

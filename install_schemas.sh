@@ -25,20 +25,20 @@ SCHEMA_DIR="$HOME/.local/share/glib-2.0/schemas"
 SCHEMA_FILE="com.gtk_d.NvidiaMonitorRust.gschema.xml"
 
 # Create schema directory if it doesn't exist
-if [[ -d "$SCHEMA_DIR" ]]; then
-  echo "$SCHEMA_DIR already exists.."
+if [[ -d $SCHEMA_DIR ]]; then
+	echo "$SCHEMA_DIR already exists.."
 else
-  echo "$SCHEMA_DIR needs created.."
-  mkdir -p "$SCHEMA_DIR"
+	echo "$SCHEMA_DIR needs created.."
+	mkdir -p "$SCHEMA_DIR"
 fi
 
 # Copy schema file across
 if [[ -f "$SCHEMA_DIR/$SCHEMA_FILE" ]]; then
-  echo "$SCHEMA_FILE already exists, overwriting.."
-  cp "./src/$SCHEMA_FILE" "$SCHEMA_DIR/"
+	echo "$SCHEMA_FILE already exists, overwriting.."
+	cp "./src/$SCHEMA_FILE" "$SCHEMA_DIR/"
 else
-  echo "$SCHEMA_FILE needs copied to $SCHEMA_DIR.."
-  cp "./src/$SCHEMA_FILE" "$SCHEMA_DIR/"
+	echo "$SCHEMA_FILE needs copied to $SCHEMA_DIR.."
+	cp "./src/$SCHEMA_FILE" "$SCHEMA_DIR/"
 fi
 
 # Compile schemas

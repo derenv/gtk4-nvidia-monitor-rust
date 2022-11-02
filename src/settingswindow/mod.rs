@@ -117,10 +117,11 @@ impl SettingsWindow {
      *
      */
     fn settings(&self) -> &Settings {
-        self.imp()
-            .settings
-            .get()
-            .expect("`settings` should be set in `setup_settings`.")
+        // Fetch settings
+        match self.imp().settings.get() {
+            Some(settings) => settings,
+            None => panic!("`settings` should be set in `setup_settings`.")
+        }
     }
 
     /*
@@ -251,45 +252,43 @@ impl SettingsWindow {
             .provider_input
             .connect_selected_notify(clone!(@weak self as window => move |_| {
                 // Get new provider choice
-                let row: &ComboRow = &window.imp().provider_input;
-                let item: u32 = row.selected();
+                let provider_type: i32;
 
                 // Validate and set new provider choice
-                match item {
+                match &window.imp().provider_input.selected() {
                     0 => {
                         // Validation
                         //TODO: check if provider program exists, call subprocess?
 
                         // Store chosen provider type
-                        let settings = window.imp().settings.get().expect("..Cannot retrieve settings");
-                        settings.set_int("provider", 0).expect("..Cannot set `provider` setting");
+                        provider_type = 0;
                     },
                     1 => {
                         // Validation
                         //TODO: check if provider program exists, call subprocess?
 
                         // Store chosen provider type
-                        let settings = window.imp().settings.get().expect("..Cannot retrieve settings");
-                        settings.set_int("provider", 1).expect("..Cannot set `provider` setting");
+                        provider_type = 1;
                     },
                     2 => {
                         // Validation
                         //TODO: check if provider program exists, call subprocess?
 
                         // Store chosen provider type
-                        let settings = window.imp().settings.get().expect("..Cannot retrieve settings");
-                        settings.set_int("provider", 2).expect("..Cannot set `provider` setting");
+                        provider_type = 2;
                     },
                     3 => {
                         // Validation
                         //TODO: check if provider program exists, call subprocess?
 
                         // Store chosen provider type
-                        let settings = window.imp().settings.get().expect("..Cannot retrieve settings");
-                        settings.set_int("provider", 3).expect("..Cannot set `provider` setting");
+                        provider_type = 3;
                     },
                     _ => panic!("..Unknown provider chosen"),
                 }
+
+                // Store chosen provider type
+                window.imp().update_setting("provider", provider_type);
             }));
     }
 

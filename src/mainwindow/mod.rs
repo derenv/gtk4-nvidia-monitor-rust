@@ -26,15 +26,10 @@ use imp::SettingsWindowContainer;
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::{Settings, SimpleAction};
 use glib::{clone, Object};
-use std::{cell::RefMut, ffi::OsStr};
+use std::cell::RefMut;
 
 // Modules
-use crate::{formatter, processor, property, provider, settingswindow, subprocess, APP_ID};
-use formatter::Formatter;
-use processor::Processor;
-use property::Property;
-use provider::Provider;
-use settingswindow::SettingsWindow;
+use crate::{APP_ID, provider::Provider, settingswindow::SettingsWindow};
 
 // GObject wrapper for Property
 glib::wrapper! {
@@ -126,6 +121,26 @@ impl MainWindow {
             .settings
             .get()
             .expect("`settings` should be set in `setup_settings`.")
+    }
+
+    /*
+     * Name:
+     * setup_widgets
+     *
+     * Description:
+     * Set up all widgets
+     *
+     * Made:
+     * 23/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    fn setup_widgets(&self) {
+        //
     }
 
     /*
@@ -226,104 +241,73 @@ impl MainWindow {
      * have a single globally accessible action instead, we call add_action on our application instead.
      */
     fn setup_actions(&self) {
-        /*
-        let action_close = SimpleAction::new("close", None);
-        action_close.connect_activate(clone!(@weak self as window => move |_, _| {
-            window.close();
-        }));
-        self.add_action(&action_close);
-        actions.add_action(&action_close);
-        */
-
-        // settings
-        //let task1 = self.settings().create_action("task1");
-
         // Create action from key "open_nvidia_settings" and add to action group "win"
         let open_nvidia_settings: SimpleAction = SimpleAction::new("open_nvidia_settings", None);
         open_nvidia_settings.connect_activate(clone!(@weak self as window => move |_, _| {
             // Get state from settings
-            let settings: &Settings = window.settings();
-            let app_settings_open: bool = settings.boolean("nvidia-settings-open");
+            let app_settings_open: bool = window.imp().get_setting::<bool>("nvidia-settings-open");
+
+            //let defaultAppSystem = Shell.AppSystem.get_default();
+            //let nvidiaSettingsApp = defaultAppSystem.lookup_app('nvidia-settings.desktop');
+            //let def = shell::Edge::Top;
+            //let dd = gio::DesktopAppInfo::from_filename("nvidia-settings.desktop");
 
             if !app_settings_open {
-                match subprocess::exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
-                    Ok(_x) => println!("Opening the Nvidia Settings app.."),
-                    Err(y) => println!(
-                        "An error occured while opening the Nvidia Settings app: {}",
-                        y.message()
-                    ),
-                };
+                // Grab current stored provider
+                let mut provider: Option<Provider> = window.property("provider");
+
+                // Check if provider exists
+                match provider {
+                    Some(prov) => {
+                        // Open Nvidia Settings
+                        match prov.open_settings() {
+                            Ok(_result) => {
+                                println!("Opening the Nvidia Settings app..");
+                            },
+                            Err(err) => println!(
+                                "An error occured: {}",
+                                err
+                            ),
+                        }
+                    },
+                    None => {
+                        // Check provider type
+                        let provider_type: i32 = window.imp().get_setting::<i32>("provider");
+
+                        // Create new provider
+                        println!("Creating new Provider..");//TEST
+                        window.set_property("provider", Some(imp::MainWindow::create_provider(provider_type)));
+
+                        // Grab new provider
+                        provider = window.property("provider");
+
+                        // Open Nvidia Settings
+                        println!("Opening the Nvidia Settings app..");//TEST
+                        match provider {
+                            Some(prov) => {
+                                // Open Nvidia Settings
+                                match prov.open_settings() {
+                                    Ok(_result) => {
+                                        println!("Opening the Nvidia Settings app..");
+                                    },
+                                    Err(err) => println!(
+                                        "An error occured: {}",
+                                        err
+                                    ),
+                                }
+                            },
+                            None => panic!("Cannot find `Provider`!")
+                        }
+                    }
+                }
 
                 // Set state in settings
-                settings.set_boolean("nvidia-settings-open", true).expect("Could not set setting.");
+                window.imp().update_setting::<bool>("nvidia-settings-open", true);
             }
         }));
         self.add_action(&open_nvidia_settings);
 
-        // Create action from key "subprocess" and add to action group "win"
-        let subprocess: SimpleAction = SimpleAction::new("subprocess", None);
-        subprocess.connect_activate(clone!(@weak self as window => move |_, _| {
-            match subprocess::exec_communicate(
-                &[
-                    OsStr::new("nvidia-settings"),
-                    OsStr::new("-q"),
-                    OsStr::new("GpuUUID"),
-                    OsStr::new("-t"),
-                ],
-                None::<&gio::Cancellable>,
-            ) {
-                Ok(return_val) => match return_val {
-                    (None, None) => println!("no stdout or stderr, something went really wrong..."),
-                    (None, Some(stderr_buffer)) => match std::str::from_utf8(&stderr_buffer) {
-                        Ok(stderr_buffer_contents) => {
-                            println!("Process failed with error: {}", stderr_buffer_contents)
-                        }
-                        Err(err) => panic!("{}", err),
-                    },
-                    (Some(stdout_buffer), None) => match std::str::from_utf8(&stdout_buffer) {
-                        Ok(stdout_buffer_contents) => {
-                            println!("Process suceeded, returning: `{}`", stdout_buffer_contents)
-                        }
-                        Err(err) => panic!("{}", err),
-                    },
-                    (Some(stdout_buffer), Some(stderr_buffer)) => {
-                        match std::str::from_utf8(&stdout_buffer) {
-                            Ok(stdout_buffer_contents) => match std::str::from_utf8(&stderr_buffer) {
-                                Ok(stderr_buffer_contents) => println!(
-                                    "Process suceeded, returning: `{}` but with error: `{}`",
-                                    stdout_buffer_contents, stderr_buffer_contents
-                                ),
-                                Err(err) => panic!("{}", err),
-                            },
-                            Err(err) => panic!("{}", err),
-                        }
-                    }
-                },
-                Err(err) => println!("something went wrong: {}", err),
-            };
-        }));
-        self.add_action(&subprocess);
-
-        // Create action from key "processor" and add to action group "win"
-        let processor: SimpleAction = SimpleAction::new("processor", None);
-        processor.connect_activate(clone!(@weak self as window => move |_, _| {
-            let p: Processor = Processor::new("nvidia-settings", "-q GpuUUID -t");
-
-            //NOTE: Leaving this here for future use..
-            //p.set_property("base-call", "nvidia-settings");
-            //p.set_property("call", "nvidia-settings");
-            //p.set_property("tail-call", "t");
-
-            match p.process() {
-                Ok(output) => match output {
-                    Some(valid_output) => println!("Process suceeded, returning: `{}`", valid_output),
-                    None => println!("Process encountered an unknown error.."),
-                },
-                Err(err) => println!("Process encountered an error, returning: `{}`", err),
-            }
-        }));
-        self.add_action(&processor);
-
+        /*
         // Create action from key "formatter_and_property" and add to action group "win"
         let formatter_and_property: SimpleAction =
             SimpleAction::new("formatter_and_property", None);
@@ -334,11 +318,11 @@ impl MainWindow {
             let p: Property = Property::new(&proc, "", "", &form, &1);
 
             let vecc: Vec<Vec<String>> = vec![
-                vec!["1.68".to_string(), "2.01".to_string()],
-                vec!["3.83".to_string(), "4.22".to_string()],
+                vec![String::from("1.68"), String::from("2.01")],
+                vec![String::from("3.83"), String::from("4.22")],
             ];
             match p.parse(vecc, |input: Vec<String>| {
-                Some(input.get(0).unwrap().to_string())
+                Some(String::from(input.get(0).unwrap()))
             }) {
                 Some(results) => {
                     println!("size: {}", results.len());
@@ -354,12 +338,12 @@ impl MainWindow {
             let form: Formatter = Formatter::new();
             let p: Property = Property::new(&proc, "", "", &form, &1);
             let vecc: Vec<Vec<String>> = vec![
-                vec!["1.68".to_string(), "2.01".to_string()],
-                vec!["3.83".to_string(), "4.22".to_string()],
+                vec![String::from("1.68"), String::from("2.01")],
+                vec![String::from("3.83"), String::from("4.22")],
             ];
             match p.parse(vecc, |input: Vec<String>| {
                 // Grab input
-                let mut output: String = input.get(0).unwrap().to_string();
+                let mut output: String = String::from(input.get(0).unwrap());
 
                 // Apply formatting
                 output.push('%');
@@ -381,12 +365,12 @@ impl MainWindow {
             let form: Formatter = Formatter::new();
             let p: Property = Property::new(&proc, "", "", &form, &1);
             let vecc: Vec<Vec<String>> = vec![
-                vec!["1.68".to_string(), "2.01".to_string()],
-                vec!["3.83".to_string(), "4.22".to_string()],
+                vec![String::from("1.68"), String::from("2.01")],
+                vec![String::from("3.83"), String::from("4.22")],
             ];
             match p.parse(vecc, |input: Vec<String>| {
                 // Grab input
-                let input_str: String = input.get(0).unwrap().to_string();
+                let input_str: String = String::from(input.get(0).unwrap());
 
                 // Convert to float
                 match input_str.parse::<f64>() {
@@ -395,7 +379,7 @@ impl MainWindow {
                         let rounded_value: f64 = parsed_value.floor();
 
                         // Convert to string
-                        let mut output: String = rounded_value.to_string();
+                        let mut output: String = String::from(rounded_value);
 
                         // Apply formatting
                         output.push('W');
@@ -425,13 +409,13 @@ impl MainWindow {
             let form: Formatter = Formatter::new();
             let p: Property = Property::new(&proc, "", "", &form, &1);
             let vecc: Vec<Vec<String>> = vec![
-                vec!["1.68".to_string(), "2.01".to_string()],
-                vec!["3.83".to_string(), "4.22".to_string()],
+                vec![String::from("1.68"), String::from("2.01")],
+                vec![String::from("3.83"), String::from("4.22")],
             ];
             match p.parse(vecc, |input: Vec<String>| {
                 // Grab input
-                let current: String = input.get(0).unwrap().to_string();
-                let max: String = input.get(1).unwrap().to_string();
+                let current: String = String::from(input.get(0).unwrap());
+                let max: String = String::from(input.get(1).unwrap());
 
                 // Convert to float
                 match current.parse::<f64>() {
@@ -445,7 +429,7 @@ impl MainWindow {
                                 let rounded_value: f64 = usage.floor();
 
                                 // Convert to string
-                                let mut output: String = rounded_value.to_string();
+                                let mut output: String = String::from(rounded_value);
 
                                 // Apply formatting
                                 output.push('%');
@@ -484,12 +468,12 @@ impl MainWindow {
             let form: Formatter = Formatter::new();
             let p: Property = Property::new(&proc, "", "", &form, &1);
             let vecc: Vec<Vec<String>> = vec![
-                vec!["1.68".to_string(), "2.01".to_string()],
-                vec!["3.83".to_string(), "4.22".to_string()],
+                vec![String::from("1.68"), String::from("2.01")],
+                vec![String::from("3.83"), String::from("4.22")],
             ];
             match p.parse(vecc, |input: Vec<String>| {
                 // Grab input
-                let mut output: String = input.get(0).unwrap().to_string();
+                let mut output: String = String::from(input.get(0).unwrap());
 
                 //TODO: needs moved to settings
                 #[derive(Debug, PartialEq, Eq)]
@@ -515,7 +499,7 @@ impl MainWindow {
                             let rounded_value: f64 = fahrenheit_temp.floor();
 
                             // Convert to string
-                            let mut f_output: String = rounded_value.to_string();
+                            let mut f_output: String = String::from(rounded_value);
 
                             // Apply temperature unit
                             f_output.push(char::from_u32(0x00B0).unwrap());
@@ -546,69 +530,15 @@ impl MainWindow {
             }
         }));
         self.add_action(&formatter_and_property);
-
-        // Create action from key "providers" and add to action group "win"
-        let providers: SimpleAction = SimpleAction::new("providers", None);
-        providers.connect_activate(clone!(@weak self as window => move |_, _| {
-            let _gpu_count: i32 = 1;
-
-            // SETTINGS
-            let _settings_prov: Provider = Provider::new(|| {
-                vec![
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "utilization.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "temperature.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "memory.used,memory.total", "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"), "fan.speed",                "", &Formatter::new(), &1),
-                ]
-            });
-
-            // SMI
-            let _smi_prov: Provider = Provider::new(|| {
-                vec![
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "utilization.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "temperature.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "memory.used,memory.total", "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "fan.speed",                "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
-                ]
-            });
-
-            // SETTINGS & SMI
-            let _both_prov: Provider = Provider::new(|| {
-                vec![
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "utilization.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "temperature.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "memory.used,memory.total", "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-settings", "-q GpuUUID -t"),                         "fan.speed",                "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
-                ]
-            });
-
-            // OPTIMUS
-            let _optimus_prov: Provider = Provider::new(|| {
-                vec![
-                    Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "utilization.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "temperature.gpu",          "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "memory.used,memory.total", "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "fan.speed",                "", &Formatter::new(), &1),
-                    Property::new(&Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"), "power.draw",               "", &Formatter::new(), &1),
-                ]
-            });
-        }));
-        self.add_action(&providers);
-
-        //self.emit_activate_focus()
+        */
 
         let open_app_settings: SimpleAction = SimpleAction::new("open_app_settings", None);
         open_app_settings.connect_activate(clone!(@weak self as window => move |_, _| {
             // Borrow (mutable) the window's container
             let mut settings_window_container: RefMut<SettingsWindowContainer> = window.imp().settings_window.borrow_mut();
 
-            // Clone settings object
-            let settings: &Settings = window.settings();
-
             // Get state from settings
-            settings_window_container.open = settings.boolean("app-settings-open").clone();
+            settings_window_container.open = window.imp().get_setting::<bool>("app-settings-open");
 
             // Check if an object is stored
             match &settings_window_container.window {
@@ -658,7 +588,7 @@ impl MainWindow {
             }
 
             // Set new state in settings
-            settings.set_boolean("app-settings-open", settings_window_container.open).expect("Could not set `app-settings-open` setting.");
+            window.imp().update_setting::<bool>("app-settings-open", settings_window_container.open);
         }));
         self.add_action(&open_app_settings);
 
@@ -668,34 +598,5 @@ impl MainWindow {
             println!("About pop-up not yet implemented..");//TODO
         }));
         self.add_action(&about);
-
-        /*
-        // Create action from key "filter" and add to action group "win"
-        let action_filter = self.settings().create_action("filter");
-        self.add_action(&action_filter);
-
-        // Create action to remove done tasks and add to action group "win"
-        let action_remove_done_tasks =
-            gio::SimpleAction::new("remove-done-tasks", None);
-        action_remove_done_tasks.connect_activate(
-            clone!(@weak self as window => move |_, _| {
-                let tasks = window.tasks();
-                let mut position = 0;
-                while let Some(item) = tasks.item(position) {
-                    // Get `TaskObject` from `glib::Object`
-                    let task_object = item
-                        .downcast_ref::<TaskObject>()
-                        .expect("The object needs to be of type `TaskObject`.");
-
-                    if task_object.is_completed() {
-                        tasks.remove(position);
-                    } else {
-                        position += 1;
-                    }
-                }
-            }),
-        );
-        self.add_action(&action_remove_done_tasks);
-        */
     }
 }

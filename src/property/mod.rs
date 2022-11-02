@@ -21,6 +21,7 @@
 // Custom GObjects
 mod imp;
 
+use gdk::glib::value::FromValue;
 // Imports
 use glib::Object;
 use gtk::{glib, prelude::*};
@@ -81,16 +82,32 @@ impl Property {
     ) -> Self {
         let obj: Property = Object::new(&[]).expect("Failed to create `Property`.");
 
-        // TODO: set properties
+        // Set properties
         obj.set_property("processor", processor);
-        obj.set_property("call-extension", call_extension.to_string());
-        obj.set_property("icon", icon.to_string());
+        obj.set_property("call-extension", String::from(call_extension));
+        obj.set_property("icon", String::from(icon));
         obj.set_property("formatter", formatter);
-        obj.set_property("gpu_count", gpu_count);
+        obj.set_property("gpu-count", gpu_count);
 
         obj
     }
 
+    /*
+     * Name:
+     * parse
+     *
+     * Description:
+     *
+     *
+     * Made:
+     * 06/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
     // Parsing
     //https://doc.rust-lang.org/std/primitive.array.html
     //https://www.tutorialspoint.com/rust/rust_array.htm
@@ -100,31 +117,70 @@ impl Property {
         values: Vec<Vec<String>>,
         func: fn(Vec<String>) -> Option<String>,
     ) -> Option<Vec<String>> {
+        // Initialise results vector
         let mut results: Vec<String> = Vec::new();
 
         // For each GPU
         for i in 0..self.property::<i32>("gpu-count") {
-            // format properties using formatter and add to return values
-            let formatter = self.property::<Formatter>("formatter");
-            match formatter.format(values.get(i as usize).unwrap().clone(), func) {
-                Some(result) => results.push(result),
-                None => return None,
+            // Grab formatter
+            let formatter: Formatter = self.property::<Formatter>("formatter");
+
+            // Check item exists
+            match values.get(i as usize) {
+                Some(valid_data) => {
+                    // Format properties using formatter and add to return values
+                    match formatter.format(valid_data.to_owned(), func) {
+                        Some(result) => results.push(result),
+                        None => return None,//TODO: investigate
+                    }
+                },
+                None => panic!("..Invalid data values"),
             }
         }
 
         Some(results)
     }
 
-    pub fn get_call_extension(&self) -> String {
-        self.property::<String>("call-extension")
+    /*
+     * Name:
+     * get_value
+     *
+     * Description:
+     * Get a property and return it's value
+     *
+     * Made:
+     * 30/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn get_value<T: for<'b> FromValue<'b> + 'static>(&self, name: &str) -> T {
+        // Return the value of the property
+        self.property::<T>(name)
     }
 
-    pub fn open_settings(&self) {
-        if self.property::<bool>("settings") {
-            //
-        } else {
-            //
-        }
+    /*
+     * Name:
+     * update_value
+     *
+     * Description:
+     * Update a property with a new value
+     *
+     * Made:
+     * 29/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn update_value<T: ToValue>(&self, property_name: &str, value: T) {
+        // Update the property with new value
+        self.set_property(property_name, value);
     }
 }
 

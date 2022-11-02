@@ -125,7 +125,9 @@ impl ObjectImpl for Property {
                 self.icon.replace(input_icon);
             }
             "gpu-count" => {
-                let input_gpu_count = value.get().expect("The value needs to be of type `i32`.");
+                let input_gpu_count = value
+                    .get()
+                    .expect("The value needs to be of type `i32`.");
                 self.gpu_count.replace(input_gpu_count);
             }
             "call-extension" => {

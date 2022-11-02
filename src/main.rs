@@ -26,6 +26,7 @@ mod property;
 mod provider;
 mod subprocess;
 use mainwindow::MainWindow;
+mod custom_button;
 mod settingswindow;
 
 // Imports

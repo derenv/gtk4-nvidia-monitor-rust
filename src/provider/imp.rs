@@ -34,13 +34,14 @@ pub struct Provider {
     memory_usage: Cell<Property>,
     fan_speed: Cell<Property>,
     power_usage: Cell<Property>,
+    provider_type: Cell<i32>,
 }
 
 // The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for Provider {
     //Crate+Obj to avoid collisions
-    const NAME: &'static str = "NvidiaMonitorRustProcessor";
+    const NAME: &'static str = "NvidiaMonitorRustProvider";
     // the actual GObject that will be created
     type Type = super::Provider;
     // Parent GObject we inherit from
@@ -96,6 +97,7 @@ impl ObjectImpl for Provider {
                 glib::ParamSpecObject::builder("memory-usage-property", glib::Type::OBJECT).build(),
                 glib::ParamSpecObject::builder("fan-speed-property", glib::Type::OBJECT).build(),
                 glib::ParamSpecObject::builder("power-usage-property", glib::Type::OBJECT).build(),
+                glib::ParamSpecInt::builder("provider-type").build(),
             ]
         });
 
@@ -125,37 +127,43 @@ impl ObjectImpl for Provider {
         //println!("setting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            "utilization" => {
+            "utilization-property" => {
                 let input_utilization_property = value
                     .get()
                     .expect("The value needs to be of type `Property`.");
                 self.utilization.replace(input_utilization_property);
             }
-            "temperature" => {
+            "temperature-property" => {
                 let input_temperature_property = value
                     .get()
                     .expect("The value needs to be of type `Property`.");
                 self.temperature.replace(input_temperature_property);
             }
-            "memory-usage" => {
+            "memory-usage-property" => {
                 let input_memory_usage_property = value
                     .get()
                     .expect("The value needs to be of type `Property`.");
                 self.memory_usage.replace(input_memory_usage_property);
             }
-            "fan-speed" => {
+            "fan-speed-property" => {
                 let input_fan_speed_property = value
                     .get()
                     .expect("The value needs to be of type `Property`.");
                 self.fan_speed.replace(input_fan_speed_property);
             }
-            "power-usage" => {
+            "power-usage-property" => {
                 let input_power_usage_property = value
                     .get()
                     .expect("The value needs to be of type `Property`.");
                 self.power_usage.replace(input_power_usage_property);
             }
-            _ => unimplemented!(), //TODO
+            "provider-type" => {
+                let input_provider_type_property = value
+                    .get()
+                    .expect("The value needs to be of type `i32`.");
+                self.provider_type.replace(input_provider_type_property);
+            }
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 
@@ -179,7 +187,7 @@ impl ObjectImpl for Provider {
         //println!("getting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            "utilization" => {
+            "utilization-property" => {
                 //TODO: this seems ridiculous..
                 let value = self.utilization.take();
 
@@ -187,7 +195,7 @@ impl ObjectImpl for Provider {
 
                 value.to_value()
             }
-            "temperature" => {
+            "temperature-property" => {
                 //TODO: this seems ridiculous..
                 let value = self.temperature.take();
 
@@ -195,7 +203,7 @@ impl ObjectImpl for Provider {
 
                 value.to_value()
             }
-            "memory-usage" => {
+            "memory-usage-property" => {
                 //TODO: this seems ridiculous..
                 let value = self.memory_usage.take();
 
@@ -203,7 +211,7 @@ impl ObjectImpl for Provider {
 
                 value.to_value()
             }
-            "fan-speed" => {
+            "fan-speed-property" => {
                 //TODO: this seems ridiculous..
                 let value = self.fan_speed.take();
 
@@ -211,11 +219,19 @@ impl ObjectImpl for Provider {
 
                 value.to_value()
             }
-            "power-usage" => {
+            "power-usage-property" => {
                 //TODO: this seems ridiculous..
                 let value = self.power_usage.take();
 
                 self.power_usage.set(value.clone());
+
+                value.to_value()
+            }
+            "provider-type" => {
+                //TODO: this seems ridiculous..
+                let value = self.provider_type.get();
+
+                self.provider_type.set(value);
 
                 value.to_value()
             }
