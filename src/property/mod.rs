@@ -155,7 +155,7 @@ impl Property {
      * Notes:
      *
      */
-    pub fn get_value<T: for<'b> FromValue<'b> + 'static>(&self, name: &str) -> T {
+    pub fn get_value<T: for<'a> FromValue<'a> + 'static>(&self, name: &str) -> T {
         // Return the value of the property
         self.property::<T>(name)
     }
