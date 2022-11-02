@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * imp.rs
  *
@@ -28,14 +28,14 @@ use std::{cell::Cell, cell::RefCell, rc::Rc};
 // Modules
 use crate::{custom_button::CustomButton, settingswindow::SettingsWindow, formatter::Formatter, processor::Processor, property::Property, provider::Provider};
 
-// Structure for storing SettingsWindow and info
+/// Structure for storing a SettingsWindow object and any related information
 #[derive(Default)]
 pub struct SettingsWindowContainer {
     pub window: Option<SettingsWindow>,
     pub open: bool,
 }
 
-// Object holding the State
+/// Object holding the State and any Template Children
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/main-window.ui")]
 pub struct MainWindow {
@@ -52,7 +52,7 @@ pub struct MainWindow {
     pub refresh_button: TemplateChild<CustomButton>,
 }
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for MainWindow {
     // `NAME` needs to match `class` attribute of template
@@ -70,7 +70,7 @@ impl ObjectSubclass for MainWindow {
     }
 }
 
-/*
+/**
  * Name:
  * MainWindow
  *
@@ -88,7 +88,7 @@ impl ObjectSubclass for MainWindow {
  */
 #[gtk::template_callbacks]
 impl MainWindow {
-    /*
+    /**
      * Name:
      * update_setting
      *
@@ -117,7 +117,7 @@ impl MainWindow {
         }
     }
 
-    /*
+    /**
      * Name:
      * get_setting
      *
@@ -143,7 +143,7 @@ impl MainWindow {
         }
     }
 
-    /*
+    /**
      * Name:
      * card_selected
      *
@@ -189,7 +189,7 @@ impl MainWindow {
         */
     }
 
-    /*
+    /**
      * Name:
      * create_provider
      *
@@ -435,7 +435,7 @@ impl MainWindow {
 
 
 
-    /*
+    /**
      * Name:
      * refresh_cards
      *
@@ -599,7 +599,8 @@ impl MainWindow {
         }
     }
 }
-/*
+
+/**
  * Trait Name:
  * ObjectImpl
  *
@@ -616,6 +617,22 @@ impl MainWindow {
  *
  */
 impl ObjectImpl for MainWindow {
+    /**
+     * Name:
+     * constructed
+     *
+     * Description:
+     * Called during construction, allows calling setup functions
+     *
+     * Made:
+     * 09/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
     fn constructed(&self, obj: &Self::Type) {
         // Call "constructed" on parent
         self.parent_constructed(obj);
@@ -628,7 +645,7 @@ impl ObjectImpl for MainWindow {
         obj.setup_actions();
     }
 
-    /*
+    /**
      * Name:
      * properties
      *
@@ -642,7 +659,7 @@ impl ObjectImpl for MainWindow {
      * Deren Vural
      *
      * Notes:
-     * beware that you need to use kebab-case (https://en.wikipedia.org/wiki/Letter_case#Kebab_case)
+     * beware that you need to use kebab-case (<https://en.wikipedia.org/wiki/Letter_case#Kebab_case>)
      *
      * ParamSpec Examples:
      * glib::ParamSpecString::builder("icon").build(),
@@ -665,7 +682,7 @@ impl ObjectImpl for MainWindow {
         PROPERTIES.as_ref()
     }
 
-    /*
+    /**
      * Name:
      * set_property
      *
@@ -695,7 +712,7 @@ impl ObjectImpl for MainWindow {
         }
     }
 
-    /*
+    /**
      * Name:
      * property
      *
@@ -728,7 +745,7 @@ impl ObjectImpl for MainWindow {
     }
 }
 
-/*
+/**
  * Trait Name:
  * WidgetImpl
  *
@@ -746,7 +763,7 @@ impl ObjectImpl for MainWindow {
  */
 impl WidgetImpl for MainWindow {}
 
-/*
+/**
  * Trait Name:
  * WindowImpl
  *
@@ -789,7 +806,7 @@ impl WindowImpl for MainWindow {
     }
 }
 
-/*
+/**
  * Trait Name:
  * AdwWindowImpl
  *
@@ -807,7 +824,7 @@ impl WindowImpl for MainWindow {
  */
 impl AdwWindowImpl for MainWindow {}
 
-/*
+/**
  * Trait Name:
  * ApplicationWindowImpl
  *
@@ -825,7 +842,7 @@ impl AdwWindowImpl for MainWindow {}
  */
 impl ApplicationWindowImpl for MainWindow {}
 
-/*
+/**
  * Trait Name:
  * AdwApplicationWindowImpl
  *

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * mod.rs
  *
@@ -28,7 +28,7 @@ use gtk::prelude::*;
 use std::ffi::OsStr;
 
 // Crates
-use crate::{processor::Processor, property::Property, subprocess};
+use crate::{processor::Processor, property::Property, subprocess::subprocess::exec_check};
 
 // GObject wrapper for Provider
 glib::wrapper! {
@@ -37,7 +37,7 @@ glib::wrapper! {
         @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-/*
+/**
  * Trait Name:
  * Provider
  *
@@ -54,7 +54,7 @@ glib::wrapper! {
  *
  */
 impl Provider {
-    /*
+    /**
      * Name:
      * new
      *
@@ -96,7 +96,7 @@ impl Provider {
         obj
     }
 
-    /*
+    /**
      * Name:
      * get_gpu_uuids
      *
@@ -178,7 +178,7 @@ impl Provider {
         }
     }
 
-    /*
+    /**
      * Name:
      * get_gpu_data
      *
@@ -256,7 +256,7 @@ impl Provider {
         }
     }
 
-    /*
+    /**
      * Name:
      * open_settings
      *
@@ -277,7 +277,7 @@ impl Provider {
         match self.property::<i32>("provider-type") {
             // Open Nvidia Settings
             0 => {
-                match subprocess::exec_check(
+                match exec_check(
                     &[OsStr::new("nvidia-settings")],
                     None::<&gio::Cancellable>,
                 ) {
@@ -286,7 +286,7 @@ impl Provider {
                 };
             }
             1 => {
-                match subprocess::exec_check(
+                match exec_check(
                     &[OsStr::new("nvidia-settings")],
                     None::<&gio::Cancellable>,
                 ) {
@@ -301,7 +301,7 @@ impl Provider {
         }
     }
 
-    /*
+    /**
      * Name:
      * update_property_value
      *
@@ -365,7 +365,7 @@ impl Provider {
     }
 }
 
-/*
+/**
  * Trait Name:
  * Default
  *

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * imp.rs
  *
@@ -27,7 +27,7 @@ use std::cell::Cell;
 use crate::formatter::Formatter;
 use crate::processor::Processor;
 
-// Object holding the state
+/// Object holding the State and any Template Children
 #[derive(Default)]
 pub struct Property {
     processor: Cell<Processor>,
@@ -37,7 +37,7 @@ pub struct Property {
     gpu_count: Cell<i32>,
 }
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for Property {
     //Crate+Obj to avoid collisions
@@ -48,7 +48,7 @@ impl ObjectSubclass for Property {
     type ParentType = gtk::Widget;
 }
 
-/*
+/**
  * Trait Name:
  * ObjectImpl
  *
@@ -65,7 +65,7 @@ impl ObjectSubclass for Property {
  *
  */
 impl ObjectImpl for Property {
-    /*
+    /**
      * Name:
      * properties
      *
@@ -79,7 +79,7 @@ impl ObjectImpl for Property {
      * Deren Vural
      *
      * Notes:
-     * beware that you need to use kebab-case (https://en.wikipedia.org/wiki/Letter_case#Kebab_case)
+     * beware that you need to use kebab-case (<https://en.wikipedia.org/wiki/Letter_case#Kebab_case>)
      */
     fn properties() -> &'static [ParamSpec] {
         static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
@@ -98,7 +98,7 @@ impl ObjectImpl for Property {
         PROPERTIES.as_ref()
     }
 
-    /*
+    /**
      * Name:
      * set_property
      *
@@ -152,7 +152,7 @@ impl ObjectImpl for Property {
         }
     }
 
-    /*
+    /**
      * Name:
      * property
      *
@@ -217,7 +217,7 @@ impl ObjectImpl for Property {
     }
 }
 
-/*
+/**
  * Trait Name:
  * WidgetImpl
  *

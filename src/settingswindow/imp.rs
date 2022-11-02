@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * imp.rs
  *
@@ -27,7 +27,7 @@ use gtk::{subclass::prelude::*, CheckButton, CompositeTemplate, SpinButton, Temp
 // Modules
 //use crate::utils::data_path;
 
-// Object holding the State
+/// Object holding the State and any Template Children
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/settings-window.ui")]
 pub struct SettingsWindow {
@@ -42,7 +42,7 @@ pub struct SettingsWindow {
     pub provider_input: TemplateChild<ComboRow>,
 }
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for SettingsWindow {
     // `NAME` needs to match `class` attribute of template
@@ -61,7 +61,7 @@ impl ObjectSubclass for SettingsWindow {
     }
 }
 
-/*
+/**
  * Name:
  * SettingsWindow
  *
@@ -79,7 +79,7 @@ impl ObjectSubclass for SettingsWindow {
  */
 #[gtk::template_callbacks]
 impl SettingsWindow {
-    /*
+    /**
      * Name:
      * update_setting
      *
@@ -149,7 +149,7 @@ impl SettingsWindow {
     }
 }
 
-/*
+/**
  * Trait Name:
  * ObjectImpl
  *
@@ -166,6 +166,22 @@ impl SettingsWindow {
  *
  */
 impl ObjectImpl for SettingsWindow {
+    /**
+     * Name:
+     * constructed
+     *
+     * Description:
+     * Called during construction, allows calling setup functions
+     *
+     * Made:
+     * 09/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
     fn constructed(&self, obj: &Self::Type) {
         // Call "constructed" on parent
         self.parent_constructed(obj);
@@ -179,7 +195,7 @@ impl ObjectImpl for SettingsWindow {
     }
 }
 
-/*
+/**
  * Trait Name:
  * WidgetImpl
  *
@@ -197,7 +213,7 @@ impl ObjectImpl for SettingsWindow {
  */
 impl WidgetImpl for SettingsWindow {}
 
-/*
+/**
  * Trait Name:
  * WindowImpl
  *
@@ -249,7 +265,7 @@ impl WindowImpl for SettingsWindow {
     }
 }
 
-/*
+/**
  * Trait Name:
  * AdwWindowImpl
  *
@@ -267,7 +283,7 @@ impl WindowImpl for SettingsWindow {
  */
 impl AdwWindowImpl for SettingsWindow {}
 
-/*
+/**
  * Trait Name:
  * ApplicationWindowImpl
  *
@@ -285,7 +301,7 @@ impl AdwWindowImpl for SettingsWindow {}
  */
 impl ApplicationWindowImpl for SettingsWindow {}
 
-/*
+/**
  * Trait Name:
  * AdwApplicationWindowImpl
  *

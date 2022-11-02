@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * imp.rs
  *
@@ -25,11 +25,11 @@ use gtk::{glib, subclass::prelude::*};
 // Modules
 //
 
-// Object holding the state
+/// Object holding the State and any Template Children
 #[derive(Default)]
 pub struct Formatter;
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for Formatter {
     //Crate+Obj to avoid collisions
@@ -40,7 +40,7 @@ impl ObjectSubclass for Formatter {
     type ParentType = gtk::Widget;
 }
 
-/*
+/**
  * Trait Name:
  * ObjectImpl
  *
@@ -57,7 +57,7 @@ impl ObjectSubclass for Formatter {
  *
  */
 impl ObjectImpl for Formatter {
-    /*
+    /**
      * Name:
      * properties
      *
@@ -71,7 +71,7 @@ impl ObjectImpl for Formatter {
      * Deren Vural
      *
      * Notes:
-     * beware that you need to use kebab-case (https://en.wikipedia.org/wiki/Letter_case#Kebab_case)
+     * beware that you need to use kebab-case (<https://en.wikipedia.org/wiki/Letter_case#Kebab_case>)
      *
      * ParamSpec Examples:
      * glib::ParamSpecString::builder("icon").build(),
@@ -94,7 +94,7 @@ impl ObjectImpl for Formatter {
         PROPERTIES.as_ref()
     }
 
-    /*
+    /**
      * Name:
      * set_property
      *
@@ -119,7 +119,7 @@ impl ObjectImpl for Formatter {
         }
     }
 
-    /*
+    /**
      * Name:
      * property
      *
@@ -145,7 +145,7 @@ impl ObjectImpl for Formatter {
     }
 }
 
-/*
+/**
  * Trait Name:
  * WidgetImpl
  *

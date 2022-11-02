@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * imp.rs
  *
@@ -26,7 +26,7 @@ use std::cell::Cell;
 // Modules
 use crate::property::Property;
 
-// Object holding the State
+/// Object holding the State and any Template Children
 #[derive(Default)]
 pub struct Provider {
     utilization: Cell<Property>,
@@ -37,7 +37,7 @@ pub struct Provider {
     provider_type: Cell<i32>,
 }
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for Provider {
     //Crate+Obj to avoid collisions
@@ -48,7 +48,7 @@ impl ObjectSubclass for Provider {
     type ParentType = gtk::Widget;
 }
 
-/*
+/**
  * Trait Name:
  * ObjectImpl
  *
@@ -65,7 +65,7 @@ impl ObjectSubclass for Provider {
  *
  */
 impl ObjectImpl for Provider {
-    /*
+    /**
      * Name:
      * properties
      *
@@ -79,7 +79,7 @@ impl ObjectImpl for Provider {
      * Deren Vural
      *
      * Notes:
-     * beware that you need to use kebab-case (https://en.wikipedia.org/wiki/Letter_case#Kebab_case)
+     * beware that you need to use kebab-case (<https://en.wikipedia.org/wiki/Letter_case#Kebab_case>)
      *
      * ParamSpec Examples:
      * glib::ParamSpecString::builder("icon").build(),
@@ -107,7 +107,7 @@ impl ObjectImpl for Provider {
         PROPERTIES.as_ref()
     }
 
-    /*
+    /**
      * Name:
      * set_property
      *
@@ -167,7 +167,7 @@ impl ObjectImpl for Provider {
         }
     }
 
-    /*
+    /**
      * Name:
      * property
      *
@@ -240,7 +240,7 @@ impl ObjectImpl for Provider {
     }
 }
 
-/*
+/**
  * Trait Name:
  * WidgetImpl
  *

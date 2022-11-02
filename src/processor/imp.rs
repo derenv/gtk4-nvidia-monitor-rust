@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/*
+/**
  * Name:
  * imp.rs
  *
@@ -15,9 +15,9 @@
  * Deren Vural
  *
  * Notes:
- * https://github.com/gtk-rs/gtk4-rs/blob/master/book/src/g_object_properties.md
- * https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/g_object_properties/4/custom_button/imp.rs
- * https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/g_object_properties/4/custom_button/mod.rs
+ * <https://github.com/gtk-rs/gtk4-rs/blob/master/book/src/g_object_properties.md>
+ * <https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/g_object_properties/4/custom_button/imp.rs>
+ * <https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/g_object_properties/4/custom_button/mod.rs>
  */
 
 // Imports
@@ -27,7 +27,7 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use std::cell::Cell;
 
-// Object holding the State
+/// Object holding the State and any Template Children
 #[derive(Default)]
 pub struct Processor {
     base_call: Cell<String>,
@@ -35,7 +35,7 @@ pub struct Processor {
     tail_call: Cell<String>,
 }
 
-// The central trait for subclassing a GObject
+/// The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for Processor {
     //Crate+Obj to avoid collisions
@@ -46,7 +46,7 @@ impl ObjectSubclass for Processor {
     type ParentType = gtk::Widget;
 }
 
-/*
+/**
  * Trait Name:
  * ObjectImpl
  *
@@ -63,7 +63,7 @@ impl ObjectSubclass for Processor {
  *
  */
 impl ObjectImpl for Processor {
-    /*
+    /**
      * Name:
      * properties
      *
@@ -77,7 +77,7 @@ impl ObjectImpl for Processor {
      * Deren Vural
      *
      * Notes:
-     * beware that you need to use kebab-case (https://en.wikipedia.org/wiki/Letter_case#Kebab_case)
+     * beware that you need to use kebab-case (<https://en.wikipedia.org/wiki/Letter_case#Kebab_case>)
      *
      * ParamSpec Examples:
      * glib::ParamSpecString::builder("icon").build(),
@@ -102,7 +102,7 @@ impl ObjectImpl for Processor {
         PROPERTIES.as_ref()
     }
 
-    /*
+    /**
      * Name:
      * set_property
      *
@@ -144,7 +144,7 @@ impl ObjectImpl for Processor {
         }
     }
 
-    /*
+    /**
      * Name:
      * property
      *
@@ -193,7 +193,7 @@ impl ObjectImpl for Processor {
     }
 }
 
-/*
+/**
  * Trait Name:
  * WidgetImpl
  *
