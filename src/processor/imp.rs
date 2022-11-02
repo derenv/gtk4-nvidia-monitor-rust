@@ -140,7 +140,7 @@ impl ObjectImpl for Processor {
                     .expect("The value needs to be of type `String`.");
                 self.tail_call.replace(input_tail_call);
             }
-            _ => unimplemented!(), //TODO
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 
@@ -188,7 +188,7 @@ impl ObjectImpl for Processor {
 
                 value.to_value()
             }
-            _ => unimplemented!(), //TODO
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 }

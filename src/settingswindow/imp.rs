@@ -19,6 +19,7 @@
  */
 
 // Imports
+use glib::{once_cell::sync::Lazy, ParamSpec, Value};
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ComboRow};
 use gio::Settings;
 use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject};
@@ -192,6 +193,93 @@ impl ObjectImpl for SettingsWindow {
         obj.setup_widgets();
         obj.setup_callbacks();
         obj.setup_actions();
+    }
+
+    /**
+     * Name:
+     * properties
+     *
+     * Description:
+     * Create list of custom properties for our GObject
+     *
+     * Made:
+     * 05/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     * beware that you need to use kebab-case (<https://en.wikipedia.org/wiki/Letter_case#Kebab_case>)
+     *
+     * ParamSpec Examples:
+     * glib::ParamSpecString::builder("icon").build(),
+     * glib::ParamSpecUInt::builder("gpu_count").build(),
+     * glib::ParamSpecString::builder("call_extension").build(),
+     * TODO: these are from property class
+     * glib::ParamSpecBoxed::builder("processor").build(),
+     * glib::ParamSpecObject::builder("formatter").build(),
+     */
+    fn properties() -> &'static [ParamSpec] {
+        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
+            vec![
+                //
+            ]
+        });
+
+        //println!("PROPERTIES: {:?}", PROPERTIES);//TEST
+        //println!("trying to add `base_call`: {:?}", glib::ParamSpecString::builder("base_call").build());//TEST
+
+        PROPERTIES.as_ref()
+    }
+
+    /**
+     * Name:
+     * set_property
+     *
+     * Description:
+     * Mutator for custom GObject properties
+     *
+     * Made:
+     * 05/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    fn set_property(&self, _obj: &Self::Type, _id: usize, _value: &Value, pspec: &ParamSpec) {
+        //println!("setting: {:?}", pspec.name());//TEST
+
+        match pspec.name() {
+            //
+            _ => panic!("Property `{}` does not exist..", pspec.name())
+        }
+    }
+
+    /**
+     * Name:
+     * property
+     *
+     * Description:
+     * Accessir for custom GObject properties
+     *
+     * Made:
+     * 05/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    fn property(&self, _obj: &Self::Type, _id: usize, pspec: &ParamSpec) -> Value {
+        //println!("getting: {:?}", pspec.name());//TEST
+
+        match pspec.name() {
+            //
+            _ => panic!("Property `{}` does not exist..", pspec.name())
+        }
     }
 }
 

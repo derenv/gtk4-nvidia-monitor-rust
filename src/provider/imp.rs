@@ -235,7 +235,7 @@ impl ObjectImpl for Provider {
 
                 value.to_value()
             }
-            _ => unimplemented!(), //TODO
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 }

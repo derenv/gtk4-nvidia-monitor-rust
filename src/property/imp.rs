@@ -148,7 +148,7 @@ impl ObjectImpl for Property {
                     .expect("The value needs to be of type `Formatter`.");
                 self.formatter.replace(input_formatter);
             }
-            _ => unimplemented!(), //TODO
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 
@@ -212,7 +212,7 @@ impl ObjectImpl for Property {
 
                 value.to_value()
             }
-            _ => unimplemented!(), //TODO
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 }
