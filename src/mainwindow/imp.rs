@@ -700,10 +700,12 @@ impl ObjectImpl for MainWindow {
 
         match pspec.name() {
             "provider" => {
-                let input_provider_property: Option<Provider> = value
-                    .get()
-                    .expect("The value needs to be of type `Provider`.");
-                self.provider.replace(input_provider_property);
+                match value.get() {
+                    Ok(input_provider_property) => {
+                        self.provider.replace(input_provider_property);
+                    },
+                    Err(_) => panic!("The value needs to be of type `Provider`."),
+                }
             }
             _ => panic!("Property `{}` does not exist..", pspec.name())
         }

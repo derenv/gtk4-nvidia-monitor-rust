@@ -123,22 +123,28 @@ impl ObjectImpl for Processor {
 
         match pspec.name() {
             "base-call" => {
-                let input_base_call = value
-                    .get()
-                    .expect("The value needs to be of type `String`.");
-                self.base_call.replace(input_base_call);
+                match value.get() {
+                    Ok(input_base_call) => {
+                        self.base_call.replace(input_base_call);
+                    },
+                    Err(_) => panic!("The value needs to be of type `String`."),
+                }
             }
             "call" => {
-                let input_call = value
-                    .get()
-                    .expect("The value needs to be of type `String`.");
-                self.call.replace(input_call);
+                match value.get() {
+                    Ok(input_call) => {
+                        self.call.replace(input_call);
+                    },
+                    Err(_) => panic!("The value needs to be of type `String`."),
+                }
             }
             "tail-call" => {
-                let input_tail_call = value
-                    .get()
-                    .expect("The value needs to be of type `String`.");
-                self.tail_call.replace(input_tail_call);
+                match value.get() {
+                    Ok(input_tail_call) => {
+                        self.tail_call.replace(input_tail_call);
+                    },
+                    Err(_) => panic!("The value needs to be of type `String`."),
+                }
             }
             _ => panic!("Property `{}` does not exist..", pspec.name())
         }

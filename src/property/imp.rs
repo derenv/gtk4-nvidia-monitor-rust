@@ -119,34 +119,44 @@ impl ObjectImpl for Property {
 
         match pspec.name() {
             "icon" => {
-                let input_icon = value
-                    .get()
-                    .expect("The value needs to be of type `String`.");
-                self.icon.replace(input_icon);
+                match value.get() {
+                    Ok(input_icon) => {
+                        self.icon.replace(input_icon);
+                    },
+                    Err(_) => panic!("The value needs to be of type `String`."),
+                }
             }
             "gpu-count" => {
-                let input_gpu_count = value
-                    .get()
-                    .expect("The value needs to be of type `i32`.");
-                self.gpu_count.replace(input_gpu_count);
+                match value.get() {
+                    Ok(input_gpu_count) => {
+                        self.gpu_count.replace(input_gpu_count);
+                    },
+                    Err(_) => panic!("The value needs to be of type `i32`."),
+                }
             }
             "call-extension" => {
-                let input_call_extension = value
-                    .get()
-                    .expect("The value needs to be of type `String`.");
-                self.call_extension.replace(input_call_extension);
+                match value.get() {
+                    Ok(input_call_extension) => {
+                        self.call_extension.replace(input_call_extension);
+                    },
+                    Err(_) => panic!("The value needs to be of type `String`."),
+                }
             }
             "processor" => {
-                let input_processor = value
-                    .get()
-                    .expect("The value needs to be of type `Processor`.");
-                self.processor.replace(input_processor);
+                match value.get() {
+                    Ok(input_processor) => {
+                        self.processor.replace(input_processor);
+                    },
+                    Err(_) => panic!("The value needs to be of type `Processor`."),
+                }
             }
             "formatter" => {
-                let input_formatter = value
-                    .get()
-                    .expect("The value needs to be of type `Formatter`.");
-                self.formatter.replace(input_formatter);
+                match value.get() {
+                    Ok(input_formatter) => {
+                        self.formatter.replace(input_formatter);
+                    },
+                    Err(_) => panic!("The value needs to be of type `Formatter`."),
+                }
             }
             _ => panic!("Property `{}` does not exist..", pspec.name())
         }

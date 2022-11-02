@@ -128,40 +128,56 @@ impl ObjectImpl for Provider {
 
         match pspec.name() {
             "utilization-property" => {
-                let input_utilization_property = value
-                    .get()
-                    .expect("The value needs to be of type `Property`.");
-                self.utilization.replace(input_utilization_property);
+                match value.get() {
+                    Ok(input_utilization_property) => {
+                        self.utilization.replace(input_utilization_property);
+                    },
+                    Err(_) => panic!("The value needs to be of type `Property`."),
+                }
             }
             "temperature-property" => {
+                match value.get() {
+                    Ok(input_temperature_property) => {
+                        self.temperature.replace(input_temperature_property);
+                    },
+                    Err(_) => panic!("The value needs to be of type `Property`."),
+                }
                 let input_temperature_property = value
                     .get()
                     .expect("The value needs to be of type `Property`.");
                 self.temperature.replace(input_temperature_property);
             }
             "memory-usage-property" => {
-                let input_memory_usage_property = value
-                    .get()
-                    .expect("The value needs to be of type `Property`.");
-                self.memory_usage.replace(input_memory_usage_property);
+                match value.get() {
+                    Ok(input_memory_usage_property) => {
+                        self.memory_usage.replace(input_memory_usage_property);
+                    },
+                    Err(_) => panic!("The value needs to be of type `Property`."),
+                }
             }
             "fan-speed-property" => {
-                let input_fan_speed_property = value
-                    .get()
-                    .expect("The value needs to be of type `Property`.");
-                self.fan_speed.replace(input_fan_speed_property);
+                match value.get() {
+                    Ok(input_fan_speed_property) => {
+                        self.fan_speed.replace(input_fan_speed_property);
+                    },
+                    Err(_) => panic!("The value needs to be of type `Property`."),
+                }
             }
             "power-usage-property" => {
-                let input_power_usage_property = value
-                    .get()
-                    .expect("The value needs to be of type `Property`.");
-                self.power_usage.replace(input_power_usage_property);
+                match value.get() {
+                    Ok(input_power_usage_property) => {
+                        self.power_usage.replace(input_power_usage_property);
+                    },
+                    Err(_) => panic!("The value needs to be of type `Property`."),
+                }
             }
             "provider-type" => {
-                let input_provider_type_property = value
-                    .get()
-                    .expect("The value needs to be of type `i32`.");
-                self.provider_type.replace(input_provider_type_property);
+                match value.get() {
+                    Ok(input_provider_type_property) => {
+                        self.provider_type.replace(input_provider_type_property);
+                    },
+                    Err(_) => panic!("The value needs to be of type `i32`."),
+                }
             }
             _ => panic!("Property `{}` does not exist..", pspec.name())
         }
