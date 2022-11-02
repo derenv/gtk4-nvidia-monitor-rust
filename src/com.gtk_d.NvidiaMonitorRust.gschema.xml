@@ -42,15 +42,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
       </description>
     </key>
 
-    <!-- List of GPUs -->
-    <key name="gpus" type="as">
-      <default>[]</default>
-      <summary>GPU UUIDs</summary>
-      <description>
-        List of UUIDs of scanned GPUs
-      </description>
-    </key>
-
     <!-- Not entirely sure what these are for..-->
     <key name="settingsconfig" type="as">
       <default>[]</default>
