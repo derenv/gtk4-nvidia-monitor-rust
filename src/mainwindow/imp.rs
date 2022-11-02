@@ -487,11 +487,8 @@ impl MainWindow {
                 // Update GPU list
                 match existing_provider.get_gpu_uuids() {
                     Ok(gpu_uuids) => {
-                        // Get GPU list
-                        let gpu_count: i32 = gpu_uuids.len() as i32;
-
                         // Update each property
-                        match existing_provider.update_property_value::<i32>("gpu-count", gpu_count) {
+                        match existing_provider.update_property_value::<i32>("gpu-count", gpu_uuids.len() as i32) {
                             Ok(_) => {
                                 // Construct a row for each GPU
                                 for uuid in gpu_uuids {
