@@ -19,14 +19,14 @@
  */
 
 // Imports
-use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ActionRow};
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
 use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject, FromVariant, once_cell::sync::Lazy, ParamSpec, Value};
-use gtk::{subclass::prelude::*, CompositeTemplate, ListBox, TemplateChild};
-use std::{cell::Cell, cell::RefCell, rc::Rc};
+use gtk::{subclass::prelude::*, CompositeTemplate, Stack, TemplateChild, Button, ScrolledWindow, PolicyType};
+use std::{cell::Cell, cell::RefCell, rc::Rc, cell::RefMut};
 
 // Modules
-use crate::{custom_button::CustomButton, settingswindow::SettingsWindow, formatter::Formatter, processor::Processor, property::Property, provider::Provider};
+use crate::{settingswindow::SettingsWindow, formatter::Formatter, processor::Processor, property::Property, provider::Provider, gpu_page::GpuPage};
 
 /// Structure for storing a SettingsWindow object and any related information
 #[derive(Default)]
@@ -43,13 +43,10 @@ pub struct MainWindow {
     pub settings_window: Rc<RefCell<SettingsWindowContainer>>,
     pub provider: Cell<Option<Provider>>,
 
-    //pub pages: Cell<Vec<GtkBox>>,
+    gpu_pages: RefCell<Vec<GpuPage>>,
 
     #[template_child]
-    pub cards_list: TemplateChild<ListBox>,
-
-    #[template_child]
-    pub refresh_button: TemplateChild<CustomButton>,
+    pub gpu_stack: TemplateChild<Stack>,
 }
 
 /// The central trait for subclassing a GObject
@@ -145,52 +142,6 @@ impl MainWindow {
 
     /**
      * Name:
-     * card_selected
-     *
-     * Description:
-     * Template callback for GPU card/row item selection
-     *
-     * Made:
-     * 28/10/2022
-     *
-     * Made by:
-     * Deren Vural
-     *
-     * Notes:
-     * (placeholder, needs updated when right hand pane is working)
-     */
-    #[template_callback]
-    fn card_selected(&self, row: &ActionRow) {
-        println!("CARD CHOSEN: {}", row.title());//TEST
-
-        /*
-        // Activate appropriate page of right pane
-        // For each of the currently stored pages
-        let exists: bool = false;
-        for page in self.pages.take() {
-            // Check if the page exists
-            if page.uuid == row.subtitle() {
-                exists = true;
-
-                // Set current_page
-                //set current_page to page(row.subtitle())
-            }
-        }
-        if !exists {
-        //    // Create new page using UUID
-        //    create new_page using row.subtitle()
-        //
-        //    // Add new page to list of currently stored pages
-        //    add new_page to self.pages
-        //
-        //    // Set current_page
-        //    set current_page to new_page
-        }
-        */
-    }
-
-    /**
-     * Name:
      * create_provider
      *
      * Description:
@@ -203,7 +154,7 @@ impl MainWindow {
      * Deren Vural
      *
      * Notes:
-     * ??causes crash??
+     *
      */
     pub fn create_provider(provider_type: i32) -> Provider {
         match provider_type {
@@ -229,7 +180,14 @@ impl MainWindow {
                             ),
                             Property::new(
                                 &Processor::new("nvidia-settings", "-q GpuUUID -t"),
-                                "memory.used,memory.total",
+                                "memory.used",
+                                "",
+                                &Formatter::new(),
+                                &0,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "memory.total",
                                 "",
                                 &Formatter::new(),
                                 &0,
@@ -275,7 +233,14 @@ impl MainWindow {
                             ),
                             Property::new(
                                 &Processor::new("nvidia-settings", "-q GpuUUID -t"),
-                                "memory.used,memory.total",
+                                "memory.used",
+                                "",
+                                &Formatter::new(),
+                                &0,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                "memory.total",
                                 "",
                                 &Formatter::new(),
                                 &0,
@@ -314,7 +279,14 @@ impl MainWindow {
                             ),
                             Property::new(
                                 &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
-                                "memory.used,memory.total",
+                                "memory.used",
+                                "",
+                                &Formatter::new(),
+                                &0,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                "memory.total",
                                 "",
                                 &Formatter::new(),
                                 &0,
@@ -360,7 +332,14 @@ impl MainWindow {
                             ),
                             Property::new(
                                 &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
-                                "memory.used,memory.total",
+                                "memory.used",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
+                                "memory.total",
                                 "",
                                 &Formatter::new(),
                                 &1,
@@ -406,7 +385,14 @@ impl MainWindow {
                             ),
                             Property::new(
                                 &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
-                                "memory.used,memory.total",
+                                "memory.used",
+                                "",
+                                &Formatter::new(),
+                                &1,
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                "memory.total",
                                 "",
                                 &Formatter::new(),
                                 &1,
@@ -433,7 +419,40 @@ impl MainWindow {
         }
     }
 
+    /*
+     * Name:
+     * create_gpu_page
+     *
+     * Description:
+     * Create a new object of type GpuPage and add to stack
+     *
+     * Made:
+     * 07/11/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    fn create_gpu_page(&self, uuid: &str, name: &str, provider: &Provider) {
+        // Create new GpuPage object
+        let new_page: GpuPage = GpuPage::new(&uuid, &name, &provider);
 
+        // Add to list of pages
+        let mut gpu_page_list: RefMut<Vec<GpuPage>> = self.gpu_pages.borrow_mut();
+        gpu_page_list.push(new_page);
+        let new_page_ref: &GpuPage = gpu_page_list.last().expect("COULD NOT FETCH GPU PAGE REF");
+
+        // Create scrollable container
+        let scrolled_window: ScrolledWindow = ScrolledWindow::new();
+        scrolled_window.set_hscrollbar_policy(PolicyType::Never);
+        scrolled_window.set_vscrollbar_policy(PolicyType::Automatic);
+        scrolled_window.set_child(Some(new_page_ref));
+
+        // Append new ListBoxRow object to GtkListBox
+        self.gpu_stack.add_titled(&scrolled_window, Some(&uuid), &name);
+    }
 
     /**
      * Name:
@@ -452,24 +471,21 @@ impl MainWindow {
      *
      */
     #[template_callback]
-    fn refresh_cards(&self, button: &CustomButton) {
+    fn refresh_cards(&self, _button: &Button) {
         //TEST
-        match button.label() {
-            Some(label_val) => println!("Button Pressed: {}", label_val),
-            None => panic!("..Cannot grab label of refresh button")
-        }
+        println!("GPU Scan Button Pressed!");
 
         // Clear current ActionRow objects from GtkListBox
         let mut done: bool = false;
         while !done {
             // Try to grab a child
-            let current_child: Option<gtk::Widget> = self.cards_list.get().first_child();
+            let current_child: Option<gtk::Widget> = self.gpu_stack.get().first_child();
 
             // Check if there are any children left
             match current_child {
                 Some(valid_child) => {
                     // Remove child
-                    self.cards_list.get().remove(&valid_child);
+                    self.gpu_stack.get().remove(&valid_child);
                 }
                 None => {
                     // End loop
@@ -478,8 +494,9 @@ impl MainWindow {
             }
         }
 
-        // Grab provider
+        // Grab copy of current provider
         let provider: Option<Provider> = self.provider.take();
+        self.provider.set(provider.clone());
 
         // If provider does not exist
         match provider {
@@ -495,32 +512,14 @@ impl MainWindow {
                                     // Get GPU data
                                     match existing_provider.get_gpu_data(&uuid, "name") {
                                         Ok(gpu_name) => {
-                                            // Create new ActionRow object
-                                            let current_row: ActionRow =
-                                            ActionRow::builder()
-                                                .title(&gpu_name)
-                                                .subtitle(&uuid)
-                                                .activatable(true)
-                                                .selectable(true)
-                                                .build();
-
-                                            // Append new ActionRow object to GtkListBox
-                                            self.cards_list.append(&current_row);
+                                            // Create new GpuPage object and Add to list of pages
+                                            self.create_gpu_page(&uuid, &gpu_name, &existing_provider);
                                         },
                                         Err(err) => {
                                             println!("..Attempt to read GPU name failed, returning: {}", err);
 
-                                            // Create new ActionRow object
-                                            let current_row: ActionRow =
-                                            ActionRow::builder()
-                                                .title(&uuid)
-                                                .subtitle(&uuid)
-                                                .activatable(true)
-                                                .selectable(true)
-                                                .build();
-
-                                            // Append new ActionRow object to GtkListBox
-                                            self.cards_list.append(&current_row);
+                                            // Create new GpuPage object and Add to list of pages
+                                            self.create_gpu_page(&uuid, &uuid, &existing_provider);
                                         }
                                     }
                                 }
@@ -532,18 +531,19 @@ impl MainWindow {
                 }
 
                 // Re-Store provider
-                self.provider.set(Some(existing_provider));
+                //self.provider.set(Some(existing_provider));
             }
             None => {
                 // Check provider type
                 let provider_type: i32 = self.get_setting::<i32>("provider");
 
+                // Create new provider
                 let new_provider: Provider = MainWindow::create_provider(provider_type);
 
                 // Update GPU list
                 match new_provider.get_gpu_uuids() {
                     Ok(gpu_uuids) => {
-                        // Get GPU list
+                        // Get GPU list size
                         let gpu_count: i32 = gpu_uuids.len() as i32;
 
                         // Update each property
@@ -554,32 +554,14 @@ impl MainWindow {
                                     // Get GPU data
                                     match new_provider.get_gpu_data(&uuid, "name") {
                                         Ok(gpu_name) => {
-                                            // Create new ActionRow object
-                                            let current_row: ActionRow =
-                                            ActionRow::builder()
-                                                .title(&gpu_name)
-                                                .subtitle(&uuid)
-                                                .activatable(true)
-                                                .selectable(true)
-                                                .build();
-
-                                            // Append new ActionRow object to GtkListBox
-                                            self.cards_list.append(&current_row);
+                                            // Create new GpuPage object and Add to list of pages
+                                            self.create_gpu_page(&uuid, &gpu_name, &new_provider);
                                         },
                                         Err(err) => {
                                             println!("..Attempt to read GPU name failed, returning: {}", err);
 
-                                            // Create new ActionRow object
-                                            let current_row: ActionRow =
-                                            ActionRow::builder()
-                                                .title(&uuid)
-                                                .subtitle(&uuid)
-                                                .activatable(true)
-                                                .selectable(true)
-                                                .build();
-
-                                            // Append new ActionRow object to GtkListBox
-                                            self.cards_list.append(&current_row);
+                                            // Create new GpuPage object and Add to list of pages
+                                            self.create_gpu_page(&uuid, &uuid, &new_provider);
                                         }
                                     }
                                 }
@@ -591,7 +573,7 @@ impl MainWindow {
                 }
 
                 // Store new provider
-                self.provider.set(Some(new_provider));
+                //self.provider.set(Some(new_provider));
             }
         }
     }
@@ -779,24 +761,86 @@ impl WidgetImpl for MainWindow {}
  *
  */
 impl WindowImpl for MainWindow {
+    /*
+     * Name:
+     * close_request
+     *
+     * Description:
+     * Run when window closed
+     *
+     * Made:
+     * 09/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
     fn close_request(&self, window: &Self::Type) -> Inhibit {
-        /*
-        // Store task data in vector
-        let backup_data: Vec<TaskData> = window
-            .tasks()
-            .snapshot()
-            .iter()
-            .filter_map(Cast::downcast_ref::<TaskObject>)
-            .map(TaskObject::task_data)
-            .collect();
+        // Create vector for final saving
+        let mut save_data: Vec<Vec<(String, String)>> = vec![];
+        //let mut save_data: gio::ListStore;
 
-        // Save state to file
-        let file = File::create(data_path()).expect("Could not create json file.");
-        serde_json::to_writer(file, &backup_data)
-            .expect("Could not write data to json file");
+        // For each GPU page
+        for current_page in self.gpu_pages.take() {
+            // Grab data stored in page
+            let uuid: String = current_page.property::<String>("uuid");
+            //println!("UUID FETCH: {}", current_page.property::<String>("uuid"));
+            let name: String = current_page.property::<String>("name");
+            //println!("NAME FETCH: {}", current_page.property::<String>("name"));
 
-        */
-        // Set state in settings
+            // Create vector for current GPU
+            let mut current_stats: Vec<(String, String)> = vec![];
+
+            // For stat object in page
+            //for label in current_page.property::<>("stats") {
+                //
+            //}
+            // PLACEHOLDER
+            current_stats.push(("uuid".to_string(), uuid));
+            current_stats.push(("name".to_string(), name));
+            // PLACEHOLDER
+
+            // Add current vector to final vector
+            save_data.push(current_stats);
+            //let test_s = gtk::Label::new(Some("FUCK"));
+            //save_data.append(&test_s);
+        }
+
+        // Create collection to store in json
+        // TEST OUTPUT
+        for gpu in save_data {
+            for stat in gpu {
+                println!("STAT NAME: `{}` STAT VALUE: `{}`", stat.0, stat.1);
+            }
+        }
+        // let qq = save_data
+        //      .snapshot() //?
+        //      .iter()
+        //      .filter_map(Cast::downcast_ref::<TaskObject>)
+        //      .map(TaskObject::task_data)
+        //      .collect();
+
+        // let gpu_data: Vec<TaskData> = current_page
+        //     .tasks()    // change to "items" and grab all statistic pairs/objects
+        //     .snapshot() //?
+        //     .iter()
+        //     .filter_map(Cast::downcast_ref::<TaskObject>)
+        //     .map(TaskObject::task_data)
+        //     .collect();
+
+        // Store in json
+        // Create json file object
+        //let file = File::create(data_path()).expect("Could not create json file.");
+
+        // Write json file
+        // serde_json::to_writer(file, &gpu_data)
+        //     .expect("Could not write data to json file");
+
+
+
+        // Store sub-window states in settings
         self.update_setting("app-settings-open", false);
         self.update_setting("nvidia-settings-open", false);
 

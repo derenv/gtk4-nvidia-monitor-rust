@@ -4,30 +4,6 @@ SPDX-FileCopyrightText: 2022 Deren Vural
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 <interface>
-  <!-- Main Menu -->
-  <menu id="main-menu">
-    <submenu>
-      <attribute name="label" translatable="yes">Preferences</attribute>
-      <item>
-        <attribute name="label" translatable="yes">Open Nvidia Settings</attribute>
-        <attribute name="action">win.open_nvidia_settings</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">Open App Settings</attribute>
-        <attribute name="action">win.open_app_settings</attribute>
-      </item>
-    </submenu>
-
-    <item>
-      <attribute name="label" translatable="yes">Test Formatter and Property</attribute>
-      <attribute name="action">win.formatter_and_property</attribute>
-    </item>
-    <item>
-      <attribute name="label" translatable="yes">About</attribute>
-      <attribute name="action">win.about</attribute>
-    </item>
-  </menu>
-
   <!-- Header Implementation -->
   <template class="NvidiaExtensionMainWindow" parent="GtkApplicationWindow">
     <!-- Properties -->
@@ -57,144 +33,95 @@ SPDX-License-Identifier: GPL-3.0-or-later
             <property name="tooltip-text" translatable="yes">Toggle Panel</property>
           </object>
         </child>
-      </object>
-    </child>
 
-  <!-- Content Container -->
-    <child>
-      <object class="GtkScrolledWindow">
-        <!-- Properties -->
-        <property name="hscrollbar-policy">never</property>
-        <property name="min-content-height">750</property>
-        <property name="min-content-width">500</property>
-        <property name="vexpand">True</property>
-        <property name="hexpand">True</property>
+        <child type="end">
+          <object class="GtkButton">
+            <!-- Properties -->
+            <property name="icon-name">view-refresh-symbolic</property>
+            <property name="tooltip-text" translatable="yes">Scan for GPUs</property>
 
-        <!-- Children -->
-        <property name="child">
-          <object class="AdwClamp">
-            <property name="child">
-              <object class="AdwLeaflet">
-                <!-- Properties -->
-                <property name="transition-type">slide</property>
-                <property name="visible-child">content</property>
-
-                <!-- Content -->
-                <!-- Children -->
-                <child>
-                  <object class="GtkBox" id="sidebar">
-                    <!-- Properties -->
-                    <property name="orientation">vertical</property>
-
-                    <property name="vexpand">True</property>
-                    <property name="hexpand">True</property>
-                    <property name="halign">fill</property>
-                    <!--
-                    <property name="width-request">250</property>
-                    -->
-
-                    <property name="margin-top">12</property>
-                    <property name="margin-bottom">12</property>
-                    <property name="margin-start">12</property>
-                    <property name="margin-end">12</property>
-                    <property name="spacing">12</property>
-
-                    <!-- Children -->
-                    <child>
-                      <object class="GtkScrolledWindow">
-                        <!-- Properties -->
-                        <property name="vexpand">True</property>
-                        <property name="hexpand">True</property>
-
-                        <!-- Children -->
-                        <child>
-                          <object class="GtkListBox" id="cards_list">
-                            <!-- Properties -->
-                            <property name="show-separators">True</property>
-
-                            <!-- Signals -->
-                            <signal name="row_activated" handler="card_selected" swapped="true"/>
-
-                            <!-- Style Info -->
-                            <style>
-                              <class name="boxed-list" />
-                            </style>
-                          </object>
-                        </child>
-
-                      </object>
-                    </child>
-
-                    <child>
-                      <object class="NvidiaMonitorRustCustomButton" id="refresh_button">
-                        <!-- Properties -->
-                        <property name="label">Scan for GPUs</property>
-
-                        <!-- Signals -->
-                        <signal name="clicked" handler="refresh_cards" swapped="true"/>
-                      </object>
-                    </child>
-
-                  </object>
-                </child>
-
-                <child type="separator">
-                  <object class="GtkSeparator">
-                    <!-- Properties -->
-                    <property name="vexpand">True</property>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkBox" id="content">
-                    <!-- Properties -->
-                    <property name="orientation">vertical</property>
-                    <property name="vexpand">True</property>
-                    <property name="hexpand">True</property>
-                    <!--
-                    <property name="halign">fill</property>
-                    <property name="width-request">500</property>
-                    -->
-
-                    <property name="margin-top">12</property>
-                    <property name="margin-bottom">12</property>
-                    <property name="margin-start">12</property>
-                    <property name="margin-end">12</property>
-                    <property name="spacing">12</property>
-
-                    <child>
-                      <object class="GtkScrolledWindow">
-                        <!-- Properties -->
-                        <property name="vexpand">True</property>
-                        <property name="hexpand">True</property>
-
-                        <!-- Children -->
-                        <child>
-                          <object class="GtkButton">
-                            <property name="label">This should be in the right hand pane</property>
-                          </object>
-                        </child>
-
-                        <!--
-                        <child>
-                          <object class="GtkEntry" id="entry">
-                            <property name="placeholder-text" translatable="yes">Enter a Task…</property>
-                            <property name="secondary-icon-name">list-add-symbolic</property>
-                          </object>
-                        </child>
-                        -->
-                      </object>
-                    </child>
-
-                  </object>
-                </child>
-
-              </object>
-            </property>
+            <!-- Signals -->
+            <signal name="clicked" handler="refresh_cards" swapped="true"/>
           </object>
-        </property>
+        </child>
       </object>
     </child>
 
+    <!-- Content Container -->
+    <child>
+      <object class="GtkPaned" id="home_paned">
+        <property name="can-focus">True</property>
+        <property name="visible">True</property>
+        <property name="width-request">500</property>
+        <property name="height-request">500</property>
+        <child>
+          <object class="GtkStackSidebar" id="stack_sidebar">
+            <!-- Properties -->
+            <property name="halign">start</property>
+            <property name="hexpand">True</property>
+            <property name="hexpand-set">True</property>
+            <property name="vexpand">True</property>
+            <property name="vexpand-set">True</property>
+            <property name="width-request">250</property>
+            <property name="height-request">500</property>
+            <property name="margin-top">12</property>
+            <property name="margin-bottom">12</property>
+            <property name="margin-start">12</property>
+            <property name="margin-end">12</property>
+            <property name="stack">gpu_stack</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkStack" id="gpu_stack">
+            <!-- Properties -->
+            <property name="transition-type">crossfade</property>
+
+            <!-- Children -->
+            <child>
+              <object class="GtkStackPage" id="default">
+                <!-- Properties -->
+                <property name="name">default</property>
+                <property name="title" translatable="true"> </property>
+
+                <!-- Children -->
+                <property name="child">
+                  <object class="GtkLabel">
+                    <!-- Properties -->
+                    <property name="label">This should be in the right hand pane</property>
+                  </object>
+                </property>
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+      </object>
+    </child>
   </template>
+
+  <!-- Main Menu -->
+  <menu id="main-menu">
+    <submenu>
+      <attribute name="label" translatable="yes">Preferences</attribute>
+      <item>
+        <attribute name="label" translatable="yes">Open Nvidia Settings</attribute>
+        <attribute name="action">win.open_nvidia_settings</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Open App Settings</attribute>
+        <attribute name="action">win.open_app_settings</attribute>
+      </item>
+    </submenu>
+
+    <item>
+      <attribute name="label" translatable="yes">Test Formatter and Property</attribute>
+      <attribute name="action">win.formatter_and_property</attribute>
+    </item>
+    <item>
+      <attribute name="label" translatable="yes">About</attribute>
+      <attribute name="action">win.about</attribute>
+    </item>
+  </menu>
 </interface>

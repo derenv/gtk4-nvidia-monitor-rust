@@ -6,7 +6,7 @@
  * mod.rs
  *
  * Description:
- * Public-facing interface/wrapper for our custom GObject (Window)
+ * Public-facing interface/wrapper for our custom GObject (MainWindow)
  *
  * Made:
  * 09/10/2022
@@ -31,7 +31,7 @@ use std::cell::RefMut;
 // Modules
 use crate::{APP_ID, provider::Provider, settingswindow::SettingsWindow};
 
-// GObject wrapper for Property
+// GObject wrapper for MainWindow
 glib::wrapper! {
     pub struct MainWindow(ObjectSubclass<imp::MainWindow>)
         @extends gtk::ApplicationWindow, gtk::Window, gtk::Widget,
@@ -181,6 +181,10 @@ impl MainWindow {
         /*
         if let Ok(file) = File::open(data_path()) {
             // Deserialize data from file to vector
+            let gpu_page_layout: Vec<Vec<String>>
+
+
+            // Deserialize data from file to vector
             let backup_data: Vec<TaskData> = serde_json::from_reader(file).expect(
                 "It should be possible to read `backup_data` from the json file.",
             );
@@ -193,6 +197,7 @@ impl MainWindow {
 
             // Insert restored objects into model
             self.tasks().extend_from_slice(&task_objects);
+            self.append_page();
         }
         */
     }

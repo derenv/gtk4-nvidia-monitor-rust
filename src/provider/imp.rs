@@ -20,8 +20,9 @@
 
 // Imports
 use glib::{once_cell::sync::Lazy, ParamSpec, Value};
-use gtk::{glib, prelude::*, subclass::prelude::*};
+use gtk::{prelude::*, subclass::prelude::*};
 use std::cell::Cell;
+use adwaita::glib;
 
 // Modules
 use crate::property::Property;
@@ -32,6 +33,7 @@ pub struct Provider {
     utilization: Cell<Property>,
     temperature: Cell<Property>,
     memory_usage: Cell<Property>,
+    memory_total: Cell<Property>,
     fan_speed: Cell<Property>,
     power_usage: Cell<Property>,
     provider_type: Cell<i32>,
@@ -95,6 +97,7 @@ impl ObjectImpl for Provider {
                 glib::ParamSpecObject::builder("utilization-property", glib::Type::OBJECT).build(),
                 glib::ParamSpecObject::builder("temperature-property", glib::Type::OBJECT).build(),
                 glib::ParamSpecObject::builder("memory-usage-property", glib::Type::OBJECT).build(),
+                glib::ParamSpecObject::builder("memory-total-property", glib::Type::OBJECT).build(),
                 glib::ParamSpecObject::builder("fan-speed-property", glib::Type::OBJECT).build(),
                 glib::ParamSpecObject::builder("power-usage-property", glib::Type::OBJECT).build(),
                 glib::ParamSpecInt::builder("provider-type").build(),
@@ -151,6 +154,14 @@ impl ObjectImpl for Provider {
                 match value.get() {
                     Ok(input_memory_usage_property) => {
                         self.memory_usage.replace(input_memory_usage_property);
+                    },
+                    Err(_) => panic!("The value needs to be of type `Property`."),
+                }
+            }
+            "memory-total-property" => {
+                match value.get() {
+                    Ok(input_memory_total_property) => {
+                        self.memory_total.replace(input_memory_total_property);
                     },
                     Err(_) => panic!("The value needs to be of type `Property`."),
                 }
@@ -224,6 +235,14 @@ impl ObjectImpl for Provider {
                 let value = self.memory_usage.take();
 
                 self.memory_usage.set(value.clone());
+
+                value.to_value()
+            }
+            "memory-total-property" => {
+                //TODO: this seems ridiculous..
+                let value = self.memory_total.take();
+
+                self.memory_total.set(value.clone());
 
                 value.to_value()
             }

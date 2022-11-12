@@ -22,7 +22,7 @@
 mod imp;
 
 // Imports
-use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ComboRow};
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
 use glib::{clone, Object};
 use gtk::{Adjustment, CheckButton, StringList};

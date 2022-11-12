@@ -20,7 +20,8 @@
 
 // Imports
 use glib::{once_cell::sync::Lazy, ParamSpec, ToValue, Value};
-use gtk::{glib, subclass::prelude::*};
+use gtk::{subclass::prelude::*};
+use adwaita::glib;
 use std::cell::Cell;
 
 // Modules
@@ -184,7 +185,7 @@ impl ObjectImpl for Property {
         match pspec.name() {
             "icon" => {
                 //TODO: this seems ridiculous..
-                let value = self.icon.take();
+                let value: String = self.icon.take();
 
                 self.icon.set(value.clone());
 
@@ -192,7 +193,7 @@ impl ObjectImpl for Property {
             }
             "gpu-count" => {
                 //TODO: this seems ridiculous..
-                let value = self.gpu_count.take();
+                let value: i32 = self.gpu_count.take();
 
                 self.gpu_count.set(value);
 
@@ -200,7 +201,7 @@ impl ObjectImpl for Property {
             }
             "call-extension" => {
                 //TODO: this seems ridiculous..
-                let value = self.call_extension.take();
+                let value: String = self.call_extension.take();
 
                 self.call_extension.set(value.clone());
 
@@ -208,7 +209,7 @@ impl ObjectImpl for Property {
             }
             "processor" => {
                 //TODO: this seems ridiculous..
-                let value = self.processor.take();
+                let value: Processor = self.processor.take();
 
                 self.processor.set(value.clone());
 
@@ -216,7 +217,7 @@ impl ObjectImpl for Property {
             }
             "formatter" => {
                 //TODO: this seems ridiculous..
-                let value = self.formatter.take();
+                let value: Formatter = self.formatter.take();
 
                 self.formatter.set(value.clone());
 
