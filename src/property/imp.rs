@@ -20,7 +20,8 @@
 
 // Imports
 use glib::{once_cell::sync::Lazy, ParamSpec, ToValue, Value};
-use gtk::{glib, subclass::prelude::*};
+use gtk::{subclass::prelude::*};
+use adwaita::glib;
 use std::cell::Cell;
 
 // Modules
@@ -119,36 +120,46 @@ impl ObjectImpl for Property {
 
         match pspec.name() {
             "icon" => {
-                let input_icon = value
-                    .get()
-                    .expect("The value needs to be of type `String`.");
-                self.icon.replace(input_icon);
+                match value.get() {
+                    Ok(input_icon) => {
+                        self.icon.replace(input_icon);
+                    },
+                    Err(_) => panic!("The value needs to be of type `String`."),
+                }
             }
             "gpu-count" => {
-                let input_gpu_count = value
-                    .get()
-                    .expect("The value needs to be of type `i32`.");
-                self.gpu_count.replace(input_gpu_count);
+                match value.get() {
+                    Ok(input_gpu_count) => {
+                        self.gpu_count.replace(input_gpu_count);
+                    },
+                    Err(_) => panic!("The value needs to be of type `i32`."),
+                }
             }
             "call-extension" => {
-                let input_call_extension = value
-                    .get()
-                    .expect("The value needs to be of type `String`.");
-                self.call_extension.replace(input_call_extension);
+                match value.get() {
+                    Ok(input_call_extension) => {
+                        self.call_extension.replace(input_call_extension);
+                    },
+                    Err(_) => panic!("The value needs to be of type `String`."),
+                }
             }
             "processor" => {
-                let input_processor = value
-                    .get()
-                    .expect("The value needs to be of type `Processor`.");
-                self.processor.replace(input_processor);
+                match value.get() {
+                    Ok(input_processor) => {
+                        self.processor.replace(input_processor);
+                    },
+                    Err(_) => panic!("The value needs to be of type `Processor`."),
+                }
             }
             "formatter" => {
-                let input_formatter = value
-                    .get()
-                    .expect("The value needs to be of type `Formatter`.");
-                self.formatter.replace(input_formatter);
+                match value.get() {
+                    Ok(input_formatter) => {
+                        self.formatter.replace(input_formatter);
+                    },
+                    Err(_) => panic!("The value needs to be of type `Formatter`."),
+                }
             }
-            _ => unimplemented!(), //TODO
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 
@@ -174,7 +185,7 @@ impl ObjectImpl for Property {
         match pspec.name() {
             "icon" => {
                 //TODO: this seems ridiculous..
-                let value = self.icon.take();
+                let value: String = self.icon.take();
 
                 self.icon.set(value.clone());
 
@@ -182,7 +193,7 @@ impl ObjectImpl for Property {
             }
             "gpu-count" => {
                 //TODO: this seems ridiculous..
-                let value = self.gpu_count.take();
+                let value: i32 = self.gpu_count.take();
 
                 self.gpu_count.set(value);
 
@@ -190,7 +201,7 @@ impl ObjectImpl for Property {
             }
             "call-extension" => {
                 //TODO: this seems ridiculous..
-                let value = self.call_extension.take();
+                let value: String = self.call_extension.take();
 
                 self.call_extension.set(value.clone());
 
@@ -198,7 +209,7 @@ impl ObjectImpl for Property {
             }
             "processor" => {
                 //TODO: this seems ridiculous..
-                let value = self.processor.take();
+                let value: Processor = self.processor.take();
 
                 self.processor.set(value.clone());
 
@@ -206,13 +217,13 @@ impl ObjectImpl for Property {
             }
             "formatter" => {
                 //TODO: this seems ridiculous..
-                let value = self.formatter.take();
+                let value: Formatter = self.formatter.take();
 
                 self.formatter.set(value.clone());
 
                 value.to_value()
             }
-            _ => unimplemented!(), //TODO
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 }

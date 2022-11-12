@@ -21,11 +21,10 @@
  */
 
 // Imports
-use gtk::glib::once_cell::sync::Lazy;
-use gtk::glib::{self, ParamSpec, Value};
-use gtk::prelude::*;
-use gtk::subclass::prelude::*;
 use std::cell::Cell;
+use glib::{once_cell::sync::Lazy, ParamSpec, Value};
+use gtk::{prelude::*, subclass::prelude::*};
+use adwaita::glib;
 
 /// Object holding the State and any Template Children
 #[derive(Default)]
@@ -123,24 +122,30 @@ impl ObjectImpl for Processor {
 
         match pspec.name() {
             "base-call" => {
-                let input_base_call = value
-                    .get()
-                    .expect("The value needs to be of type `String`.");
-                self.base_call.replace(input_base_call);
+                match value.get() {
+                    Ok(input_base_call) => {
+                        self.base_call.replace(input_base_call);
+                    },
+                    Err(_) => panic!("The value needs to be of type `String`."),
+                }
             }
             "call" => {
-                let input_call = value
-                    .get()
-                    .expect("The value needs to be of type `String`.");
-                self.call.replace(input_call);
+                match value.get() {
+                    Ok(input_call) => {
+                        self.call.replace(input_call);
+                    },
+                    Err(_) => panic!("The value needs to be of type `String`."),
+                }
             }
             "tail-call" => {
-                let input_tail_call = value
-                    .get()
-                    .expect("The value needs to be of type `String`.");
-                self.tail_call.replace(input_tail_call);
+                match value.get() {
+                    Ok(input_tail_call) => {
+                        self.tail_call.replace(input_tail_call);
+                    },
+                    Err(_) => panic!("The value needs to be of type `String`."),
+                }
             }
-            _ => unimplemented!(), //TODO
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 
@@ -166,7 +171,7 @@ impl ObjectImpl for Processor {
         match pspec.name() {
             "base-call" => {
                 //TODO: this seems ridiculous..
-                let value = self.base_call.take();
+                let value: String = self.base_call.take();
 
                 self.base_call.set(value.clone());
 
@@ -174,7 +179,7 @@ impl ObjectImpl for Processor {
             }
             "call" => {
                 //TODO: this seems ridiculous..
-                let value = self.call.take();
+                let value: String = self.call.take();
 
                 self.call.set(value.clone());
 
@@ -182,13 +187,13 @@ impl ObjectImpl for Processor {
             }
             "tail-call" => {
                 //TODO: this seems ridiculous..
-                let value = self.tail_call.take();
+                let value: String = self.tail_call.take();
 
                 self.tail_call.set(value.clone());
 
                 value.to_value()
             }
-            _ => unimplemented!(), //TODO
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 }

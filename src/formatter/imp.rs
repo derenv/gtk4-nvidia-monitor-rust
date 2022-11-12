@@ -115,7 +115,7 @@ impl ObjectImpl for Formatter {
 
         match pspec.name() {
             //
-            _ => unimplemented!(), //TODO
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 
@@ -140,7 +140,7 @@ impl ObjectImpl for Formatter {
 
         match pspec.name() {
             //
-            _ => unimplemented!(), //TODO
+            _ => panic!("Property `{}` does not exist..", pspec.name())
         }
     }
 }

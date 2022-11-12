@@ -141,6 +141,45 @@ impl Property {
 
     /**
      * Name:
+     * parse_alt
+     *
+     * Description:
+     * Run processor with passed uuid and stored formatter + property name, then return to caller
+     *
+     * Made:
+     * 12/11/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+    pub fn parse_alt(
+        self,
+        uuid: &str,
+    ) -> Option<String> {
+        // Grab formatter & processor
+        let formatter: Formatter = self.property("formatter");
+        let processor: Processor = self.property("processor");
+        // Grab property name
+        let property: String = self.property("call-extension");//TODO: rename to `name`
+
+        // Give processor the uuid and property we want
+        match processor.process(uuid, &property) {
+            Ok(result) => {
+                // Format returned property using formatter and then return
+                match formatter.format(result) {
+                    Some(formatted_result) => return Some(result),
+                    None => return None,
+                }
+            },
+            Err(err) => panic!("Processor error: `{}`", err.message()),
+        }
+    }
+    */
+
+    /**
+     * Name:
      * get_value
      *
      * Description:

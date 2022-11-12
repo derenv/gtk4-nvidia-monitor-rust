@@ -86,10 +86,11 @@ impl Provider {
             obj.set_property("utilization-property", properties[0].clone());
             obj.set_property("temperature-property", properties[1].clone());
             obj.set_property("memory-usage-property", properties[2].clone());
-            obj.set_property("fan-speed-property", properties[3].clone());
+            obj.set_property("memory-total-property", properties[3].clone());
+            obj.set_property("fan-speed-property", properties[4].clone());
             if properties.len() == 5 {
                 // Only gets set when smi is present
-                obj.set_property("power-usage-property", properties[4].clone());
+                obj.set_property("power-usage-property", properties[5].clone());
             }
         }
 
@@ -207,6 +208,80 @@ impl Provider {
                             String::from("--query-gpu=gpu_name --format=csv,noheader -i ") + uuid
                         ];
                     }
+                    "util" => {
+                        processor_args = [
+                            String::from("nvidia-smi"),
+                            String::from("--query-gpu=utilization.gpu --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    "temp" => {
+                        processor_args = [
+                            String::from("nvidia-smi"),
+                            String::from("--query-gpu=temperature.gpu --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    "memory_usage" => {
+                        processor_args = [
+                            String::from("nvidia-smi"),
+                            String::from("--query-gpu=memory.used --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    "memory_total" => {
+                        processor_args = [
+                            String::from("nvidia-smi"),
+                            String::from("--query-gpu=memory.total --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    "fan_speed" => {
+                        processor_args = [
+                            String::from("nvidia-smi"),
+                            String::from("--query-gpu=fan.speed --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    "power_usage" => {
+                        processor_args = [
+                            String::from("nvidia-smi"),
+                            String::from("--query-gpu=power.draw --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    _ => {
+                        // Return error..
+                        return Err(String::from("Invalid property name, check provider preferences.."))
+                    }
+                }
+            }
+            1 => {
+                match property {
+                    "util" => {
+                        processor_args = [
+                            String::from("nvidia-settings"),
+                            String::from("-q=[gpu:") + uuid + "]/GPUUtilization -t"
+                        ];
+                    }
+                    "temp" => {
+                        processor_args = [
+                            String::from("nvidia-settings"),
+                            String::from("-q=[gpu:") + uuid + "]/GPUCoreTemp -t"
+                        ];
+                    }
+                    "memory_usage" => {
+                        processor_args = [
+                            String::from("nvidia-settings"),
+                            String::from("-q=[gpu:") + uuid + "]/UsedDedicatedGPUMemory -t"
+                        ];
+                    }
+                    "memory_total" => {
+                        processor_args = [
+                            String::from("nvidia-settings"),
+                            String::from("-q=[gpu:") + uuid + "]/TotalDedicatedGPUMemory -t"
+                        ];
+                    }
+                    "fan_speed" => {
+                        processor_args = [
+                            String::from("nvidia-settings"),
+                            String::from("-q=GPUCurrentFanSpeedRPM -t")
+                        ];
+                    }
                     _ => {
                         // Return error..
                         return Err(String::from("Invalid property name, check provider preferences.."))
@@ -220,6 +295,42 @@ impl Provider {
                         processor_args = [
                             String::from("optirun"),
                             String::from("nvidia-smi --query-gpu=gpu_name --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    "util" => {
+                        processor_args = [
+                            String::from("optirun"),
+                            String::from("nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    "temp" => {
+                        processor_args = [
+                            String::from("optirun"),
+                            String::from("nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    "memory_usage" => {
+                        processor_args = [
+                            String::from("optirun"),
+                            String::from("nvidia-smi --query-gpu=memory.used --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    "memory_total" => {
+                        processor_args = [
+                            String::from("optirun"),
+                            String::from("nvidia-smi --query-gpu=memory.total --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    "fan_speed" => {
+                        processor_args = [
+                            String::from("optirun"),
+                            String::from("nvidia-smi --query-gpu=fan.speed --format=csv,noheader -i ") + uuid
+                        ];
+                    }
+                    "power_usage" => {
+                        processor_args = [
+                            String::from("optirun"),
+                            String::from("nvidia-smi --query-gpu=power.draw --format=csv,noheader -i ") + uuid
                         ];
                     }
                     _ => {

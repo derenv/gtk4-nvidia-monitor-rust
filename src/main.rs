@@ -24,6 +24,7 @@ mod processor;
 mod property;
 mod provider;
 mod subprocess;
+mod gpu_page;
 use mainwindow::MainWindow;
 mod custom_button;
 mod settingswindow;
