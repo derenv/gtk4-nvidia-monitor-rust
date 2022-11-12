@@ -19,14 +19,17 @@
  */
 
 // Imports
-use std::{cell::Ref, cell::Cell, cell::RefCell, rc::Rc};
+use adwaita::{gio, glib, prelude::*};
 use gio::Settings;
-use glib::{once_cell::sync::OnceCell, once_cell::sync::Lazy, ParamSpec, ToValue, Value, subclass::InitializingObject};
+use glib::{
+    once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject, ParamSpec,
+    ToValue, Value,
+};
 use gtk::{subclass::prelude::*, CompositeTemplate};
-use adwaita::{glib, gio, prelude::*};
+use std::{cell::Cell, cell::Ref, cell::RefCell, rc::Rc};
 
 // Modules
-use crate::{provider::Provider};
+use crate::provider::Provider;
 
 /// Object holding the State and any Template Children
 #[derive(CompositeTemplate, Default)]
@@ -195,31 +198,25 @@ impl ObjectImpl for GpuPage {
         // println!("N: `{}`", x);
 
         match pspec.name() {
-            "uuid" => {
-                match value.get() {
-                    Ok(input_uuid) => {
-                        self.uuid.replace(input_uuid);
-                    },
-                    Err(_) => panic!("The value needs to be of type `String`."),
+            "uuid" => match value.get() {
+                Ok(input_uuid) => {
+                    self.uuid.replace(input_uuid);
                 }
-            }
-            "name" => {
-                match value.get() {
-                    Ok(input_name) => {
-                        self.name.replace(input_name);
-                    },
-                    Err(_) => panic!("The value needs to be of type `String`."),
+                Err(_) => panic!("The value needs to be of type `String`."),
+            },
+            "name" => match value.get() {
+                Ok(input_name) => {
+                    self.name.replace(input_name);
                 }
-            }
-            "provider" => {
-                match value.get() {
-                    Ok(input_provider_property) => {
-                        self.provider.replace(input_provider_property);
-                    },
-                    Err(_) => panic!("The value needs to be of type `Provider`."),
+                Err(_) => panic!("The value needs to be of type `String`."),
+            },
+            "provider" => match value.get() {
+                Ok(input_provider_property) => {
+                    self.provider.replace(input_provider_property);
                 }
-            }
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+                Err(_) => panic!("The value needs to be of type `Provider`."),
+            },
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
 
         // let x: String = self.uuid.take();
@@ -273,7 +270,7 @@ impl ObjectImpl for GpuPage {
 
                 value.to_value()
             }
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 }
@@ -313,4 +310,3 @@ impl WidgetImpl for GpuPage {}
  *
  */
 impl GridImpl for GpuPage {}
-

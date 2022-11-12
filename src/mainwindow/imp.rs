@@ -437,7 +437,7 @@ impl MainWindow {
      */
     fn create_gpu_page(&self, uuid: &str, name: &str, provider: &Provider) {
         // Create new GpuPage object
-        let new_page: GpuPage = GpuPage::new(&uuid, &name, &provider);
+        let new_page: GpuPage = GpuPage::new(uuid, name, provider);
 
         // Add to list of pages
         let mut gpu_page_list: RefMut<Vec<GpuPage>> = self.gpu_pages.borrow_mut();
@@ -451,7 +451,7 @@ impl MainWindow {
         scrolled_window.set_child(Some(new_page_ref));
 
         // Append new ListBoxRow object to GtkListBox
-        self.gpu_stack.add_titled(&scrolled_window, Some(&uuid), &name);
+        self.gpu_stack.add_titled(&scrolled_window, Some(uuid), name);
     }
 
     /**

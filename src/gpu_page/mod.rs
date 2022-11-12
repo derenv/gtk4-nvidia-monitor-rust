@@ -17,19 +17,20 @@
  * Notes:
  *
  */
-
 // Custom GObjects
 mod imp;
 
 // Imports
-use glib::Object;
+use adwaita::{gio, glib};
 use gio::Settings;
-use adwaita::{glib, gio};
-use gtk::{subclass::prelude::*, prelude::*, Label, Orientation::Horizontal, Box, LayoutChild, Button};
-use std::{sync::MutexGuard, sync::Arc, sync::Mutex};
+use glib::Object;
+use gtk::{
+    prelude::*, subclass::prelude::*, Box, Button, Label, LayoutChild, Orientation::Horizontal,
+};
+use std::{sync::Arc, sync::Mutex, sync::MutexGuard};
 
 // Modules
-use crate::{APP_ID, provider::Provider};
+use crate::{provider::Provider, APP_ID};
 
 // GObject wrapper for GpuPage
 glib::wrapper! {
@@ -170,13 +171,12 @@ impl GpuPage {
                     "memory_usage",
                     "memory_total",
                     "fan_speed",
-                    "power_usage"
+                    "power_usage",
                 ];
                 let statistics_store: Arc<Mutex<Vec<&str>>> = Arc::new(Mutex::new(statistics_data));
 
                 // Edit button
-                let edit_button: Button = Button::builder()
-                    .build();
+                let edit_button: Button = Button::builder().build();
                 self.attach(&edit_button, 3, 0, 24, 24);
 
                 // Set layout properties of button
@@ -184,24 +184,19 @@ impl GpuPage {
                 child_manager.set_property("row-span", 2);
                 child_manager.set_property("column-span", 2);
 
-
                 // For each Statistic
                 let mut labels: Vec<Label> = Vec::new();
                 for statistic in Arc::clone(&statistics_store).lock().unwrap().iter() {
                     //==BUILD==
                     // Build label & add to grid
                     let new_title: String = String::from(statistic.to_owned()) + "_label";
-                    let new_title_label: Label = Label::builder()
-                        .label(statistic)
-                        .name(&new_title)
-                        .build();
+                    let new_title_label: Label =
+                        Label::builder().label(statistic).name(&new_title).build();
 
                     // Build label & add to grid
                     let new_content: String = String::from(statistic.to_owned());
-                    let new_content_label: Label = Label::builder()
-                        .label("")
-                        .name(&new_content)
-                        .build();
+                    let new_content_label: Label =
+                        Label::builder().label("").name(&new_content).build();
 
                     // Create box for 2 labels
                     let new_box_name: String = String::from(statistic.to_owned()) + "_box";
@@ -217,7 +212,6 @@ impl GpuPage {
                     let child_manager: LayoutChild = grid_manager.layout_child(&new_box);
                     child_manager.set_property("row-span", 2);
                     child_manager.set_property("column-span", 2);
-
 
                     //==SHOW==
                     // Show new labels & box
@@ -243,12 +237,7 @@ impl GpuPage {
                     let uuid: String = uuid_lock.lock().unwrap().as_str().to_owned();
 
                     // Create provider for scanning gpu data
-                    let provider: Provider = Provider::new(
-                        || {
-                            vec![]
-                        },
-                        0,
-                    );
+                    let provider: Provider = Provider::new(Vec::new, 0);
 
                     // For each Statistic
                     for statistic in statistics.iter() {
@@ -258,21 +247,21 @@ impl GpuPage {
                                 // For each output label of the page
                                 for label in &labels {
                                     // Check if correct label
-                                    if String::from(statistic.to_owned()) == String::from(label.widget_name()) {
+                                    if *statistic.to_owned() == label.widget_name() {
                                         label.set_label(&stat);
                                     }
                                 }
                             }
                             Err(err) => {
                                 println!("panicked when fetching gpu data: `{}`", err);
-                                return Continue(false)
+                                return Continue(false);
                             }
                         }
                     }
 
-                    return Continue(true)
+                    Continue(true)
                 });
-            },
+            }
             None => panic!("Cannot fetch layout manager of grid.."),
         }
     }
