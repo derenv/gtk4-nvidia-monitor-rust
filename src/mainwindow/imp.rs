@@ -442,16 +442,19 @@ impl MainWindow {
         // Add to list of pages
         let mut gpu_page_list: RefMut<Vec<GpuPage>> = self.gpu_pages.borrow_mut();
         gpu_page_list.push(new_page);
-        let new_page_ref: &GpuPage = gpu_page_list.last().expect("COULD NOT FETCH GPU PAGE REF");
+        match gpu_page_list.last() {
+            Some(new_page_ref) => {
+                // Create scrollable container
+                let scrolled_window: ScrolledWindow = ScrolledWindow::new();
+                scrolled_window.set_hscrollbar_policy(PolicyType::Never);
+                scrolled_window.set_vscrollbar_policy(PolicyType::Automatic);
+                scrolled_window.set_child(Some(new_page_ref));
 
-        // Create scrollable container
-        let scrolled_window: ScrolledWindow = ScrolledWindow::new();
-        scrolled_window.set_hscrollbar_policy(PolicyType::Never);
-        scrolled_window.set_vscrollbar_policy(PolicyType::Automatic);
-        scrolled_window.set_child(Some(new_page_ref));
-
-        // Append new ListBoxRow object to GtkListBox
-        self.gpu_stack.add_titled(&scrolled_window, Some(uuid), name);
+                // Append new ListBoxRow object to GtkListBox
+                self.gpu_stack.add_titled(&scrolled_window, Some(uuid), name);
+            },
+            None => panic!("COULD NOT FETCH GPU PAGE REF"),
+        }
     }
 
     /**
@@ -472,8 +475,7 @@ impl MainWindow {
      */
     #[template_callback]
     fn refresh_cards(&self, _button: &Button) {
-        //TEST
-        println!("GPU Scan Button Pressed!");
+        println!("GPU Scan Button Pressed!");//TEST
 
         // Clear current ActionRow objects from GtkListBox
         let mut done: bool = false;
