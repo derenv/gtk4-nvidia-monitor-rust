@@ -19,15 +19,21 @@
  */
 
 // Imports
-use glib::{once_cell::sync::Lazy, ParamSpec, Value};
-use gtk::{glib, subclass::prelude::*};
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
+use std::cell::Cell;
+use gio::Settings;
+use glib::{once_cell::sync::OnceCell, once_cell::sync::Lazy, ParamSpec, Value, FromVariant};
+use gtk::{subclass::prelude::*};
 
 // Modules
 //
 
 /// Object holding the State and any Template Children
 #[derive(Default)]
-pub struct Formatter;
+pub struct Formatter {
+    pub settings: OnceCell<Settings>,
+    pub func: Cell<Option<fn(Vec<String>, Option<Vec<(String, String)>>) -> Option<String>>>
+}
 
 /// The central trait for subclassing a GObject
 #[glib::object_subclass]
@@ -38,6 +44,34 @@ impl ObjectSubclass for Formatter {
     type Type = super::Formatter;
     // Parent GObject we inherit from
     type ParentType = gtk::Widget;
+}
+
+impl Formatter {
+    /**
+     * Name:
+     * get_setting
+     *
+     * Description:
+     * Generic function for getting setting value
+     *
+     * Made:
+     * 30/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn get_setting<T: FromVariant>(&self, name: &str) -> T {
+        // Return the value of the property
+        match self.settings.get() {
+            Some(settings) => {
+                settings.get::<T>(name)
+            },
+            None => panic!("`settings` should be set in `setup_settings`.")
+        }
+    }
 }
 
 /**
@@ -57,6 +91,30 @@ impl ObjectSubclass for Formatter {
  *
  */
 impl ObjectImpl for Formatter {
+    /**
+     * Name:
+     * constructed
+     *
+     * Description:
+     * Called during construction, allows calling setup functions
+     *
+     * Made:
+     * 18/11/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    fn constructed(&self, obj: &Self::Type) {
+        // Call "constructed" on parent
+        self.parent_constructed(obj);
+
+        // Setup
+        obj.setup_settings();
+    }
+
     /**
      * Name:
      * properties

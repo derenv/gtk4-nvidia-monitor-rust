@@ -30,8 +30,8 @@ use adwaita::glib;
 #[derive(Default)]
 pub struct Processor {
     base_call: Cell<String>,
-    call: Cell<String>,
-    tail_call: Cell<String>,
+    start_call: Cell<String>,
+    end_call: Cell<String>,
 }
 
 /// The central trait for subclassing a GObject
@@ -90,8 +90,8 @@ impl ObjectImpl for Processor {
         static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
             vec![
                 glib::ParamSpecString::builder("base-call").build(),
-                glib::ParamSpecString::builder("call").build(),
-                glib::ParamSpecString::builder("tail-call").build(),
+                glib::ParamSpecString::builder("start-call").build(),
+                glib::ParamSpecString::builder("end-call").build(),
             ]
         });
 
@@ -129,18 +129,18 @@ impl ObjectImpl for Processor {
                     Err(_) => panic!("The value needs to be of type `String`."),
                 }
             }
-            "call" => {
+            "start-call" => {
                 match value.get() {
-                    Ok(input_call) => {
-                        self.call.replace(input_call);
+                    Ok(input_start_call) => {
+                        self.start_call.replace(input_start_call);
                     },
                     Err(_) => panic!("The value needs to be of type `String`."),
                 }
             }
-            "tail-call" => {
+            "end-call" => {
                 match value.get() {
-                    Ok(input_tail_call) => {
-                        self.tail_call.replace(input_tail_call);
+                    Ok(input_end_call) => {
+                        self.end_call.replace(input_end_call);
                     },
                     Err(_) => panic!("The value needs to be of type `String`."),
                 }
@@ -177,19 +177,19 @@ impl ObjectImpl for Processor {
 
                 value.to_value()
             }
-            "call" => {
+            "start-call" => {
                 //TODO: this seems ridiculous..
-                let value: String = self.call.take();
+                let value: String = self.start_call.take();
 
-                self.call.set(value.clone());
+                self.start_call.set(value.clone());
 
                 value.to_value()
             }
-            "tail-call" => {
+            "end-call" => {
                 //TODO: this seems ridiculous..
-                let value: String = self.tail_call.take();
+                let value: String = self.end_call.take();
 
-                self.tail_call.set(value.clone());
+                self.end_call.set(value.clone());
 
                 value.to_value()
             }

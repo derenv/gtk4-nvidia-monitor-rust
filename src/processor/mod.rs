@@ -70,13 +70,13 @@ impl Processor {
      * Notes:
      *
      */
-    pub fn new(base_call: &str, tail_call: &str) -> Self {
+    pub fn new(base_call: &str, start_call: &str, end_call: &str) -> Self {
         let obj: Processor = Object::new(&[]).expect("Failed to create `Processor`");
 
         // Set properties
         obj.set_property("base-call", String::from(base_call));
-        obj.set_property("call", String::from(base_call).clone());
-        obj.set_property("tail-call", String::from(tail_call));
+        obj.set_property("start-call", String::from(start_call));
+        obj.set_property("end-call", String::from(end_call));
 
         obj
     }
@@ -96,13 +96,24 @@ impl Processor {
      *
      * Notes:
      * we'll know what possible sizes will exist (wherever this gets implemented)
+     *
+     * gpu names:
+     * This would be called with "","" as params and base-call="nvidia-settings -q GpuUUID -t" start-call="" end-call=""
      */
-    pub fn process(self) -> Result<Option<Vec<String>>, glib::Error> {
+    pub fn process(self, uuid: Option<&str>, property: Option<&str>) -> Result<Option<Vec<String>>, glib::Error> {
+        //println!("PROCESS BEGINNING");//TEST
+
         // Create call stack of program and args
-        let tail_call = self.property::<String>("tail-call");
-        let mut call_stack = self.property::<String>("call");
-        call_stack.push(' ');
-        call_stack.push_str(tail_call.as_str());
+        let mut call_stack: String = self.property("base-call");//"nvidia-smi" OR "nvidia-settings" OR "optirun"
+        call_stack.push_str(" ");
+        call_stack.push_str(self.property::<String>("start-call").as_str());//"--query-gpu=" OR "nvidia-smi --query-gpu=" OR ""
+        if let Some(property_val) = property {
+            call_stack.push_str(property_val);
+        }
+        call_stack.push_str(self.property::<String>("end-call").as_str());//" --format=csv,noheader -i "
+        if let Some(uuid_val) = uuid {
+            call_stack.push_str(uuid_val);
+        }
 
         // Turn call stack into bytes and create vector for final call stack
         let call_stack_bytes: &[u8] = call_stack.as_bytes();
@@ -342,6 +353,6 @@ impl Processor {
  */
 impl Default for Processor {
     fn default() -> Self {
-        Self::new("", "")
+        Self::new("", "", "")
     }
 }

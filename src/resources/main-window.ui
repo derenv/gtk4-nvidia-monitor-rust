@@ -114,11 +114,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
         <attribute name="action">win.open_app_settings</attribute>
       </item>
     </submenu>
-
-    <item>
-      <attribute name="label" translatable="yes">Test Formatter and Property</attribute>
-      <attribute name="action">win.formatter_and_property</attribute>
-    </item>
     <item>
       <attribute name="label" translatable="yes">About</attribute>
       <attribute name="action">win.about</attribute>

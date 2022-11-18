@@ -34,6 +34,11 @@ pub struct SettingsWindowContainer {
     pub window: Option<SettingsWindow>,
     pub open: bool,
 }
+#[derive(Debug, PartialEq, Eq)]
+enum TemperatureUnit {
+    CELCIUS = 0,
+    FAHRENHEIT = 1,
+}
 
 /// Object holding the State and any Template Children
 #[derive(CompositeTemplate, Default)]
@@ -75,7 +80,7 @@ impl ObjectSubclass for MainWindow {
  * Trait shared by all MainWindow objects
  *
  * Made:
- * 13/10/2022
+ * 18/11/2022
  *
  * Made by:
  * Deren Vural
@@ -83,8 +88,33 @@ impl ObjectSubclass for MainWindow {
  * Notes:
  *
  */
-#[gtk::template_callbacks]
 impl MainWindow {
+    /**
+     * Name:
+     * get_setting
+     *
+     * Description:
+     * Generic function for getting setting value
+     *
+     * Made:
+     * 30/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn get_setting<T: FromVariant>(&self, name: &str) -> T {
+        // Return the value of the property
+        match self.settings.get() {
+            Some(settings) => {
+                settings.get::<T>(name)
+            },
+            None => panic!("`settings` should be set in `setup_settings`.")
+        }
+    }
+
     /**
      * Name:
      * update_setting
@@ -114,31 +144,6 @@ impl MainWindow {
         }
     }
 
-    /**
-     * Name:
-     * get_setting
-     *
-     * Description:
-     * Generic function for getting setting value
-     *
-     * Made:
-     * 30/10/2022
-     *
-     * Made by:
-     * Deren Vural
-     *
-     * Notes:
-     *
-     */
-    pub fn get_setting<T: FromVariant>(&self, name: &str) -> T {
-        // Return the value of the property
-        match self.settings.get() {
-            Some(settings) => {
-                settings.get::<T>(name)
-            },
-            None => panic!("`settings` should be set in `setup_settings`.")
-        }
-    }
 
     /**
      * Name:
@@ -156,7 +161,11 @@ impl MainWindow {
      * Notes:
      *
      */
-    pub fn create_provider(provider_type: i32) -> Provider {
+    pub fn create_provider(&self, provider_type: i32) -> Provider {
+        //println!("CREATING PROVIDER");
+        //println!("..PROVIDER TYPE: `{}`", provider_type);
+
+        // Create appropriate provider
         match provider_type {
             0 => {
                 // Nvidia Settings and Nvidia SMI
@@ -165,46 +174,150 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    Some(String::from(input.get(0).unwrap()))
+                                }),
+                                "gpu_name",
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "utilization.gpu",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Grab current temperature unit from parameters
+                                    let current_unit: TemperatureUnit;
+                                    if let Some(valid_params) = params {
+                                        if valid_params.iter().any(|i| i == &(String::from("tempformat"),String::from("C"))) {
+                                            current_unit = TemperatureUnit::CELCIUS;
+                                        } else if valid_params.iter().any(|i| i == &(String::from("tempformat"),String::from("F"))) {
+                                            current_unit = TemperatureUnit::FAHRENHEIT;
+                                        } else {
+                                            current_unit = TemperatureUnit::CELCIUS;
+                                        }
+                                    } else {
+                                        current_unit = TemperatureUnit::CELCIUS;
+                                    }
+
+                                    // Apply formatting
+                                    match current_unit {
+                                        TemperatureUnit::CELCIUS => {
+                                            // Apply temperature unit
+                                            output.push(char::from_u32(0x00B0).unwrap());
+                                            output.push('C');
+
+                                            // Return result
+                                            Some(output)
+                                        },
+                                        TemperatureUnit::FAHRENHEIT => {
+                                            match output.parse::<f64>() {
+                                                Ok(temp) => {
+                                                    // Convert to fahrenheit
+                                                    let fahrenheit_temp: f64 = temp * 9.0 / 5.0 + 32.0;
+
+                                                    // Round down to nearest integer
+                                                    let rounded_value: f64 = fahrenheit_temp.floor();
+
+                                                    // Convert to string
+                                                    let mut f_output: String = rounded_value.to_string();
+
+                                                    // Apply temperature unit
+                                                    f_output.push(char::from_u32(0x00B0).unwrap());
+                                                    f_output.push('F');
+
+                                                    // Return result
+                                                    return Some(f_output);
+                                                }
+                                                Err(_) => {
+                                                    //this should catch "" etc
+                                                    println!("Not a valid number");
+
+                                                    return None;
+                                                }
+                                            };
+                                        }
+                                    }
+                                }),
                                 "temperature.gpu",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input and add formatting
+                                    Some(String::from(input.get(0).unwrap()) + " MiB")
+                                }),
                                 "memory.used",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input and add formatting
+                                    Some(String::from(input.get(0).unwrap()) + " MiB")
+                                }),
                                 "memory.total",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "fan.speed",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let input_str: String = String::from(input.get(0).unwrap());
+
+                                    // Convert to float
+                                    match input_str.parse::<f64>() {
+                                        Ok(parsed_value) => {
+                                            // Round down to nearest integer
+                                            let rounded_value: f64 = parsed_value.floor();
+
+                                            // Convert to string
+                                            let mut output: String = rounded_value.to_string();
+
+                                            // Apply formatting
+                                            output.push(' ');
+                                            output.push('W');
+
+                                            // Return result
+                                            Some(output)
+                                        }
+                                        Err(_) => {
+                                            //this should catch "" etc
+                                            println!("Not a valid number");
+
+                                            None
+                                        }
+                                    }
+                                }),
                                 "power.draw",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                         ]
                     },
@@ -218,39 +331,111 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-settings", "-q=[gpu:]/", " -t"),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "utilization.gpu",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-settings", "-q=[gpu:]/", " -t"),
+                                &Formatter::new(|input: Vec<String>, params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Grab current temperature unit from parameters
+                                    let current_unit: TemperatureUnit;
+                                    if let Some(valid_params) = params {
+                                        if valid_params.iter().any(|i| i == &(String::from("tempformat"),String::from("C"))) {
+                                            current_unit = TemperatureUnit::CELCIUS;
+                                        } else if valid_params.iter().any(|i| i == &(String::from("tempformat"),String::from("F"))) {
+                                            current_unit = TemperatureUnit::FAHRENHEIT;
+                                        } else {
+                                            current_unit = TemperatureUnit::CELCIUS;
+                                        }
+                                    } else {
+                                        current_unit = TemperatureUnit::CELCIUS;
+                                    }
+
+                                    // Apply formatting
+                                    match current_unit {
+                                        TemperatureUnit::CELCIUS => {
+                                            // Apply temperature unit
+                                            output.push(char::from_u32(0x00B0).unwrap());
+                                            output.push('C');
+                                        }
+                                        TemperatureUnit::FAHRENHEIT => {
+                                            match output.parse::<f64>() {
+                                                Ok(temp) => {
+                                                    // Convert to fahrenheit
+                                                    let fahrenheit_temp: f64 = temp * 9.0 / 5.0 + 32.0;
+
+                                                    // Round down to nearest integer
+                                                    let rounded_value: f64 = fahrenheit_temp.floor();
+
+                                                    // Convert to string
+                                                    let mut f_output: String = rounded_value.to_string();
+
+                                                    // Apply temperature unit
+                                                    f_output.push(char::from_u32(0x00B0).unwrap());
+                                                    f_output.push('F');
+
+                                                    // Return result
+                                                    Some(f_output)
+                                                }
+                                                Err(_) => {
+                                                    //this should catch "" etc
+                                                    println!("Not a valid number");
+
+                                                    None
+                                                }
+                                            };
+                                        }
+                                    }
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "temperature.gpu",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-settings", "-q=[gpu:]/", " -t"),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input and add formatting
+                                    Some(String::from(input.get(0).unwrap()) + " MiB")
+                                }),
                                 "memory.used",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-settings", "-q=[gpu:]/", " -t"),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input and add formatting
+                                    Some(String::from(input.get(0).unwrap()) + " MiB")
+                                }),
                                 "memory.total",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q GpuUUID -t"),
+                                &Processor::new("nvidia-settings", "-q=[gpu:]/", " -t"),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "fan.speed",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                         ]
                     },
@@ -264,46 +449,150 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    Some(String::from(input.get(0).unwrap()))
+                                }),
+                                "gpu_name",
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "utilization.gpu",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Grab current temperature unit from parameters
+                                    let current_unit: TemperatureUnit;
+                                    if let Some(valid_params) = params {
+                                        if valid_params.iter().any(|i| i == &(String::from("tempformat"),String::from("C"))) {
+                                            current_unit = TemperatureUnit::CELCIUS;
+                                        } else if valid_params.iter().any(|i| i == &(String::from("tempformat"),String::from("F"))) {
+                                            current_unit = TemperatureUnit::FAHRENHEIT;
+                                        } else {
+                                            current_unit = TemperatureUnit::CELCIUS;
+                                        }
+                                    } else {
+                                        current_unit = TemperatureUnit::CELCIUS;
+                                    }
+
+                                    // Apply formatting
+                                    match current_unit {
+                                        TemperatureUnit::CELCIUS => {
+                                            // Apply temperature unit
+                                            output.push(char::from_u32(0x00B0).unwrap());
+                                            output.push('C');
+                                        }
+                                        TemperatureUnit::FAHRENHEIT => {
+                                            match output.parse::<f64>() {
+                                                Ok(temp) => {
+                                                    // Convert to fahrenheit
+                                                    let fahrenheit_temp: f64 = temp * 9.0 / 5.0 + 32.0;
+
+                                                    // Round down to nearest integer
+                                                    let rounded_value: f64 = fahrenheit_temp.floor();
+
+                                                    // Convert to string
+                                                    let mut f_output: String = rounded_value.to_string();
+
+                                                    // Apply temperature unit
+                                                    f_output.push(char::from_u32(0x00B0).unwrap());
+                                                    f_output.push('F');
+
+                                                    // Return result
+                                                    Some(f_output)
+                                                }
+                                                Err(_) => {
+                                                    //this should catch "" etc
+                                                    println!("Not a valid number");
+
+                                                    None
+                                                }
+                                            };
+                                        }
+                                    }
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "temperature.gpu",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input and add formatting
+                                    Some(String::from(input.get(0).unwrap()) + " MiB")
+                                }),
                                 "memory.used",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input and add formatting
+                                    Some(String::from(input.get(0).unwrap()) + " MiB")
+                                }),
                                 "memory.total",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "fan.speed",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let input_str: String = String::from(input.get(0).unwrap());
+
+                                    // Convert to float
+                                    match input_str.parse::<f64>() {
+                                        Ok(parsed_value) => {
+                                            // Round down to nearest integer
+                                            let rounded_value: f64 = parsed_value.floor();
+
+                                            // Convert to string
+                                            let mut output: String = rounded_value.to_string();
+
+                                            // Apply formatting
+                                            output.push(' ');
+                                            output.push('W');
+
+                                            // Return result
+                                            Some(output)
+                                        }
+                                        Err(_) => {
+                                            //this should catch "" etc
+                                            println!("Not a valid number");
+
+                                            None
+                                        }
+                                    }
+                                }),
                                 "power.draw",
-                                "",
-                                &Formatter::new(),
-                                &0,
                             ),
                         ]
                     },
@@ -317,46 +606,150 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    Some(String::from(input.get(0).unwrap()))
+                                }),
+                                "gpu_name",
+                            ),
+                            Property::new(
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "utilization.gpu",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Grab current temperature unit from parameters
+                                    let current_unit: TemperatureUnit;
+                                    if let Some(valid_params) = params {
+                                        if valid_params.iter().any(|i| i == &(String::from("tempformat"),String::from("C"))) {
+                                            current_unit = TemperatureUnit::CELCIUS;
+                                        } else if valid_params.iter().any(|i| i == &(String::from("tempformat"),String::from("F"))) {
+                                            current_unit = TemperatureUnit::FAHRENHEIT;
+                                        } else {
+                                            current_unit = TemperatureUnit::CELCIUS;
+                                        }
+                                    } else {
+                                        current_unit = TemperatureUnit::CELCIUS;
+                                    }
+
+                                    // Apply formatting
+                                    match current_unit {
+                                        TemperatureUnit::CELCIUS => {
+                                            // Apply temperature unit
+                                            output.push(char::from_u32(0x00B0).unwrap());
+                                            output.push('C');
+                                        }
+                                        TemperatureUnit::FAHRENHEIT => {
+                                            match output.parse::<f64>() {
+                                                Ok(temp) => {
+                                                    // Convert to fahrenheit
+                                                    let fahrenheit_temp: f64 = temp * 9.0 / 5.0 + 32.0;
+
+                                                    // Round down to nearest integer
+                                                    let rounded_value: f64 = fahrenheit_temp.floor();
+
+                                                    // Convert to string
+                                                    let mut f_output: String = rounded_value.to_string();
+
+                                                    // Apply temperature unit
+                                                    f_output.push(char::from_u32(0x00B0).unwrap());
+                                                    f_output.push('F');
+
+                                                    // Return result
+                                                    Some(f_output)
+                                                }
+                                                Err(_) => {
+                                                    //this should catch "" etc
+                                                    println!("Not a valid number");
+
+                                                    None
+                                                }
+                                            };
+                                        }
+                                    }
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "temperature.gpu",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input and add formatting
+                                    Some(String::from(input.get(0).unwrap()) + " MiB")
+                                }),
                                 "memory.used",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input and add formatting
+                                    Some(String::from(input.get(0).unwrap()) + " MiB")
+                                }),
                                 "memory.total",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "fan.speed",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let input_str: String = String::from(input.get(0).unwrap());
+
+                                    // Convert to float
+                                    match input_str.parse::<f64>() {
+                                        Ok(parsed_value) => {
+                                            // Round down to nearest integer
+                                            let rounded_value: f64 = parsed_value.floor();
+
+                                            // Convert to string
+                                            let mut output: String = rounded_value.to_string();
+
+                                            // Apply formatting
+                                            output.push(' ');
+                                            output.push('W');
+
+                                            // Return result
+                                            Some(output)
+                                        }
+                                        Err(_) => {
+                                            //this should catch "" etc
+                                            println!("Not a valid number");
+
+                                            None
+                                        }
+                                    }
+                                }),
                                 "power.draw",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                         ]
                     },
@@ -370,46 +763,150 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    Some(String::from(input.get(0).unwrap()))
+                                }),
+                                "gpu_name",
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "utilization.gpu",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Grab current temperature unit from parameters
+                                    let current_unit: TemperatureUnit;
+                                    if let Some(valid_params) = params {
+                                        if valid_params.iter().any(|i| i == &(String::from("tempformat"),String::from("C"))) {
+                                            current_unit = TemperatureUnit::CELCIUS;
+                                        } else if valid_params.iter().any(|i| i == &(String::from("tempformat"),String::from("F"))) {
+                                            current_unit = TemperatureUnit::FAHRENHEIT;
+                                        } else {
+                                            current_unit = TemperatureUnit::CELCIUS;
+                                        }
+                                    } else {
+                                        current_unit = TemperatureUnit::CELCIUS;
+                                    }
+
+                                    // Apply formatting
+                                    match current_unit {
+                                        TemperatureUnit::CELCIUS => {
+                                            // Apply temperature unit
+                                            output.push(char::from_u32(0x00B0).unwrap());
+                                            output.push('C');
+                                        }
+                                        TemperatureUnit::FAHRENHEIT => {
+                                            match output.parse::<f64>() {
+                                                Ok(temp) => {
+                                                    // Convert to fahrenheit
+                                                    let fahrenheit_temp: f64 = temp * 9.0 / 5.0 + 32.0;
+
+                                                    // Round down to nearest integer
+                                                    let rounded_value: f64 = fahrenheit_temp.floor();
+
+                                                    // Convert to string
+                                                    let mut f_output: String = rounded_value.to_string();
+
+                                                    // Apply temperature unit
+                                                    f_output.push(char::from_u32(0x00B0).unwrap());
+                                                    f_output.push('F');
+
+                                                    // Return result
+                                                    Some(f_output)
+                                                }
+                                                Err(_) => {
+                                                    //this should catch "" etc
+                                                    println!("Not a valid number");
+
+                                                    None
+                                                }
+                                            };
+                                        }
+                                    }
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "temperature.gpu",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input and add formatting
+                                    Some(String::from(input.get(0).unwrap()) + " MiB")
+                                }),
                                 "memory.used",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input and add formatting
+                                    Some(String::from(input.get(0).unwrap()) + " MiB")
+                                }),
                                 "memory.total",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
                                 "fan.speed",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=gpu_name --format=csv,noheader"),
+                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let input_str: String = String::from(input.get(0).unwrap());
+
+                                    // Convert to float
+                                    match input_str.parse::<f64>() {
+                                        Ok(parsed_value) => {
+                                            // Round down to nearest integer
+                                            let rounded_value: f64 = parsed_value.floor();
+
+                                            // Convert to string
+                                            let mut output: String = rounded_value.to_string();
+
+                                            // Apply formatting
+                                            output.push(' ');
+                                            output.push('W');
+
+                                            // Return result
+                                            Some(output)
+                                        }
+                                        Err(_) => {
+                                            //this should catch "" etc
+                                            println!("Not a valid number");
+
+                                            None
+                                        }
+                                    }
+                                }),
                                 "power.draw",
-                                "",
-                                &Formatter::new(),
-                                &1,
                             ),
                         ]
                     },
@@ -418,7 +915,26 @@ impl MainWindow {
             }
         }
     }
+}
 
+/**
+ * Name:
+ * MainWindow
+ *
+ * Description:
+ * Trait defining template callbacks shared by all MainWindow objects
+ *
+ * Made:
+ * 13/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+#[gtk::template_callbacks]
+impl MainWindow {
     /*
      * Name:
      * create_gpu_page
@@ -435,7 +951,7 @@ impl MainWindow {
      * Notes:
      *
      */
-    fn create_gpu_page(&self, uuid: &str, name: &str, provider: &Provider) {
+    fn create_gpu_page(&self, uuid: &str, name: &str, provider: Provider) {
         // Create new GpuPage object
         let new_page: GpuPage = GpuPage::new(uuid, name, provider);
 
@@ -497,85 +1013,86 @@ impl MainWindow {
         }
 
         // Grab copy of current provider
-        let provider: Option<Provider> = self.provider.take();
-        self.provider.set(provider.clone());
+        let provider_container: Option<Provider> = self.provider.take();
+        self.provider.set(provider_container.clone());
 
-        // If provider does not exist
-        match provider {
+        match provider_container {
+            // If provider does exist
             Some(existing_provider) => {
                 // Update GPU list
                 match existing_provider.get_gpu_uuids() {
                     Ok(gpu_uuids) => {
-                        // Update each property
-                        match existing_provider.update_property_value::<i32>("gpu-count", gpu_uuids.len() as i32) {
-                            Ok(_) => {
-                                // Construct a row for each GPU
-                                for uuid in gpu_uuids {
-                                    // Get GPU data
-                                    match existing_provider.get_gpu_data(&uuid, "name") {
-                                        Ok(gpu_name) => {
-                                            // Create new GpuPage object and Add to list of pages
-                                            self.create_gpu_page(&uuid, &gpu_name, &existing_provider);
-                                        },
-                                        Err(err) => {
-                                            println!("..Attempt to read GPU name failed, returning: {}", err);
+                        // Construct a row for each GPU
+                        for uuid in gpu_uuids {
+                            // Grab current provider
+                            let provider_container: Option<Provider> = self.provider.take();
+                            self.provider.set(provider_container.clone());
 
-                                            // Create new GpuPage object and Add to list of pages
-                                            self.create_gpu_page(&uuid, &uuid, &existing_provider);
-                                        }
+                            // Get GPU data
+                            match provider_container {
+                                Some(prov) => match prov.get_gpu_data(&uuid, "name") {
+                                    Ok(gpu_name) => {
+                                        // Create new GpuPage object and Add to list of pages
+                                        self.create_gpu_page(&uuid, &gpu_name, prov);
+                                    },
+                                    Err(err) => {
+                                        println!("..Attempt to read GPU name failed, returning: {}", err);
+
+                                        // Create new GpuPage object and Add to list of pages
+                                        self.create_gpu_page(&uuid, &uuid, prov);
                                     }
                                 }
+                                None => panic!("Something weird has happened! Cannot grab known existing provider.."),
                             }
-                            Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
                         }
                     }
                     Err(err) => println!("..Attempt to update GPU list failed, returning: {}", err),
                 }
-
-                // Re-Store provider
-                //self.provider.set(Some(existing_provider));
             }
+            // If provider does not exist
             None => {
                 // Check provider type
                 let provider_type: i32 = self.get_setting::<i32>("provider");
 
                 // Create new provider
-                let new_provider: Provider = MainWindow::create_provider(provider_type);
+                let new_provider_container: Option<Provider> = Some(self.create_provider(provider_type));
+                self.provider.set(new_provider_container.clone());
 
-                // Update GPU list
-                match new_provider.get_gpu_uuids() {
-                    Ok(gpu_uuids) => {
-                        // Get GPU list size
-                        let gpu_count: i32 = gpu_uuids.len() as i32;
-
-                        // Update each property
-                        match new_provider.update_property_value::<i32>("gpu-count", gpu_count) {
-                            Ok(_) => {
+                // Using the new provider
+                match new_provider_container {
+                    Some(new_provider) => {
+                        // Update GPU list
+                        match new_provider.get_gpu_uuids() {
+                            Ok(gpu_uuids) => {
                                 // Construct a row for each GPU
                                 for uuid in gpu_uuids {
-                                    // Get GPU data
-                                    match new_provider.get_gpu_data(&uuid, "name") {
-                                        Ok(gpu_name) => {
-                                            // Create new GpuPage object and Add to list of pages
-                                            self.create_gpu_page(&uuid, &gpu_name, &new_provider);
-                                        },
-                                        Err(err) => {
-                                            println!("..Attempt to read GPU name failed, returning: {}", err);
+                                    // Grab current provider
+                                    let provider_container: Option<Provider> = self.provider.take();
+                                    self.provider.set(provider_container.clone());
 
-                                            // Create new GpuPage object and Add to list of pages
-                                            self.create_gpu_page(&uuid, &uuid, &new_provider);
+                                    // Get GPU data
+                                    match provider_container {
+                                        Some(prov) => match prov.get_gpu_data(&uuid, "name") {
+                                            Ok(gpu_name) => {
+                                                // Create new GpuPage object and Add to list of pages
+                                                self.create_gpu_page(&uuid, &gpu_name, prov);
+                                            },
+                                            Err(err) => {
+                                                println!("..Attempt to read GPU name failed, returning: {}", err);
+
+                                                // Create new GpuPage object and Add to list of pages
+                                                self.create_gpu_page(&uuid, &uuid, prov);
+                                            }
                                         }
+                                        None => panic!("Something weird has happened! Cannot grab known existing provider.."),
                                     }
                                 }
                             }
-                            Err(err) => println!("..Attempt to read GPU data failed, returning: {}", err),
+                            Err(err) => println!("..Attempt to update GPU list failed, returning: {}", err),
                         }
                     }
-                    Err(err) => println!("..Attempt to update GPU list failed, returning: {}", err),
+                    None => todo!()
                 }
-
-                // Store new provider
-                //self.provider.set(Some(new_provider));
             }
         }
     }

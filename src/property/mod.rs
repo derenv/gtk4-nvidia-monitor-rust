@@ -75,19 +75,17 @@ impl Property {
      */
     pub fn new(
         processor: &Processor,
-        call_extension: &str,
-        icon: &str,
         formatter: &Formatter,
-        gpu_count: &i32,
+
+        id: &str,
     ) -> Self {
         let obj: Property = Object::new(&[]).expect("Failed to create `Property`.");
 
         // Set properties
         obj.set_property("processor", processor);
-        obj.set_property("call-extension", String::from(call_extension));
-        obj.set_property("icon", String::from(icon));
         obj.set_property("formatter", formatter);
-        obj.set_property("gpu-count", gpu_count);
+
+        obj.set_property("id", String::from(id));
 
         obj
     }
@@ -95,53 +93,6 @@ impl Property {
     /**
      * Name:
      * parse
-     *
-     * Description:
-     *
-     *
-     * Made:
-     * 06/10/2022
-     *
-     * Made by:
-     * Deren Vural
-     *
-     * Notes:
-     * <https://doc.rust-lang.org/std/primitive.array.html>
-     * <https://www.tutorialspoint.com/rust/rust_array.htm>
-     * <https://doc.rust-lang.org/std/vec/struct.Vec.html>
-     */
-    pub fn parse(
-        self,
-        values: Vec<Vec<String>>,
-        func: fn(Vec<String>) -> Option<String>,
-    ) -> Option<Vec<String>> {
-        // Initialise results vector
-        let mut results: Vec<String> = Vec::new();
-
-        // For each GPU
-        for i in 0..self.property::<i32>("gpu-count") {
-            // Grab formatter
-            let formatter: Formatter = self.property::<Formatter>("formatter");
-
-            // Check item exists
-            match values.get(i as usize) {
-                Some(valid_data) => {
-                    // Format properties using formatter and add to return values
-                    match formatter.format(valid_data.to_owned(), func) {
-                        Some(result) => results.push(result),
-                        None => return None,//TODO: investigate
-                    }
-                },
-                None => panic!("..Invalid data values"),
-            }
-        }
-
-        Some(results)
-    }
-
-    /**
-     * Name:
-     * parse_alt
      *
      * Description:
      * Run processor with passed uuid and stored formatter + property name, then return to caller
@@ -154,29 +105,47 @@ impl Property {
      *
      * Notes:
      *
-    pub fn parse_alt(
+     */
+    pub fn parse(
         self,
         uuid: &str,
     ) -> Option<String> {
+        //println!("UUID: `{}`", uuid);//TEST
+        //println!("GRABBING FORMATTER, PROCESSOR AND ID");//TEST
         // Grab formatter & processor
         let formatter: Formatter = self.property("formatter");
         let processor: Processor = self.property("processor");
         // Grab property name
-        let property: String = self.property("call-extension");//TODO: rename to `name`
+        let property: String = self.property("id");
+        //println!("ID: `{}`", property);//TEST
 
         // Give processor the uuid and property we want
-        match processor.process(uuid, &property) {
+        match processor.process(Some(uuid), Some(&property)) {
             Ok(result) => {
-                // Format returned property using formatter and then return
-                match formatter.format(result) {
-                    Some(formatted_result) => return Some(result),
-                    None => return None,
+                //println!("PROCESS COMPLETE");//TEST
+
+                match result {
+                    Some(valid_result) => {
+                        //println!("RESULT IS NOT NONE");//TEST
+                        //println!("RESULT: `{}`", valid_result[0].to_owned());//TEST
+
+                        // Catch this as formatting screws it up
+                        if property == "gpu_name" {
+                            return Some(valid_result[0].to_owned())
+                        }
+
+                        // Format returned property using formatter and then return
+                        match formatter.format(valid_result[0].to_owned()) {
+                            Some(formatted_result) => return Some(formatted_result),
+                            None => return None,
+                        }
+                    }
+                    None => panic!("Processor error..."),
                 }
             },
             Err(err) => panic!("Processor error: `{}`", err.message()),
         }
     }
-    */
 
     /**
      * Name:
@@ -239,6 +208,6 @@ impl Property {
  */
 impl Default for Property {
     fn default() -> Self {
-        Self::new(&Processor::new("", ""), &"", &"", &Formatter::new(), &0)
+        Self::new(&Processor::new("", "", ""), &Formatter::default(), "")
     }
 }

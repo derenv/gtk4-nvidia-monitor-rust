@@ -26,7 +26,7 @@ use glib::{
     ToValue, Value,
 };
 use gtk::{subclass::prelude::*, CompositeTemplate};
-use std::{cell::Cell, cell::Ref, cell::RefCell, rc::Rc};
+use std::{cell::Cell, sync::Arc};
 
 // Modules
 use crate::provider::Provider;
@@ -38,7 +38,7 @@ pub struct GpuPage {
     pub settings: OnceCell<Settings>,
     uuid: Cell<String>,
     name: Cell<String>,
-    provider: Rc<RefCell<Provider>>,
+    provider: Cell<Option<Provider>>,
 }
 
 /// The central trait for subclassing a GObject
@@ -264,9 +264,9 @@ impl ObjectImpl for GpuPage {
                 value.to_value()
             }
             "provider" => {
-                let value: Ref<Provider> = self.provider.borrow();
+                let value: Option<Provider> = self.provider.take();
 
-                //self.provider.set(value.clone());
+                self.provider.set(value.clone());
 
                 value.to_value()
             }

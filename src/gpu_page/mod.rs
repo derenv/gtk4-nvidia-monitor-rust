@@ -25,7 +25,7 @@ use adwaita::{gio, glib};
 use gio::Settings;
 use glib::Object;
 use gtk::{
-    prelude::*, subclass::prelude::*, Box, Button, Label, LayoutChild, Orientation::Horizontal,
+    prelude::*, subclass::prelude::*, Grid, Button, Label, LayoutChild, Orientation, Align
 };
 use std::{sync::Arc, sync::Mutex, sync::MutexGuard};
 
@@ -72,13 +72,13 @@ impl GpuPage {
      * Notes:
      *
      */
-    pub fn new(uuid: &str, name: &str, provider: &Provider) -> Self {
+    pub fn new(uuid: &str, name: &str, provider: Provider) -> Self {
         let obj: GpuPage = Object::new(&[]).expect("Failed to create `GpuPage`.");
 
         // Set custom properties
         obj.set_property("uuid", String::from(uuid));
         obj.set_property("name", String::from(name));
-        obj.set_property("provider", provider);
+        obj.set_property("provider", &provider);
 
         // Apply any setup actions that need the above properties
         obj.setup_settings();
@@ -176,8 +176,15 @@ impl GpuPage {
                 let statistics_store: Arc<Mutex<Vec<&str>>> = Arc::new(Mutex::new(statistics_data));
 
                 // Edit button
-                let edit_button: Button = Button::builder().build();
-                self.attach(&edit_button, 3, 0, 24, 24);
+                let edit_button: Button = Button::builder()
+                    .name("edit_button")
+                    .label("Add Statistic")
+                    .margin_start(12)
+                    .margin_end(12)
+                    .margin_top(12)
+                    .margin_bottom(12)
+                    .build();
+                self.attach(&edit_button, 4, 0, 24, 24);
 
                 // Set layout properties of button
                 let child_manager: LayoutChild = grid_manager.layout_child(&edit_button);
@@ -188,34 +195,70 @@ impl GpuPage {
                 let mut labels: Vec<Label> = Vec::new();
                 for statistic in Arc::clone(&statistics_store).lock().unwrap().iter() {
                     //==BUILD==
+                    // Build grid for 2 labels and attach to this page
+                    //let new_grid_name: String = String::from(statistic.to_owned()) + "_grid";
+                    let new_grid_name: String = String::from("statistic_item_grid");
+                    let new_grid: Grid = Grid::builder()
+                        .name(&new_grid_name)
+                        .orientation(Orientation::Horizontal)
+                        //.margin_start(12)
+                        //.margin_end(12)
+                        //.margin_top(12)
+                        //.margin_bottom(12)
+                        //.halign(Align::Center)
+                        //.valign(Align::Center)
+                        //.hexpand(true)
+                        //.vexpand(true)
+                        .build();
+                    self.attach(&new_grid, 0, labels.len() as i32, 100, 12);
+
+                    // Set layout properties of grid
+                    let child_manager: LayoutChild = grid_manager.layout_child(&new_grid);
+                    child_manager.set_property("row-span", 1);
+                    child_manager.set_property("column-span", 1);
+                    //child_manager.set_property("outline-style", "solid");
+                    //child_manager.set_property("outline-width", 1);
+                    //child_manager.set_property("border-radius", 3);
+
+                    // Fetch layout manager for this child grid
+                    let internal_grid_manager = new_grid.layout_manager().expect("Fuck..");
+
                     // Build label & add to grid
                     let new_title: String = String::from(statistic.to_owned()) + "_label";
-                    let new_title_label: Label =
-                        Label::builder().label(statistic).name(&new_title).build();
+                    let new_title_label: Label = Label::builder()
+                        .label(statistic)
+                        .name(&new_title)
+                        .hexpand(true)
+                        .hexpand_set(true)
+                        .halign(Align::Center)
+                        //.valign(Align::Center)
+                        .margin_top(12)
+                        .margin_bottom(12)
+                        .build();
+                    new_grid.attach(&new_title_label, 0, 0, 1, 1);
+
+                    // Set layout properties of child
+                    let title_manager: LayoutChild = internal_grid_manager.layout_child(&new_title_label);
+                    title_manager.set_property("row-span", 1);
 
                     // Build label & add to grid
                     let new_content: String = String::from(statistic.to_owned());
-                    let new_content_label: Label =
-                        Label::builder().label("").name(&new_content).build();
-
-                    // Create box for 2 labels
-                    let new_box_name: String = String::from(statistic.to_owned()) + "_box";
-                    let new_box: Box = Box::builder()
-                        .name(&new_box_name)
-                        .orientation(Horizontal)
+                    let new_content_label: Label = Label::builder()
+                        .label("")
+                        .name(&new_content)
+                        //.halign(Align::End)
+                        //.valign(Align::Center)
                         .build();
-                    new_box.append(&new_title_label);
-                    new_box.append(&new_content_label);
-                    self.attach(&new_box, 0, labels.len() as i32, 24, 24);
+                    new_grid.attach(&new_content_label, 1, 0, 1, 1);
 
-                    // Set layout properties of box
-                    let child_manager: LayoutChild = grid_manager.layout_child(&new_box);
-                    child_manager.set_property("row-span", 2);
-                    child_manager.set_property("column-span", 2);
+                    // Set layout properties of child
+                    let content_manager: LayoutChild = internal_grid_manager.layout_child(&new_content_label);
+                    content_manager.set_property("row-span", 1);
+
 
                     //==SHOW==
-                    // Show new labels & box
-                    new_box.show();
+                    // Show new labels & grid
+                    new_grid.show();
                     new_title_label.show();
                     new_content_label.show();
 
@@ -225,6 +268,9 @@ impl GpuPage {
 
                 // Fetch uuid, needed for processor
                 let uuid_store: Arc<Mutex<String>> = Arc::new(Mutex::new(self.property("uuid")));
+
+                // Create thread safe container for provider
+                let provider_store: Arc<Mutex<Option<Provider>>> = Arc::new(Mutex::new(self.property("provider")));
 
                 // Async fill the labels
                 glib::timeout_add_seconds_local(refresh_rate, move || {
@@ -237,26 +283,31 @@ impl GpuPage {
                     let uuid: String = uuid_lock.lock().unwrap().as_str().to_owned();
 
                     // Create provider for scanning gpu data
-                    let provider: Provider = Provider::new(Vec::new, 0);
+                    let provider_lock: Arc<Mutex<Option<Provider>>> = Arc::clone(&provider_store);
+                    let mut provider_container: MutexGuard<Option<Provider>> = provider_lock.lock().unwrap();
 
                     // For each Statistic
-                    for statistic in statistics.iter() {
-                        // Grab current stat from provider
-                        match provider.get_gpu_data(&uuid, statistic) {
-                            Ok(stat) => {
-                                // For each output label of the page
-                                for label in &labels {
-                                    // Check if correct label
-                                    if *statistic.to_owned() == label.widget_name() {
-                                        label.set_label(&stat);
+                    match &mut *provider_container {
+                        Some(prov) =>
+                            for statistic in statistics.iter() {
+                                // Grab current stat from provider
+                                match prov.get_gpu_data(&uuid, statistic) {
+                                    Ok(stat) => {
+                                        // For each output label of the page
+                                        for label in &labels {
+                                            // Check if correct label
+                                            if *statistic.to_owned() == label.widget_name() {
+                                                label.set_label(&stat);
+                                            }
+                                        }
+                                    }
+                                    Err(err) => {
+                                        println!("panicked when fetching gpu data: `{}`", err);
+                                        return Continue(false);
                                     }
                                 }
                             }
-                            Err(err) => {
-                                println!("panicked when fetching gpu data: `{}`", err);
-                                return Continue(false);
-                            }
-                        }
+                        None => todo!(),
                     }
 
                     Continue(true)
@@ -321,6 +372,6 @@ impl GpuPage {
  */
 impl Default for GpuPage {
     fn default() -> Self {
-        Self::new("", "Default", &Provider::default())
+        Self::new("", "Default", Provider::default())
     }
 }
