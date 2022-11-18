@@ -17,17 +17,16 @@
  * Notes:
  *
  */
-
 // Custom GObjects
 mod imp;
 
 // Imports
 use adwaita::{gio, glib};
-use glib::Object;
 use gio::Settings;
+use glib::Object;
 use gtk::subclass::prelude::*;
 // Modules
-use crate::{APP_ID};
+use crate::APP_ID;
 
 // GObject wrapper for Formatter
 glib::wrapper! {
@@ -157,7 +156,7 @@ impl Formatter {
 
                         // Use function
                         let result: Option<String>;
-                        if params.len() > 0 {
+                        if !params.is_empty() {
                             result = func(vec![parsed_value.to_string()], Some(params));
                         } else {
                             result = func(vec![parsed_value.to_string()], None);
@@ -166,8 +165,8 @@ impl Formatter {
                         self.imp().func.set(Some(func));
 
                         result
-                    },
-                    None => panic!("Missing formatting function!")
+                    }
+                    None => panic!("Missing formatting function!"),
                 }
             }
             Err(err) => {
@@ -198,10 +197,10 @@ impl Formatter {
  */
 impl Default for Formatter {
     fn default() -> Self {
-        let func: fn(Vec<String>, Option<Vec<(String, String)>>) -> Option<String> = |input: Vec<String>, params: Option<Vec<(String, String)>>| {
-            Some(String::from(input.get(0).unwrap()))
-        };
-
+        let func: fn(Vec<String>, Option<Vec<(String, String)>>) -> Option<String> =
+            |input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                Some(String::from(input.get(0).unwrap()))
+            };
 
         Self::new(func)
     }

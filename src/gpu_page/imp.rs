@@ -26,7 +26,7 @@ use glib::{
     ToValue, Value,
 };
 use gtk::{subclass::prelude::*, CompositeTemplate};
-use std::{cell::Cell, sync::Arc};
+use std::cell::Cell;
 
 // Modules
 use crate::provider::Provider;

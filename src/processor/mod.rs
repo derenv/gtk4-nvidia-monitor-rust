@@ -18,7 +18,6 @@
  * It'll be easier to pass a defined "parse_function" to new objects rather than define 3 new classes
  * However - getting that working with generics and lifetimes is a bitch..
  */
-
 // Custom GObjects
 mod imp;
 
@@ -28,7 +27,7 @@ use gtk::{gio, glib, prelude::ObjectExt};
 use std::ffi::OsStr;
 
 // Crates
-use crate::{subprocess::subprocess::exec_communicate};
+use crate::subprocess::subprocess::exec_communicate;
 
 // GObject wrapper for Processor
 glib::wrapper! {
@@ -100,17 +99,21 @@ impl Processor {
      * gpu names:
      * This would be called with "","" as params and base-call="nvidia-settings -q GpuUUID -t" start-call="" end-call=""
      */
-    pub fn process(self, uuid: Option<&str>, property: Option<&str>) -> Result<Option<Vec<String>>, glib::Error> {
+    pub fn process(
+        self,
+        uuid: Option<&str>,
+        property: Option<&str>,
+    ) -> Result<Option<Vec<String>>, glib::Error> {
         //println!("PROCESS BEGINNING");//TEST
 
         // Create call stack of program and args
-        let mut call_stack: String = self.property("base-call");//"nvidia-smi" OR "nvidia-settings" OR "optirun"
-        call_stack.push_str(" ");
-        call_stack.push_str(self.property::<String>("start-call").as_str());//"--query-gpu=" OR "nvidia-smi --query-gpu=" OR ""
+        let mut call_stack: String = self.property("base-call"); //"nvidia-smi" OR "nvidia-settings" OR "optirun"
+        call_stack.push(' ');
+        call_stack.push_str(self.property::<String>("start-call").as_str()); //"--query-gpu=" OR "nvidia-smi --query-gpu=" OR ""
         if let Some(property_val) = property {
             call_stack.push_str(property_val);
         }
-        call_stack.push_str(self.property::<String>("end-call").as_str());//" --format=csv,noheader -i "
+        call_stack.push_str(self.property::<String>("end-call").as_str()); //" --format=csv,noheader -i "
         if let Some(uuid_val) = uuid {
             call_stack.push_str(uuid_val);
         }
@@ -176,7 +179,9 @@ impl Processor {
                             );
                         }
 
-                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
+                        (Some(stdout_buffer), None) => {
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))))
+                        }
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
                             println!(
@@ -214,7 +219,9 @@ impl Processor {
                             );
                         }
 
-                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
+                        (Some(stdout_buffer), None) => {
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))))
+                        }
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
                             println!(
@@ -251,7 +258,9 @@ impl Processor {
                             );
                         }
 
-                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
+                        (Some(stdout_buffer), None) => {
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))))
+                        }
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
                             println!(
@@ -283,7 +292,9 @@ impl Processor {
                             );
                         }
 
-                        (Some(stdout_buffer), None) => return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer)))),
+                        (Some(stdout_buffer), None) => {
+                            return Ok(Some(self.parse(&String::from_utf8_lossy(&stdout_buffer))))
+                        }
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
                             println!(

@@ -17,13 +17,12 @@
  * Notes:
  * Most of this left blank, may add fields later
  */
-
 // Imports
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
-use std::cell::Cell;
 use gio::Settings;
-use glib::{once_cell::sync::OnceCell, once_cell::sync::Lazy, ParamSpec, Value, FromVariant};
-use gtk::{subclass::prelude::*};
+use glib::{once_cell::sync::Lazy, once_cell::sync::OnceCell, FromVariant, ParamSpec, Value};
+use gtk::subclass::prelude::*;
+use std::cell::Cell;
 
 // Modules
 //
@@ -32,7 +31,7 @@ use gtk::{subclass::prelude::*};
 #[derive(Default)]
 pub struct Formatter {
     pub settings: OnceCell<Settings>,
-    pub func: Cell<Option<fn(Vec<String>, Option<Vec<(String, String)>>) -> Option<String>>>
+    pub func: Cell<Option<fn(Vec<String>, Option<Vec<(String, String)>>) -> Option<String>>>,
 }
 
 /// The central trait for subclassing a GObject
@@ -66,10 +65,8 @@ impl Formatter {
     pub fn get_setting<T: FromVariant>(&self, name: &str) -> T {
         // Return the value of the property
         match self.settings.get() {
-            Some(settings) => {
-                settings.get::<T>(name)
-            },
-            None => panic!("`settings` should be set in `setup_settings`.")
+            Some(settings) => settings.get::<T>(name),
+            None => panic!("`settings` should be set in `setup_settings`."),
         }
     }
 }
@@ -173,7 +170,7 @@ impl ObjectImpl for Formatter {
 
         match pspec.name() {
             //
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 
@@ -198,7 +195,7 @@ impl ObjectImpl for Formatter {
 
         match pspec.name() {
             //
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 }
