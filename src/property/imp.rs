@@ -32,10 +32,9 @@ use crate::processor::Processor;
 #[derive(Default)]
 pub struct Property {
     processor: Cell<Processor>,
-    call_extension: Cell<String>,
-    icon: Cell<String>,
     formatter: Cell<Formatter>,
-    gpu_count: Cell<i32>,
+
+    id: Cell<String>,
 }
 
 /// The central trait for subclassing a GObject
@@ -85,9 +84,7 @@ impl ObjectImpl for Property {
     fn properties() -> &'static [ParamSpec] {
         static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
             vec![
-                glib::ParamSpecString::builder("icon").build(),
-                glib::ParamSpecInt::builder("gpu-count").build(),
-                glib::ParamSpecString::builder("call-extension").build(),
+                glib::ParamSpecString::builder("id").build(),
                 glib::ParamSpecObject::builder("processor", glib::Type::OBJECT).build(),
                 glib::ParamSpecObject::builder("formatter", glib::Type::OBJECT).build(),
             ]
@@ -119,26 +116,10 @@ impl ObjectImpl for Property {
         //println!("setting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            "icon" => {
+            "id" => {
                 match value.get() {
-                    Ok(input_icon) => {
-                        self.icon.replace(input_icon);
-                    },
-                    Err(_) => panic!("The value needs to be of type `String`."),
-                }
-            }
-            "gpu-count" => {
-                match value.get() {
-                    Ok(input_gpu_count) => {
-                        self.gpu_count.replace(input_gpu_count);
-                    },
-                    Err(_) => panic!("The value needs to be of type `i32`."),
-                }
-            }
-            "call-extension" => {
-                match value.get() {
-                    Ok(input_call_extension) => {
-                        self.call_extension.replace(input_call_extension);
+                    Ok(input_id) => {
+                        self.id.replace(input_id);
                     },
                     Err(_) => panic!("The value needs to be of type `String`."),
                 }
@@ -183,27 +164,11 @@ impl ObjectImpl for Property {
         //println!("getting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            "icon" => {
+            "id" => {
                 //TODO: this seems ridiculous..
-                let value: String = self.icon.take();
+                let value: String = self.id.take();
 
-                self.icon.set(value.clone());
-
-                value.to_value()
-            }
-            "gpu-count" => {
-                //TODO: this seems ridiculous..
-                let value: i32 = self.gpu_count.take();
-
-                self.gpu_count.set(value);
-
-                value.to_value()
-            }
-            "call-extension" => {
-                //TODO: this seems ridiculous..
-                let value: String = self.call_extension.take();
-
-                self.call_extension.set(value.clone());
+                self.id.set(value.clone());
 
                 value.to_value()
             }

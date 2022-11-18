@@ -17,16 +17,16 @@
  * Notes:
  *
  */
-
 // Custom GObjects
 mod imp;
 
 // Imports
+use adwaita::{gio, glib};
+use gio::Settings;
 use glib::Object;
-use gtk::glib;
-
+use gtk::subclass::prelude::*;
 // Modules
-//
+use crate::APP_ID;
 
 // GObject wrapper for Formatter
 glib::wrapper! {
@@ -68,52 +68,113 @@ impl Formatter {
      * Notes:
      *
      */
-    pub fn new() -> Self {
-        Object::new(&[]).expect("Failed to create `Formatter`.")
+    pub fn new(func: fn(Vec<String>, Option<Vec<(String, String)>>) -> Option<String>) -> Self {
+        let obj: Formatter = Object::new(&[]).expect("Failed to create `Formatter`.");
+
+        // Set properties
+        obj.imp().func.set(Some(func));
+
+        obj
     }
 
-    pub fn format(
-        self,
-        values: Vec<String>,
-        func: fn(Vec<String>) -> Option<String>,
-    ) -> Option<String> {
-        let mut results: Vec<String> = Vec::new();
+    /**
+     * Name:
+     * setup_settings
+     *
+     * Description:
+     * Load settings for APP_ID
+     *
+     * Made:
+     * 18/11/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    fn setup_settings(&self) {
+        let settings = Settings::new(APP_ID);
+        self.imp()
+            .settings
+            .set(settings)
+            .expect("`settings` should not be set before calling `setup_settings`.");
+    }
 
-        // For each item in input list
-        for i in values {
-            // Remove all non-number characters
-            let cleaned_value: String = i
-                .chars()
-                .filter(|c| {
-                    // check if (base 10) digit
-                    if c.is_digit(10) {
-                        true
-                    } else {
-                        // check if full-stop
-                        c.eq(&'.')
-                    }
-                })
-                .collect();
+    /*
+     * Name:
+     * format
+     *
+     * Description:
+     * Given some valid string value, remove non-digit chars (excluding points) and apply formatting
+     *
+     * Made:
+     * 12/11/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn format(self, value: String) -> Option<String> {
+        //println!("FORMATTING");//TEST
 
-            // Convert to float
-            match cleaned_value.parse::<f64>() {
-                Ok(parsed_value) => {
-                    // Convert to string
-                    results.push(parsed_value.to_string());
+        // Remove all non-number characters
+        let cleaned_value: String = value
+            .chars()
+            .filter(|c| {
+                // check if (base 10) digit
+                if c.is_digit(10) {
+                    true
+                } else {
+                    // check if full-stop
+                    c.eq(&'.')
                 }
-                Err(err) => {
-                    // Catch any errors..
-                    println!("Not a valid number: {}", err);
+            })
+            .collect();
+
+        // Convert to float
+        match cleaned_value.parse::<f64>() {
+            Ok(parsed_value) => {
+                // Apply any valid formatting
+                match self.imp().func.take() {
+                    Some(func) => {
+                        // Grab all format info from settings (this is done here to keep in one place)
+                        //===
+                        // Temperature format
+                        let temp_format: i32 = self.imp().get_setting::<i32>("tempformat");
+                        let mut params: Vec<(String, String)> = vec![];
+                        if let 0 = temp_format {
+                            params.push((String::from("tempformat"), String::from("C")));
+                        } else if let 1 = temp_format {
+                            params.push((String::from("tempformat"), String::from("F")));
+                        }
+                        //TODO: ???
+                        //
+                        //===
+
+                        // Use function
+                        let result: Option<String>;
+                        if !params.is_empty() {
+                            result = func(vec![parsed_value.to_string()], Some(params));
+                        } else {
+                            result = func(vec![parsed_value.to_string()], None);
+                        }
+                        // Return it!
+                        self.imp().func.set(Some(func));
+
+                        result
+                    }
+                    None => panic!("Missing formatting function!"),
                 }
             }
-        }
+            Err(err) => {
+                // Catch any errors..
+                println!("Not a valid number: {}", err);
 
-        // Check for empty results
-        if !results.is_empty() {
-            // Apply any valid formatting
-            func(results)
-        } else {
-            None
+                None
+            }
         }
     }
 }
@@ -136,6 +197,11 @@ impl Formatter {
  */
 impl Default for Formatter {
     fn default() -> Self {
-        Self::new()
+        let func: fn(Vec<String>, Option<Vec<(String, String)>>) -> Option<String> =
+            |input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                Some(String::from(input.get(0).unwrap()))
+            };
+
+        Self::new(func)
     }
 }
