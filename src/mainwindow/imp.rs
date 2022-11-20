@@ -174,14 +174,14 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     Some(String::from(input.get(0).unwrap()))
                                 }),
                                 "gpu_name",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -196,7 +196,7 @@ impl MainWindow {
                                 "utilization.gpu",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -257,7 +257,7 @@ impl MainWindow {
                                 "temperature.gpu",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input and add formatting
                                     Some(String::from(input.get(0).unwrap()) + " MiB")
@@ -265,7 +265,7 @@ impl MainWindow {
                                 "memory.used",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input and add formatting
                                     Some(String::from(input.get(0).unwrap()) + " MiB")
@@ -273,7 +273,22 @@ impl MainWindow {
                                 "memory.total",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
+                                "utilization.memory",
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -288,7 +303,7 @@ impl MainWindow {
                                 "fan.speed",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let input_str: String = String::from(input.get(0).unwrap());
@@ -331,10 +346,15 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q=[gpu:]/", " -t"),
+                                &Processor::new("nvidia-settings", "-q=[gpu:", Some("]/"), " -t"),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
-                                    let mut output: String = String::from(input.get(0).unwrap());
+                                    let line: String = String::from(input.get(0).unwrap());
+                                    let list: Vec<&str> = line.split(", ").collect();
+                                    let final_list: Vec<&str> = list[0].split("=").collect(); // This grabs `graphics=2` etc
+
+                                    // Grab item in output that we want
+                                    let mut output: String = String::from(final_list[1]);
 
                                     // Apply formatting
                                     output.push(' ');
@@ -343,10 +363,10 @@ impl MainWindow {
                                     // Return result
                                     Some(output)
                                 }),
-                                "utilization.gpu",
+                                "GPUUtilization.gpu",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q=[gpu:]/", " -t"),
+                                &Processor::new("nvidia-settings", "-q=[gpu:", Some("]/"), " -t"),
                                 &Formatter::new(|input: Vec<String>, params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -404,26 +424,48 @@ impl MainWindow {
                                     // Return result
                                     Some(output)
                                 }),
-                                "temperature.gpu",
+                                "GPUCoreTemp",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q=[gpu:]/", " -t"),
+                                &Processor::new("nvidia-settings", "-q=[gpu:", Some("]/"), " -t"),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input and add formatting
                                     Some(String::from(input.get(0).unwrap()) + " MiB")
                                 }),
-                                "memory.used",
+                                "UsedDedicatedGPUMemory",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q=[gpu:]/", " -t"),
+                                &Processor::new("nvidia-settings", "-q=[gpu:", Some("]/"), " -t"),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input and add formatting
                                     Some(String::from(input.get(0).unwrap()) + " MiB")
                                 }),
-                                "memory.total",
+                                "TotalDedicatedGPUMemory",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-settings", "-q=[gpu:]/", " -t"),
+                                &Processor::new("nvidia-settings", "-q=[gpu:", Some("]/"), " -t"),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let line: String = String::from(input.get(0).unwrap());
+                                    let list: Vec<&str> = line.split(", ").collect();
+                                    let final_list: Vec<&str> = list[1].split("=").collect(); // This grabs `graphics=2` etc
+
+                                    // Grab item in output that we want
+                                    let mut output: String = String::from(final_list[1]);
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
+                                "GPUUtilization.mem",
+                            ),
+                            /*
+                            Property::new(
+                                &Processor::new("nvidia-settings", "-q=[gpu:", Some("]/"), " -t"),
+                                //&Processor::new("nvidia-settings", "-q=[gpu:]/", " -t"),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -435,8 +477,9 @@ impl MainWindow {
                                     // Return result
                                     Some(output)
                                 }),
-                                "fan.speed",
+                                "GPUCurrentFanSpeedRPM",
                             ),
+                            */
                         ]
                     },
                     1,
@@ -449,14 +492,14 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     Some(String::from(input.get(0).unwrap()))
                                 }),
                                 "gpu_name",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -471,7 +514,7 @@ impl MainWindow {
                                 "utilization.gpu",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -532,7 +575,7 @@ impl MainWindow {
                                 "temperature.gpu",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input and add formatting
                                     Some(String::from(input.get(0).unwrap()) + " MiB")
@@ -540,7 +583,7 @@ impl MainWindow {
                                 "memory.used",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input and add formatting
                                     Some(String::from(input.get(0).unwrap()) + " MiB")
@@ -548,7 +591,22 @@ impl MainWindow {
                                 "memory.total",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
+                                "utilization.memory",
+                            ),
+                            Property::new(
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -563,7 +621,7 @@ impl MainWindow {
                                 "fan.speed",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let input_str: String = String::from(input.get(0).unwrap());
@@ -606,14 +664,14 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     Some(String::from(input.get(0).unwrap()))
                                 }),
                                 "gpu_name",
                             ),
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -628,7 +686,7 @@ impl MainWindow {
                                 "utilization.gpu",
                             ),
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -689,7 +747,7 @@ impl MainWindow {
                                 "temperature.gpu",
                             ),
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input and add formatting
                                     Some(String::from(input.get(0).unwrap()) + " MiB")
@@ -697,7 +755,7 @@ impl MainWindow {
                                 "memory.used",
                             ),
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input and add formatting
                                     Some(String::from(input.get(0).unwrap()) + " MiB")
@@ -705,7 +763,22 @@ impl MainWindow {
                                 "memory.total",
                             ),
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", None, " --format=csv,noheader -i "),
+                                &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
+                                    // Grab input
+                                    let mut output: String = String::from(input.get(0).unwrap());
+
+                                    // Apply formatting
+                                    output.push(' ');
+                                    output.push('%');
+
+                                    // Return result
+                                    Some(output)
+                                }),
+                                "utilization.memory",
+                            ),
+                            Property::new(
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -720,7 +793,7 @@ impl MainWindow {
                                 "fan.speed",
                             ),
                             Property::new(
-                                &Processor::new("optirun", "nvidia-smi --query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("optirun", "nvidia-smi --query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let input_str: String = String::from(input.get(0).unwrap());
@@ -763,14 +836,14 @@ impl MainWindow {
                     || {
                         vec![
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     Some(String::from(input.get(0).unwrap()))
                                 }),
                                 "gpu_name",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -785,7 +858,7 @@ impl MainWindow {
                                 "utilization.gpu",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -846,7 +919,7 @@ impl MainWindow {
                                 "temperature.gpu",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input and add formatting
                                     Some(String::from(input.get(0).unwrap()) + " MiB")
@@ -854,7 +927,7 @@ impl MainWindow {
                                 "memory.used",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input and add formatting
                                     Some(String::from(input.get(0).unwrap()) + " MiB")
@@ -862,7 +935,7 @@ impl MainWindow {
                                 "memory.total",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let mut output: String = String::from(input.get(0).unwrap());
@@ -877,7 +950,7 @@ impl MainWindow {
                                 "fan.speed",
                             ),
                             Property::new(
-                                &Processor::new("nvidia-smi", "--query-gpu=", " --format=csv,noheader -i "),
+                                &Processor::new("nvidia-smi", "--query-gpu=", None, " --format=csv,noheader -i "),
                                 &Formatter::new(|input: Vec<String>, _params: Option<Vec<(String, String)>>| {
                                     // Grab input
                                     let input_str: String = String::from(input.get(0).unwrap());

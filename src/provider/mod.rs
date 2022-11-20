@@ -150,6 +150,7 @@ impl Provider {
         let processor: Processor = Processor::new(
             processor_args[0],
             processor_args[1],
+            None,
             ""
         );
 
@@ -208,6 +209,9 @@ impl Provider {
             0 => match property {
                 "name" => final_property = String::from("gpu_name"),
                 "util" => final_property = String::from("utilization.gpu"),
+                "mem_ctrl_util" => final_property = String::from("utilization.memory"),
+                //"encoder_util" => final_property = String::from("clocks.current.video"),
+                //"decoder_util" => final_property = String::from("utilization.gpu"),
                 "temp" => final_property = String::from("temperature.gpu"),
                 "memory_usage" => final_property = String::from("memory.used"),
                 "memory_total" => final_property = String::from("memory.total"),
@@ -217,17 +221,23 @@ impl Provider {
             },
             // Nvidia Settings
             1 => match property {
-                "util" => final_property = String::from("GPUUtilization"),
+                "util" => final_property = String::from("GPUUtilization.gpu"),
+                "mem_ctrl_util" => final_property = String::from("GPUUtilization.mem"),
+
                 "temp" => final_property = String::from("GPUCoreTemp"),
                 "memory_usage" => final_property = String::from("UsedDedicatedGPUMemory"),
                 "memory_total" => final_property = String::from("TotalDedicatedGPUMemory"),
-                "fan_speed" => final_property = String::from("GPUCurrentFanSpeedRPM"),
+                // This isn't queried by GPU UUID, just returns *all*
+                //"fan_speed" => final_property = String::from("GPUCurrentFanSpeedRPM"),
                 _ => return Err(String::from("Unknown property.."))
             },
             // Nvidia SMI
             2 => match property {
                 "name" => final_property = String::from("gpu_name"),
                 "util" => final_property = String::from("utilization.gpu"),
+                "mem_ctrl_util" => final_property = String::from("utilization.memory"),
+                //"encoder_util" => final_property = String::from("clocks.current.video"),
+                //"decoder_util" => final_property = String::from("utilization.gpu"),
                 "temp" => final_property = String::from("temperature.gpu"),
                 "memory_usage" => final_property = String::from("memory.used"),
                 "memory_total" => final_property = String::from("memory.total"),
@@ -239,6 +249,9 @@ impl Provider {
             3 => match property {
                 "name" => final_property = String::from("gpu_name"),
                 "util" => final_property = String::from("utilization.gpu"),
+                "mem_ctrl_util" => final_property = String::from("utilization.memory"),
+                //"encoder_util" => final_property = String::from("clocks.current.video"),
+                //"decoder_util" => final_property = String::from("utilization.gpu"),
                 "temp" => final_property = String::from("temperature.gpu"),
                 "memory_usage" => final_property = String::from("memory.used"),
                 "memory_total" => final_property = String::from("memory.total"),
@@ -252,8 +265,8 @@ impl Provider {
 
         // Grab relevant property
         for prop in self.imp().properties.borrow().iter() {
-            //println!("current property: `{}`", prop.property::<String>("id"));//TEST
-            //println!("looking for property: `{}`", final_property);//TEST
+            println!("current property: `{}`", prop.property::<String>("id"));//TEST
+            println!("looking for property: `{}`", final_property);//TEST
 
             if prop.property::<String>("id") == final_property {
                 // Run and return output

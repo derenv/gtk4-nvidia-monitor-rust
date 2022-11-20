@@ -31,6 +31,7 @@ use adwaita::glib;
 pub struct Processor {
     base_call: Cell<String>,
     start_call: Cell<String>,
+    middle_call: Cell<Option<String>>,
     end_call: Cell<String>,
 }
 
@@ -91,6 +92,7 @@ impl ObjectImpl for Processor {
             vec![
                 glib::ParamSpecString::builder("base-call").build(),
                 glib::ParamSpecString::builder("start-call").build(),
+                glib::ParamSpecString::builder("middle-call").build(),
                 glib::ParamSpecString::builder("end-call").build(),
             ]
         });
@@ -133,6 +135,14 @@ impl ObjectImpl for Processor {
                 match value.get() {
                     Ok(input_start_call) => {
                         self.start_call.replace(input_start_call);
+                    },
+                    Err(_) => panic!("The value needs to be of type `String`."),
+                }
+            }
+            "middle-call" => {
+                match value.get() {
+                    Ok(input_middle_call) => {
+                        self.middle_call.replace(input_middle_call);
                     },
                     Err(_) => panic!("The value needs to be of type `String`."),
                 }
@@ -182,6 +192,14 @@ impl ObjectImpl for Processor {
                 let value: String = self.start_call.take();
 
                 self.start_call.set(value.clone());
+
+                value.to_value()
+            }
+            "middle-call" => {
+                //TODO: this seems ridiculous..
+                let value: Option<String> = self.middle_call.take();
+
+                self.middle_call.set(value.clone());
 
                 value.to_value()
             }

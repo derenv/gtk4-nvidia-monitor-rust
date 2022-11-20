@@ -110,32 +110,36 @@ impl Property {
         self,
         uuid: &str,
     ) -> Option<String> {
-        //println!("UUID: `{}`", uuid);//TEST
-        //println!("GRABBING FORMATTER, PROCESSOR AND ID");//TEST
+        println!("UUID: `{}`", uuid);//TEST
         // Grab formatter & processor
         let formatter: Formatter = self.property("formatter");
         let processor: Processor = self.property("processor");
         // Grab property name
-        let property: String = self.property("id");
-        //println!("ID: `{}`", property);//TEST
+        let mut property: String = self.property("id");
+        println!("ID: `{}`", property);//TEST
+        if let "GPUUtilization.gpu" | "GPUUtilization.mem" = property.as_str() {
+            property = String::from("GPUUtilization");
+        }
 
         // Give processor the uuid and property we want
         match processor.process(Some(uuid), Some(&property)) {
             Ok(result) => {
-                //println!("PROCESS COMPLETE");//TEST
+                println!("PROCESS COMPLETE");//TEST
 
                 match result {
                     Some(valid_result) => {
-                        //println!("RESULT IS NOT NONE");//TEST
-                        //println!("RESULT: `{}`", valid_result[0].to_owned());//TEST
+                        println!("RESULT IS NOT NONE");//TEST
+                        println!("RESULT: `{:?}`", valid_result.to_owned());//TEST
+                        println!("RESULT len: `{}`", valid_result.len());//TEST
+                        println!("RESULT[0]: `{}`", valid_result[0].to_owned());//TEST
 
-                        // Catch this as formatting screws it up
-                        if property == "gpu_name" {
-                            return Some(valid_result[0].to_owned())
+                        // Catch these as formatting screws them up
+                        let mut clean_required: bool = true;
+                        if let "gpu_name" | "GPUUtilization" = property.as_str() {
+                            clean_required = false;
                         }
-
                         // Format returned property using formatter and then return
-                        match formatter.format(valid_result[0].to_owned()) {
+                        match formatter.format(valid_result[0].to_owned(), clean_required) {
                             Some(formatted_result) => return Some(formatted_result),
                             None => return None,
                         }
@@ -208,6 +212,6 @@ impl Property {
  */
 impl Default for Property {
     fn default() -> Self {
-        Self::new(&Processor::new("", "", ""), &Formatter::default(), "")
+        Self::new(&Processor::new("", "", None, ""), &Formatter::default(), "")
     }
 }

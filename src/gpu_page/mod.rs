@@ -165,14 +165,29 @@ impl GpuPage {
                 // TODO: Load config of gpu (use uuid as ID)
                 // TODO: needs to be a vector as may bed of variable size..
                 //let statistics: Vec<&str> = load_json_settings(&self.property("uuid"));//array?vector?json-type object?
-                let statistics_data: Vec<&str> = vec![
-                    "util",
-                    "temp",
-                    "memory_usage",
-                    "memory_total",
-                    "fan_speed",
-                    "power_usage",
-                ];
+                let statistics_data: Vec<&str>;//TEST
+                match self.property::<Provider>("provider").property::<i32>("provider-type") {
+                    1 => {
+                        statistics_data = vec![
+                            "util",
+                            "temp",
+                            "memory_usage",
+                            "memory_total",
+                            "mem_ctrl_util",
+                        ];
+                    }
+                    _ => {
+                        statistics_data = vec![
+                            "util",
+                            "temp",
+                            "memory_usage",
+                            "memory_total",
+                            "mem_ctrl_util",
+                            "fan_speed",
+                            "power_usage",
+                        ];
+                    }
+                }
                 let statistics_store: Arc<Mutex<Vec<&str>>> = Arc::new(Mutex::new(statistics_data));
 
                 // Edit button
@@ -220,13 +235,59 @@ impl GpuPage {
                     //child_manager.set_property("outline-width", 1);
                     //child_manager.set_property("border-radius", 3);
 
-                    // Fetch layout manager for this child grid
+                    // Fetch layout manager for this (grid) child
                     let internal_grid_manager = new_grid.layout_manager().expect("Fuck..");
 
-                    // Build label & add to grid
+                    // Decide on title label size
+                    let space: i32;
+                    let pretty_label: &str;
+                    match statistic.to_owned() {
+                        "util" => {
+                            pretty_label = "GPU Utilization";
+                            space = 5
+                        },
+                        "mem_ctrl_util" => {
+                            pretty_label = "Memory Controller Utilization";
+                            space = 5
+                        },
+                        "encoder_util" => {
+                            pretty_label = "Encoder Utilization";
+                            space = 5
+                        },
+                        "decoder_util" => {
+                            pretty_label = "Decoder Utilization";
+                            space = 5
+                        },
+                        "fan_speed" => {
+                            pretty_label = "Fan Speed";
+                            space = 5
+                        },
+                        "temp" => {
+                            pretty_label = "Temperature";
+                            space = 5
+                        },
+                        "memory_usage" => {
+                            pretty_label = "Memory Usage";
+                            space = 8
+                        },
+                        "memory_total" => {
+                            pretty_label = "Memory Total";
+                            space = 8
+                        },
+                        "power_usage" => {
+                            pretty_label = "Power Usage";
+                            space = 8
+                        },
+                        _ => {
+                            pretty_label = statistic;
+                            space = 5
+                        },
+                    }
+
+                    // Build title label & add to grid
                     let new_title: String = String::from(statistic.to_owned()) + "_label";
                     let new_title_label: Label = Label::builder()
-                        .label(statistic)
+                        .label(pretty_label)
                         .name(&new_title)
                         .hexpand(true)
                         .hexpand_set(true)
@@ -234,24 +295,34 @@ impl GpuPage {
                         //.valign(Align::Center)
                         .margin_top(12)
                         .margin_bottom(12)
+                        .width_chars(space)
                         .build();
                     new_grid.attach(&new_title_label, 0, 0, 1, 1);
 
-                    // Set layout properties of child
+                    // Set layout properties of (title label) child
                     let title_manager: LayoutChild = internal_grid_manager.layout_child(&new_title_label);
                     title_manager.set_property("row-span", 1);
 
-                    // Build label & add to grid
+                    // Decide on content label size
+                    let space: i32;
+                    match statistic.to_owned() {
+                        "util" | "fan_speed" | "temp" => space = 5,
+                        "memory_usage" | "memory_total" => space = 8,
+                        _ => space = 5,
+                    }
+
+                    // Build content label & add to grid
                     let new_content: String = String::from(statistic.to_owned());
                     let new_content_label: Label = Label::builder()
                         .label("")
                         .name(&new_content)
                         //.halign(Align::End)
                         //.valign(Align::Center)
+                        .width_chars(space)
                         .build();
                     new_grid.attach(&new_content_label, 1, 0, 1, 1);
 
-                    // Set layout properties of child
+                    // Set layout properties of (content label) child
                     let content_manager: LayoutChild = internal_grid_manager.layout_child(&new_content_label);
                     content_manager.set_property("row-span", 1);
 
