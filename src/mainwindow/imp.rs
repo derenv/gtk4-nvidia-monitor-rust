@@ -1506,6 +1506,7 @@ impl MainWindow {
                             Ok(gpu_uuids) => {
                                 // Construct a row for each GPU
                                 for uuid in gpu_uuids {
+                                    println!("UUID: `{}`", uuid); //TEST
                                     // Grab current provider
                                     let provider_container: Option<Provider> = self.provider.take();
                                     self.provider.set(provider_container.clone());

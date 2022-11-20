@@ -112,15 +112,8 @@ impl Provider {
         // Check provider type
         let processor_args: [&str; 2];
         match self.property::<i32>("provider-type") {
-            // Nvidia Settings/SMI
-            0 => {
-                processor_args = [
-                    "nvidia-settings",
-                    "-q GpuUUID -t"
-                ];
-            }
-            // Nvidia Settings
-            1 => {
+            // Nvidia Settings/SMI OR Nvidia Settings
+            0 | 1 => {
                 processor_args = [
                     "nvidia-settings",
                     "-q GpuUUID -t"
@@ -130,14 +123,14 @@ impl Provider {
             2 => {
                 processor_args = [
                     "nvidia-smi",
-                    "--query-gpu=gpu_name --format=csv,noheader"
+                    "-L"
                 ];
             }
             // Nvidia Optimus
             3 => {
                 processor_args = [
                     "optirun",
-                    "nvidia-smi --query-gpu=gpu_name --format=csv,noheader"
+                    "nvidia-smi -L"
                 ];
             }
             _ => {
@@ -159,7 +152,30 @@ impl Provider {
             Ok(output) => match output {
                 Some(valid_output) => {
                     // If a valid output given, finally return to main window
-                    Ok(valid_output)
+                    match self.property::<i32>("provider-type") {
+                        // Nvidia Settings/SMI OR Nvidia Settings
+                        0 | 1 => Ok(valid_output),
+                        // Nvidia SMI or Nvidia Optimus
+                        2 | 3 => {
+                            let mut cleaned_output: Vec<String> = vec![];
+                            for line in valid_output {
+                                // Grab mostly-correct contents
+                                let wanted: Vec<&str> = line.split("(UUID: ").collect();
+
+                                // Remove any unwanted chars
+                                let cleaned_line = wanted[1].replace(")", "");
+
+                                // Add to output
+                                cleaned_output.push(cleaned_line);
+                            }
+
+                            Ok(cleaned_output)
+                        },
+                        _ => {
+                            // Return error..
+                            return Err(String::from("Invalid provider, check preferences.."))
+                        },
+                    }
                 }
                 None => {
                     // Return error..
@@ -199,8 +215,9 @@ impl Provider {
         ];
      */
     pub fn get_gpu_data(&self, uuid: &str, property: &str) -> Result<String, String> {
-        //println!("ASKED TO FETCH: `{}`", property);//TEST
-        //println!("TYPE: `{}`", self.property::<i32>("provider_type"));//TEST
+        println!("UUID: `{}`", uuid);//TEST
+        println!("ASKED TO FETCH: `{}`", property);//TEST
+        println!("TYPE: `{}`", self.property::<i32>("provider_type"));//TEST
 
         // Translate to appropriate name
         let final_property: String;
