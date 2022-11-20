@@ -23,12 +23,13 @@ use gio::Settings;
 use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
     subclass::InitializingObject, FromVariant, ParamSpec, Value,
+    clone
 };
 use gtk::{
     subclass::prelude::*, Button, CompositeTemplate, PolicyType, ScrolledWindow, Stack,
     TemplateChild,
 };
-use std::{cell::Cell, cell::RefCell, cell::RefMut, rc::Rc};
+use std::{cell::Cell, cell::RefCell, cell::RefMut, rc::Rc, sync::Arc, sync::Mutex, sync::MutexGuard};
 
 // Modules
 use crate::{
@@ -1409,34 +1410,82 @@ impl MainWindow {
         match provider_container {
             // If provider does exist
             Some(existing_provider) => {
-                // Update GPU list
-                match existing_provider.get_gpu_uuids() {
-                    Ok(gpu_uuids) => {
-                        // Construct a row for each GPU
-                        for uuid in gpu_uuids {
-                            // Grab current provider
-                            let provider_container: Option<Provider> = self.provider.take();
-                            self.provider.set(provider_container.clone());
+                // Check provider type in settings
+                let provider_type: i32 = self.get_setting::<i32>("provider");
 
-                            // Get GPU data
-                            match provider_container {
-                                Some(prov) => match prov.get_gpu_data(&uuid, "name") {
-                                    Ok(gpu_name) => {
-                                        // Create new GpuPage object and Add to list of pages
-                                        self.create_gpu_page(&uuid, &gpu_name, prov);
-                                    },
-                                    Err(err) => {
-                                        println!("..Attempt to read GPU name failed, returning: {}", err);
+                // If type has been changed, update provider
+                if existing_provider.property::<i32>("provider_type") != provider_type {
+                    // Create new provider
+                    let new_provider_container: Option<Provider> =
+                        Some(self.create_provider(provider_type));
+                    self.provider.set(new_provider_container.clone());
 
-                                        // Create new GpuPage object and Add to list of pages
-                                        self.create_gpu_page(&uuid, &uuid, prov);
+                    // Using the new provider
+                    match new_provider_container {
+                        Some(new_provider) => {
+                            // Update GPU list
+                            match new_provider.get_gpu_uuids() {
+                                Ok(gpu_uuids) => {
+                                    // Construct a row for each GPU
+                                    for uuid in gpu_uuids {
+                                        // Grab current provider
+                                        let provider_container: Option<Provider> = self.provider.take();
+                                        self.provider.set(provider_container.clone());
+
+                                        // Get GPU data
+                                        match provider_container {
+                                            Some(prov) => match prov.get_gpu_data(&uuid, "name") {
+                                                Ok(gpu_name) => {
+                                                    // Create new GpuPage object and Add to list of pages
+                                                    self.create_gpu_page(&uuid, &gpu_name, prov);
+                                                },
+                                                Err(err) => {
+                                                    println!("..Attempt to read GPU name failed, returning: {}", err);
+
+                                                    // Create new GpuPage object and Add to list of pages
+                                                    self.create_gpu_page(&uuid, &uuid, prov);
+                                                }
+                                            }
+                                            None => panic!("Something weird has happened! Cannot grab known existing provider.."),
+                                        }
                                     }
                                 }
-                                None => panic!("Something weird has happened! Cannot grab known existing provider.."),
+                                Err(err) => {
+                                    println!("..Attempt to update GPU list failed, returning: {}", err)
+                                }
                             }
                         }
+                        None => todo!(),
                     }
-                    Err(err) => println!("..Attempt to update GPU list failed, returning: {}", err),
+                } else{
+                    // Update GPU list
+                    match existing_provider.get_gpu_uuids() {
+                        Ok(gpu_uuids) => {
+                            // Construct a row for each GPU
+                            for uuid in gpu_uuids {
+                                // Grab current provider
+                                let provider_container: Option<Provider> = self.provider.take();
+                                self.provider.set(provider_container.clone());
+                                // Get GPU data
+                                match provider_container {
+                                    Some(prov) => match prov.get_gpu_data(&uuid, "name") {
+                                        Ok(gpu_name) => {
+                                            // Create new GpuPage object and Add to list of pages
+                                            self.create_gpu_page(&uuid, &gpu_name, prov);
+                                        },
+                                        Err(err) => {
+                                            println!("..Attempt to read GPU name failed, returning: {}", err);
+
+                                            // Create new GpuPage object and Add to list of pages
+                                            self.create_gpu_page(&uuid, &uuid, prov);
+                                        }
+                                    }
+                                    None => panic!("Something weird has happened! Cannot grab known existing provider.."),
+                                }
+                            }
+                        }
+                        Err(err) => println!("..Attempt to update GPU list failed, returning: {}", err),
+                    }
                 }
             }
             // If provider does not exist
@@ -1488,6 +1537,63 @@ impl MainWindow {
                 }
             }
         }
+
+        /*
+        // Load refresh time (s) from settings
+        let refresh_rate: u32 = self.get_setting::<i32>("refreshrate") as u32;
+
+        // Create thread safe container for provider
+        // Grab copy of current provider
+        let provider_container: Option<Provider> = self.provider.take();
+        self.provider.set(provider_container.clone());
+        let provider_store: Arc<Mutex<Option<Provider>>> = Arc::new(Mutex::new(provider_container));
+
+        // Wrapper around `NonNull<RawType>` that just implements `Send`
+        struct WrappedPointer(Settings);
+        unsafe impl Send for WrappedPointer {}
+        // Safe wrapper around `WrappedPointer` that gives access to the pointer
+        // only with the mutex locked.
+        struct SafeType {
+            inner: Mutex<WrappedPointer>,
+        }
+        let settings_store: SafeType = SafeType
+        {
+            inner: Mutex::new(WrappedPointer(self.settings.get().expect("").to_owned()))
+        };
+
+        // Async check for provider changes
+        //glib::timeout_add_seconds(refresh_rate, clone!(@strong self as window => move || {
+        //glib::timeout_add_seconds(refresh_rate, clone!(@strong settings_store as window => move || {
+        glib::timeout_add_seconds_local(refresh_rate, move || {
+            // Grab locked data
+            // settings object
+            let settings_container: MutexGuard<WrappedPointer> = settings_store.inner.lock().unwrap();
+            // current provider for scanning gpu data
+            let provider_lock: Arc<Mutex<Option<Provider>>> = Arc::clone(&provider_store);
+            let mut provider_container: MutexGuard<Option<Provider>> = provider_lock.lock().unwrap();
+
+
+            // Check provider type in settings
+            let provider_type: i32 = settings_container.0.get("provider");
+
+            // If type has been changed, update provider
+            match &mut *provider_container {
+                Some(prov) => {
+                    if prov.property::<i32>("provider_type") != provider_type {
+                        //
+                    }
+                }
+                None => todo!(),
+            }
+
+            Continue(true)
+        });
+        */
+    }
+
+    fn update_prov(&'static self) {
+        //
+        println!("FUCKER");
     }
 }
 

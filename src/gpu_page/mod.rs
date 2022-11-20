@@ -337,7 +337,7 @@ impl GpuPage {
                     labels.push(new_content_label);
                 }
 
-                // Fetch uuid, needed for processor
+                // Create thread safe container for uuid, needed for processor
                 let uuid_store: Arc<Mutex<String>> = Arc::new(Mutex::new(self.property("uuid")));
 
                 // Create thread safe container for provider
@@ -346,14 +346,13 @@ impl GpuPage {
                 // Async fill the labels
                 glib::timeout_add_seconds_local(refresh_rate, move || {
                     // Grab locked data
-                    // Get list of statistics
+                    // list of statistics
                     let statistics_lock: Arc<Mutex<Vec<&str>>> = Arc::clone(&statistics_store);
                     let statistics: MutexGuard<Vec<&str>> = statistics_lock.lock().unwrap();
-                    // Get uuid
+                    // uuid
                     let uuid_lock: Arc<Mutex<String>> = Arc::clone(&uuid_store);
                     let uuid: String = uuid_lock.lock().unwrap().as_str().to_owned();
-
-                    // Create provider for scanning gpu data
+                    // current provider for scanning gpu data
                     let provider_lock: Arc<Mutex<Option<Provider>>> = Arc::clone(&provider_store);
                     let mut provider_container: MutexGuard<Option<Provider>> = provider_lock.lock().unwrap();
 
