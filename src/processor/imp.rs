@@ -22,9 +22,9 @@
 
 // Imports
 use std::cell::Cell;
+use adwaita::glib;
 use glib::{once_cell::sync::Lazy, ParamSpec, Value};
 use gtk::{prelude::*, subclass::prelude::*};
-use adwaita::glib;
 
 /// Object holding the State and any Template Children
 #[derive(Default)]
@@ -123,39 +123,31 @@ impl ObjectImpl for Processor {
         //println!("setting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            "base-call" => {
-                match value.get() {
-                    Ok(input_base_call) => {
-                        self.base_call.replace(input_base_call);
-                    },
-                    Err(_) => panic!("The value needs to be of type `String`."),
+            "base-call" => match value.get() {
+                Ok(input_base_call) => {
+                    self.base_call.replace(input_base_call);
                 }
-            }
-            "start-call" => {
-                match value.get() {
-                    Ok(input_start_call) => {
-                        self.start_call.replace(input_start_call);
-                    },
-                    Err(_) => panic!("The value needs to be of type `String`."),
+                Err(_) => panic!("The value needs to be of type `String`."),
+            },
+            "start-call" => match value.get() {
+                Ok(input_start_call) => {
+                    self.start_call.replace(input_start_call);
                 }
-            }
-            "middle-call" => {
-                match value.get() {
-                    Ok(input_middle_call) => {
-                        self.middle_call.replace(input_middle_call);
-                    },
-                    Err(_) => panic!("The value needs to be of type `String`."),
+                Err(_) => panic!("The value needs to be of type `String`."),
+            },
+            "middle-call" => match value.get() {
+                Ok(input_middle_call) => {
+                    self.middle_call.replace(input_middle_call);
                 }
-            }
-            "end-call" => {
-                match value.get() {
-                    Ok(input_end_call) => {
-                        self.end_call.replace(input_end_call);
-                    },
-                    Err(_) => panic!("The value needs to be of type `String`."),
+                Err(_) => panic!("The value needs to be of type `String`."),
+            },
+            "end-call" => match value.get() {
+                Ok(input_end_call) => {
+                    self.end_call.replace(input_end_call);
                 }
-            }
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+                Err(_) => panic!("The value needs to be of type `String`."),
+            },
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 
@@ -211,7 +203,7 @@ impl ObjectImpl for Processor {
 
                 value.to_value()
             }
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 }

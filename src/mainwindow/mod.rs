@@ -17,7 +17,6 @@
  * Notes:
  *
  */
-
 // Custom GObjects
 mod imp;
 use imp::SettingsWindowContainer;
@@ -29,7 +28,7 @@ use glib::{clone, Object};
 use std::cell::RefMut;
 
 // Modules
-use crate::{APP_ID, provider::Provider, settingswindow::SettingsWindow};
+use crate::{provider::Provider, settingswindow::SettingsWindow, APP_ID};
 
 // GObject wrapper for MainWindow
 glib::wrapper! {
