@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+use adwaita::glib;
 /**
  * Name:
  * imp.rs
@@ -17,11 +18,9 @@
  * Notes:
  *
  */
-
 // Imports
 use glib::{once_cell::sync::Lazy, ParamSpec, ToValue, Value};
-use gtk::{subclass::prelude::*};
-use adwaita::glib;
+use gtk::subclass::prelude::*;
 use std::cell::Cell;
 
 // Modules
@@ -116,31 +115,25 @@ impl ObjectImpl for Property {
         //println!("setting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            "id" => {
-                match value.get() {
-                    Ok(input_id) => {
-                        self.id.replace(input_id);
-                    },
-                    Err(_) => panic!("The value needs to be of type `String`."),
+            "id" => match value.get() {
+                Ok(input_id) => {
+                    self.id.replace(input_id);
                 }
-            }
-            "processor" => {
-                match value.get() {
-                    Ok(input_processor) => {
-                        self.processor.replace(input_processor);
-                    },
-                    Err(_) => panic!("The value needs to be of type `Processor`."),
+                Err(_) => panic!("The value needs to be of type `String`."),
+            },
+            "processor" => match value.get() {
+                Ok(input_processor) => {
+                    self.processor.replace(input_processor);
                 }
-            }
-            "formatter" => {
-                match value.get() {
-                    Ok(input_formatter) => {
-                        self.formatter.replace(input_formatter);
-                    },
-                    Err(_) => panic!("The value needs to be of type `Formatter`."),
+                Err(_) => panic!("The value needs to be of type `Processor`."),
+            },
+            "formatter" => match value.get() {
+                Ok(input_formatter) => {
+                    self.formatter.replace(input_formatter);
                 }
-            }
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+                Err(_) => panic!("The value needs to be of type `Formatter`."),
+            },
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 
@@ -188,7 +181,7 @@ impl ObjectImpl for Property {
 
                 value.to_value()
             }
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 }
