@@ -17,7 +17,6 @@
  * Notes:
  *
  */
-
 // Custom GObjects
 mod imp;
 
@@ -120,7 +119,7 @@ impl SettingsWindow {
         // Fetch settings
         match self.imp().settings.get() {
             Some(settings) => settings,
-            None => panic!("`settings` should be set in `setup_settings`.")
+            None => panic!("`settings` should be set in `setup_settings`."),
         }
     }
 
@@ -248,9 +247,8 @@ impl SettingsWindow {
      */
     fn setup_callbacks(&self) {
         // Setup callback for changing provider choice
-        self.imp()
-            .provider_input
-            .connect_selected_notify(clone!(@weak self as window => move |_| {
+        self.imp().provider_input.connect_selected_notify(
+            clone!(@weak self as window => move |_| {
                 // Get new provider choice
                 let provider_type: i32;
 
@@ -289,7 +287,8 @@ impl SettingsWindow {
 
                 // Store chosen provider type
                 window.imp().update_setting("provider", provider_type);
-            }));
+            }),
+        );
     }
 
     /**

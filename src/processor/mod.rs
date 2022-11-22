@@ -69,7 +69,12 @@ impl Processor {
      * Notes:
      *
      */
-    pub fn new(base_call: &str, start_call: &str, middle_call: Option<&str>, end_call: &str) -> Self {
+    pub fn new(
+        base_call: &str,
+        start_call: &str,
+        middle_call: Option<&str>,
+        end_call: &str,
+    ) -> Self {
         let obj: Processor = Object::new(&[]).expect("Failed to create `Processor`");
 
         // Set properties
@@ -109,7 +114,7 @@ impl Processor {
         uuid: Option<&str>,
         property: Option<&str>,
     ) -> Result<Option<Vec<String>>, glib::Error> {
-        println!("PROCESS BEGINNING");//TEST
+        println!("PROCESS BEGINNING"); //TEST
 
         // Create call stack of program and args
         let mut call_stack: String = self.property("base-call"); //"nvidia-smi" OR "nvidia-settings" OR "optirun"
@@ -138,7 +143,7 @@ impl Processor {
             }
         }
 
-        println!("CALL STACK: `{}`", call_stack);//TEST
+        println!("CALL STACK: `{}`", call_stack); //TEST
 
         // Turn call stack into bytes and create vector for final call stack
         let call_stack_bytes: &[u8] = call_stack.as_bytes();
@@ -299,7 +304,11 @@ impl Processor {
             3 => {
                 //nvidia-settings -q=[gpu:GPU-xx-xx-xx-xx-xx]/GPUUtilization -t
                 // Build array
-                let argv: [&OsStr; 3] = [call_stack_items[0], call_stack_items[1], call_stack_items[2]];
+                let argv: [&OsStr; 3] = [
+                    call_stack_items[0],
+                    call_stack_items[1],
+                    call_stack_items[2],
+                ];
 
                 // Run process, get output
                 match exec_communicate(&argv, None::<&gio::Cancellable>) {
@@ -367,8 +376,8 @@ impl Processor {
             _invalid_size => {
                 // This will only occur via programmer error
                 println!("oops..");
-                return Ok(None)
-            },
+                return Ok(None);
+            }
         }
 
         Ok(None)

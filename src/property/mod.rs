@@ -102,7 +102,7 @@ impl Property {
      */
     pub fn parse(self, uuid: &str) -> Option<String> {
         println!("UUID: `{}`", uuid); //TEST
-        // Grab formatter & processor
+                                      // Grab formatter & processor
         let formatter: Formatter = self.property("formatter");
         let processor: Processor = self.property("processor");
         // Grab property name

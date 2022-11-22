@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+use adwaita::glib;
+use glib::{once_cell::sync::Lazy, ParamSpec, Value};
+use gtk::{prelude::*, subclass::prelude::*};
 /**
  * Name:
  * imp.rs
@@ -19,12 +22,8 @@
  * <https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/g_object_properties/4/custom_button/imp.rs>
  * <https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/g_object_properties/4/custom_button/mod.rs>
  */
-
 // Imports
 use std::cell::Cell;
-use adwaita::glib;
-use glib::{once_cell::sync::Lazy, ParamSpec, Value};
-use gtk::{prelude::*, subclass::prelude::*};
 
 /// Object holding the State and any Template Children
 #[derive(Default)]

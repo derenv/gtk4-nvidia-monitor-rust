@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+use adwaita::glib;
 /**
  * Name:
  * imp.rs
@@ -17,12 +18,10 @@
  * Notes:
  *
  */
-
 // Imports
 use glib::{once_cell::sync::Lazy, ParamSpec, Value};
 use gtk::{prelude::*, subclass::prelude::*};
 use std::{cell::Cell, cell::RefCell};
-use adwaita::glib;
 
 // Modules
 use crate::property::Property;
@@ -87,11 +86,8 @@ impl ObjectImpl for Provider {
      * glib::ParamSpecObject::builder("formatter").build(),
      */
     fn properties() -> &'static [ParamSpec] {
-        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
-            vec![
-                glib::ParamSpecInt::builder("provider-type").build(),
-            ]
-        });
+        static PROPERTIES: Lazy<Vec<ParamSpec>> =
+            Lazy::new(|| vec![glib::ParamSpecInt::builder("provider-type").build()]);
 
         //println!("PROPERTIES: {:?}", PROPERTIES);//TEST
         //println!("trying to add `base_call`: {:?}", glib::ParamSpecString::builder("base_call").build());//TEST
@@ -119,15 +115,13 @@ impl ObjectImpl for Provider {
         //println!("setting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            "provider-type" => {
-                match value.get() {
-                    Ok(input_provider_type_property) => {
-                        self.provider_type.replace(input_provider_type_property);
-                    },
-                    Err(_) => panic!("The value needs to be of type `i32`."),
+            "provider-type" => match value.get() {
+                Ok(input_provider_type_property) => {
+                    self.provider_type.replace(input_provider_type_property);
                 }
-            }
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+                Err(_) => panic!("The value needs to be of type `i32`."),
+            },
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 
@@ -159,7 +153,7 @@ impl ObjectImpl for Provider {
 
                 value.to_value()
             }
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 }

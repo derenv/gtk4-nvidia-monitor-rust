@@ -21,7 +21,6 @@
  *     [build-dependencies]
  *     gtk = { version = "^0.4.8", package = "gtk4" }
  */
-
 // Imports
 use adwaita::gio::compile_resources;
 

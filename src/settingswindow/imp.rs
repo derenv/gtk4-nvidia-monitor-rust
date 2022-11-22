@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ComboRow};
+use gio::Settings;
 /**
  * Name:
  * imp.rs
@@ -17,11 +19,8 @@
  * Notes:
  *
  */
-
 // Imports
 use glib::{once_cell::sync::Lazy, ParamSpec, Value};
-use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ComboRow};
-use gio::Settings;
 use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject};
 use gtk::{subclass::prelude::*, CheckButton, CompositeTemplate, SpinButton, TemplateChild};
 
@@ -99,13 +98,11 @@ impl SettingsWindow {
     pub fn update_setting<T: ToVariant>(&self, name: &str, value: T) {
         // Fetch settings
         match self.settings.get() {
-            Some(settings) => {
-                match settings.set(name, &value) {
-                    Ok(_) => println!("..Setting `{}` updated!", name),
-                    Err(err) => panic!("..Cannot update `{}` setting: `{}`", name, err),
-                }
+            Some(settings) => match settings.set(name, &value) {
+                Ok(_) => println!("..Setting `{}` updated!", name),
+                Err(err) => panic!("..Cannot update `{}` setting: `{}`", name, err),
             },
-            None => panic!("..Cannot retrieve settings")
+            None => panic!("..Cannot retrieve settings"),
         }
     }
 
@@ -140,9 +137,9 @@ impl SettingsWindow {
                                 // Set temperature unit as F
                                 self.update_setting("tempformat", 1);
                             }
-                            _ => panic!("..Unexpected temperature unit")
+                            _ => panic!("..Unexpected temperature unit"),
                         }
-                    },
+                    }
                     None => panic!("..Could not fetch contents of temperature unit button label"),
                 }
             }
@@ -253,7 +250,7 @@ impl ObjectImpl for SettingsWindow {
 
         match pspec.name() {
             //
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 
@@ -278,7 +275,7 @@ impl ObjectImpl for SettingsWindow {
 
         match pspec.name() {
             //
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 }
@@ -344,8 +341,8 @@ impl WindowImpl for SettingsWindow {
                     Ok(_) => println!("..Settings open/closed state updated!"),
                     Err(_) => panic!("..Cannot set `app-settings-open` setting"),
                 }
-            },
-            None => panic!("..Cannot retrieve settings")
+            }
+            None => panic!("..Cannot retrieve settings"),
         }
 
         // Pass close request on to the parent
