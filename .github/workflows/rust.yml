@@ -19,7 +19,7 @@ env:
 jobs:
   lints:
     name: Run cargo fmt and cargo clippy
-    runs-on: ubuntu-latest
+    runs-on: manjarolinux/build
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
@@ -31,7 +31,7 @@ jobs:
           components: rustfmt, clippy
           override: true
       - name: Install Dependancies
-        run: sudo apt-get install -y libglib2.0-dev
+        run: sudo pacman -Syu libglib2.0-dev
       - name: Run cargo fmt
         uses: actions-rs/cargo@v1
         with:
@@ -44,7 +44,7 @@ jobs:
           args: --all-features -- -D warnings
   build-linux:
     name: Build for linux using cargo
-    runs-on: ubuntu-latest
+    runs-on: manjarolinux/build
     needs: [lints]
     steps:
       - name: Checkout sources
@@ -64,7 +64,7 @@ jobs:
           args: --verbose --target x86_64-unknown-linux-gnu
   test:
     name: Run cargo test
-    runs-on: ubuntu-latest
+    runs-on: manjarolinux/build
     needs: [build-linux]
     steps:
       - name: Checkout sources
@@ -89,7 +89,7 @@ jobs:
           args: --verbose
   coverage:
     name: Attempt to generate code coverage
-    runs-on: ubuntu-latest
+    runs-on: manjarolinux/build
     needs: [test]
     steps:
       - name: Checkout sources
