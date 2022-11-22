@@ -17,7 +17,6 @@
  * Notes:
  *
  */
-
 // Custom GObjects
 mod imp;
 
@@ -114,38 +113,24 @@ impl Provider {
         match self.property::<i32>("provider-type") {
             // Nvidia Settings/SMI OR Nvidia Settings
             0 | 1 => {
-                processor_args = [
-                    "nvidia-settings",
-                    "-q GpuUUID -t"
-                ];
+                processor_args = ["nvidia-settings", "-q GpuUUID -t"];
             }
             // Nvidia SMI
             2 => {
-                processor_args = [
-                    "nvidia-smi",
-                    "-L"
-                ];
+                processor_args = ["nvidia-smi", "-L"];
             }
             // Nvidia Optimus
             3 => {
-                processor_args = [
-                    "optirun",
-                    "nvidia-smi -L"
-                ];
+                processor_args = ["optirun", "nvidia-smi -L"];
             }
             _ => {
                 // Return error..
-                return Err(String::from("Invalid provider, check preferences.."))
+                return Err(String::from("Invalid provider, check preferences.."));
             }
         }
 
         // Create a processor object with appropriate args
-        let processor: Processor = Processor::new(
-            processor_args[0],
-            processor_args[1],
-            None,
-            ""
-        );
+        let processor: Processor = Processor::new(processor_args[0], processor_args[1], None, "");
 
         // Validate output
         match processor.process(None, None) {
@@ -170,11 +155,11 @@ impl Provider {
                             }
 
                             Ok(cleaned_output)
-                        },
+                        }
                         _ => {
                             // Return error..
-                            return Err(String::from("Invalid provider, check preferences.."))
-                        },
+                            return Err(String::from("Invalid provider, check preferences.."));
+                        }
                     }
                 }
                 None => {
@@ -190,34 +175,34 @@ impl Provider {
     }
 
     /**
-     * Name:
-     * get_gpu_data
-     *
-     * Description:
-     * Grab gpu data from provider program given a GPU uuid and property name
-     *
-     * Made:
-     * 30/10/2022
-     *
-     * Made by:
-     * Deren Vural
-     *
-     * Notes:
-     * Designed to be expanded on later when more data needed..
-     *
-        let statistics_data: Vec<&str> = vec![
-            "util",
-            "temp",
-            "memory_usage",
-            "memory_total",
-            "fan_speed",
-            "power_usage",
-        ];
-     */
+    * Name:
+    * get_gpu_data
+    *
+    * Description:
+    * Grab gpu data from provider program given a GPU uuid and property name
+    *
+    * Made:
+    * 30/10/2022
+    *
+    * Made by:
+    * Deren Vural
+    *
+    * Notes:
+    * Designed to be expanded on later when more data needed..
+    *
+       let statistics_data: Vec<&str> = vec![
+           "util",
+           "temp",
+           "memory_usage",
+           "memory_total",
+           "fan_speed",
+           "power_usage",
+       ];
+    */
     pub fn get_gpu_data(&self, uuid: &str, property: &str) -> Result<String, String> {
-        println!("UUID: `{}`", uuid);//TEST
-        println!("ASKED TO FETCH: `{}`", property);//TEST
-        println!("TYPE: `{}`", self.property::<i32>("provider_type"));//TEST
+        println!("UUID: `{}`", uuid); //TEST
+        println!("ASKED TO FETCH: `{}`", property); //TEST
+        println!("TYPE: `{}`", self.property::<i32>("provider_type")); //TEST
 
         // Translate to appropriate name
         let final_property: String;
@@ -234,7 +219,7 @@ impl Provider {
                 "memory_total" => final_property = String::from("memory.total"),
                 "fan_speed" => final_property = String::from("fan.speed"),
                 "power_usage" => final_property = String::from("power.draw"),
-                _ => return Err(String::from("Unknown property.."))
+                _ => return Err(String::from("Unknown property..")),
             },
             // Nvidia Settings
             1 => match property {
@@ -246,7 +231,7 @@ impl Provider {
                 "memory_total" => final_property = String::from("TotalDedicatedGPUMemory"),
                 // This isn't queried by GPU UUID, just returns *all*
                 //"fan_speed" => final_property = String::from("GPUCurrentFanSpeedRPM"),
-                _ => return Err(String::from("Unknown property.."))
+                _ => return Err(String::from("Unknown property..")),
             },
             // Nvidia SMI
             2 => match property {
@@ -260,7 +245,7 @@ impl Provider {
                 "memory_total" => final_property = String::from("memory.total"),
                 "fan_speed" => final_property = String::from("fan.speed"),
                 "power_usage" => final_property = String::from("power.draw"),
-                _ => return Err(String::from("Unknown property.."))
+                _ => return Err(String::from("Unknown property..")),
             },
             // Nvidia Optimus
             3 => match property {
@@ -274,22 +259,26 @@ impl Provider {
                 "memory_total" => final_property = String::from("memory.total"),
                 "fan_speed" => final_property = String::from("fan.speed"),
                 "power_usage" => final_property = String::from("power.draw"),
-                _ => return Err(String::from("Unknown property.."))
+                _ => return Err(String::from("Unknown property..")),
             },
             // ???
-            _ => return Err(String::from("Unknown provider type.."))
+            _ => return Err(String::from("Unknown provider type..")),
         }
 
         // Grab relevant property
         for prop in self.imp().properties.borrow().iter() {
-            println!("current property: `{}`", prop.property::<String>("id"));//TEST
-            println!("looking for property: `{}`", final_property);//TEST
+            println!("current property: `{}`", prop.property::<String>("id")); //TEST
+            println!("looking for property: `{}`", final_property); //TEST
 
             if prop.property::<String>("id") == final_property {
                 // Run and return output
                 match prop.to_owned().parse(uuid) {
                     Some(stat) => return Ok(stat),
-                    None => return Err(String::from("Problem occured when trying to run property..")),
+                    None => {
+                        return Err(String::from(
+                            "Problem occured when trying to run property..",
+                        ))
+                    }
                 }
             }
         }
@@ -318,26 +307,24 @@ impl Provider {
         match self.property::<i32>("provider-type") {
             // Open Nvidia Settings
             0 => {
-                match exec_check(
-                    &[OsStr::new("nvidia-settings")],
-                    None::<&gio::Cancellable>,
-                ) {
+                match exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
                     Ok(result) => return Ok(result),
                     Err(err) => return Err(String::from(err.message())),
                 };
             }
             1 => {
-                match exec_check(
-                    &[OsStr::new("nvidia-settings")],
-                    None::<&gio::Cancellable>,
-                ) {
+                match exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
                     Ok(result) => return Ok(result),
                     Err(err) => return Err(String::from(err.message())),
                 };
             }
             // Error Message
-            2 => Err(String::from("Nvidia Settings is not enabled in preferences..")),
-            3 => Err(String::from("Nvidia Settings is not enabled in preferences..")),
+            2 => Err(String::from(
+                "Nvidia Settings is not enabled in preferences..",
+            )),
+            3 => Err(String::from(
+                "Nvidia Settings is not enabled in preferences..",
+            )),
             _ => Err(String::from("Invalid provider, check preferences..")),
         }
     }

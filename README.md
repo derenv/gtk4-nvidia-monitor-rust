@@ -5,6 +5,12 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # Description
 
+[![wakatime](https://wakatime.com/badge/user/8ce81774-1d46-4c72-8a15-b5cf4032138f/project/64d5b278-0a3f-4b93-9a34-5cf88c7a8a3a.svg)](https://wakatime.com/badge/user/8ce81774-1d46-4c72-8a15-b5cf4032138f/project/64d5b278-0a3f-4b93-9a34-5cf88c7a8a3a)
+
+![CI](https://github.com/derenv/gtk4-nvidia-monitor-rust/actions/workflows/rust.yml/badge.svg)
+
+[![Test Coverage](https://codecov.io/gh/derenv/gtk4-nvidia-monitor-rust/branch/main/graph/badge.svg?token=PHDU5O3VFZ)](https://codecov.io/gh/derenv/gtk4-nvidia-monitor-rust)
+
 This project is a rewrite of gnome-nvidia-extension in Rust - intended as a practise Rust project.
 
 # Usage

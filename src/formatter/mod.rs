@@ -186,9 +186,9 @@ impl Formatter {
                     // Grab all format info from settings (this is done here to keep in one place)
                     //===
                     let mut _params: Vec<(String, String)> = vec![]; //mut
-                    //TODO: ???
-                    //
-                    //===
+                                                                     //TODO: ???
+                                                                     //
+                                                                     //===
 
                     // Use function
                     let result: Option<String>;

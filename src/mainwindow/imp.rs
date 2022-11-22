@@ -21,15 +21,16 @@
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
 use glib::{
-    once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
+    clone, once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
     subclass::InitializingObject, FromVariant, ParamSpec, Value,
-    clone
 };
 use gtk::{
     subclass::prelude::*, Button, CompositeTemplate, PolicyType, ScrolledWindow, Stack,
     TemplateChild,
 };
-use std::{cell::Cell, cell::RefCell, cell::RefMut, rc::Rc, sync::Arc, sync::Mutex, sync::MutexGuard};
+use std::{
+    cell::Cell, cell::RefCell, cell::RefMut, rc::Rc, sync::Arc, sync::Mutex, sync::MutexGuard,
+};
 
 // Modules
 use crate::{
@@ -1429,7 +1430,8 @@ impl MainWindow {
                                     // Construct a row for each GPU
                                     for uuid in gpu_uuids {
                                         // Grab current provider
-                                        let provider_container: Option<Provider> = self.provider.take();
+                                        let provider_container: Option<Provider> =
+                                            self.provider.take();
                                         self.provider.set(provider_container.clone());
 
                                         // Get GPU data
@@ -1451,13 +1453,16 @@ impl MainWindow {
                                     }
                                 }
                                 Err(err) => {
-                                    println!("..Attempt to update GPU list failed, returning: {}", err)
+                                    println!(
+                                        "..Attempt to update GPU list failed, returning: {}",
+                                        err
+                                    )
                                 }
                             }
                         }
                         None => todo!(),
                     }
-                } else{
+                } else {
                     // Update GPU list
                     match existing_provider.get_gpu_uuids() {
                         Ok(gpu_uuids) => {
@@ -1484,7 +1489,9 @@ impl MainWindow {
                                 }
                             }
                         }
-                        Err(err) => println!("..Attempt to update GPU list failed, returning: {}", err),
+                        Err(err) => {
+                            println!("..Attempt to update GPU list failed, returning: {}", err)
+                        }
                     }
                 }
             }
@@ -1507,7 +1514,7 @@ impl MainWindow {
                                 // Construct a row for each GPU
                                 for uuid in gpu_uuids {
                                     println!("UUID: `{}`", uuid); //TEST
-                                    // Grab current provider
+                                                                  // Grab current provider
                                     let provider_container: Option<Provider> = self.provider.take();
                                     self.provider.set(provider_container.clone());
 

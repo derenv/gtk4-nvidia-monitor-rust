@@ -17,7 +17,6 @@
  * Notes:
  *
  */
-
 // Imports
 use glib::{once_cell::sync::Lazy, ParamSpec, Value};
 use gtk::{glib, subclass::prelude::*};
@@ -97,7 +96,7 @@ impl ObjectImpl for CustomButton {
 
         match pspec.name() {
             //
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 
@@ -122,7 +121,7 @@ impl ObjectImpl for CustomButton {
 
         match pspec.name() {
             //
-            _ => panic!("Property `{}` does not exist..", pspec.name())
+            _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
 }

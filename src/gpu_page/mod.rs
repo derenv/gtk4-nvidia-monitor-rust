@@ -24,9 +24,7 @@ mod imp;
 use adwaita::{gio, glib};
 use gio::Settings;
 use glib::Object;
-use gtk::{
-    prelude::*, subclass::prelude::*, Grid, Button, Label, LayoutChild, Orientation, Align
-};
+use gtk::{prelude::*, subclass::prelude::*, Align, Button, Grid, Label, LayoutChild, Orientation};
 use std::{sync::Arc, sync::Mutex, sync::MutexGuard};
 
 // Modules
@@ -165,8 +163,11 @@ impl GpuPage {
                 // TODO: Load config of gpu (use uuid as ID)
                 // TODO: needs to be a vector as may bed of variable size..
                 //let statistics: Vec<&str> = load_json_settings(&self.property("uuid"));//array?vector?json-type object?
-                let statistics_data: Vec<&str>;//TEST
-                match self.property::<Provider>("provider").property::<i32>("provider-type") {
+                let statistics_data: Vec<&str>; //TEST
+                match self
+                    .property::<Provider>("provider")
+                    .property::<i32>("provider-type")
+                {
                     1 => {
                         statistics_data = vec![
                             "util",
@@ -245,43 +246,43 @@ impl GpuPage {
                         "util" => {
                             pretty_label = "GPU Utilization";
                             space = 5
-                        },
+                        }
                         "mem_ctrl_util" => {
                             pretty_label = "Memory Controller Utilization";
                             space = 5
-                        },
+                        }
                         "encoder_util" => {
                             pretty_label = "Encoder Utilization";
                             space = 5
-                        },
+                        }
                         "decoder_util" => {
                             pretty_label = "Decoder Utilization";
                             space = 5
-                        },
+                        }
                         "fan_speed" => {
                             pretty_label = "Fan Speed";
                             space = 5
-                        },
+                        }
                         "temp" => {
                             pretty_label = "Temperature";
                             space = 5
-                        },
+                        }
                         "memory_usage" => {
                             pretty_label = "Memory Usage";
                             space = 8
-                        },
+                        }
                         "memory_total" => {
                             pretty_label = "Memory Total";
                             space = 8
-                        },
+                        }
                         "power_usage" => {
                             pretty_label = "Power Usage";
                             space = 8
-                        },
+                        }
                         _ => {
                             pretty_label = statistic;
                             space = 5
-                        },
+                        }
                     }
 
                     // Build title label & add to grid
@@ -300,7 +301,8 @@ impl GpuPage {
                     new_grid.attach(&new_title_label, 0, 0, 1, 1);
 
                     // Set layout properties of (title label) child
-                    let title_manager: LayoutChild = internal_grid_manager.layout_child(&new_title_label);
+                    let title_manager: LayoutChild =
+                        internal_grid_manager.layout_child(&new_title_label);
                     title_manager.set_property("row-span", 1);
 
                     // Decide on content label size
@@ -323,9 +325,9 @@ impl GpuPage {
                     new_grid.attach(&new_content_label, 1, 0, 1, 1);
 
                     // Set layout properties of (content label) child
-                    let content_manager: LayoutChild = internal_grid_manager.layout_child(&new_content_label);
+                    let content_manager: LayoutChild =
+                        internal_grid_manager.layout_child(&new_content_label);
                     content_manager.set_property("row-span", 1);
-
 
                     //==SHOW==
                     // Show new labels & grid
@@ -341,7 +343,8 @@ impl GpuPage {
                 let uuid_store: Arc<Mutex<String>> = Arc::new(Mutex::new(self.property("uuid")));
 
                 // Create thread safe container for provider
-                let provider_store: Arc<Mutex<Option<Provider>>> = Arc::new(Mutex::new(self.property("provider")));
+                let provider_store: Arc<Mutex<Option<Provider>>> =
+                    Arc::new(Mutex::new(self.property("provider")));
 
                 // Async fill the labels
                 glib::timeout_add_seconds_local(refresh_rate, move || {
@@ -354,11 +357,12 @@ impl GpuPage {
                     let uuid: String = uuid_lock.lock().unwrap().as_str().to_owned();
                     // current provider for scanning gpu data
                     let provider_lock: Arc<Mutex<Option<Provider>>> = Arc::clone(&provider_store);
-                    let mut provider_container: MutexGuard<Option<Provider>> = provider_lock.lock().unwrap();
+                    let mut provider_container: MutexGuard<Option<Provider>> =
+                        provider_lock.lock().unwrap();
 
                     // For each Statistic
                     match &mut *provider_container {
-                        Some(prov) =>
+                        Some(prov) => {
                             for statistic in statistics.iter() {
                                 // Grab current stat from provider
                                 match prov.get_gpu_data(&uuid, statistic) {
@@ -377,6 +381,7 @@ impl GpuPage {
                                     }
                                 }
                             }
+                        }
                         None => todo!(),
                     }
 
