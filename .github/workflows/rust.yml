@@ -45,7 +45,8 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all-features -- -D warnings
+          args: --all-features
+          #-- -D warnings
   build-linux:
     name: Build for linux using cargo
     runs-on: ubuntu-22.04
