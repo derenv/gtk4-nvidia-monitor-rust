@@ -30,6 +30,10 @@ jobs:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           components: rustfmt, clippy
           override: true
+      - name: Install Dependancies
+        with:
+          command: sudo apt-get install
+          args: libglib2.0-dev
       - name: Run cargo fmt
         uses: actions-rs/cargo@v1
         with:
