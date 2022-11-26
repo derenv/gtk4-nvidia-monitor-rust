@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022 Deren Vural
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 name: Rust CI
 
 on:
@@ -15,6 +18,7 @@ env:
   RUST_TOOLCHAIN: nightly
   TOOLCHAIN_PROFILE: minimal
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
 
 jobs:
   lints:
@@ -129,3 +133,10 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           directory: coverage
+      - name: Compress coverage results
+        run: tar -cvf coverage.tar coverage
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-results
+          path: coverage.tar
