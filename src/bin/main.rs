@@ -17,7 +17,6 @@
  * Notes:
  *
  */
-
 // Declare module
 extern crate gtk4_nvidia_monitor_rust;
 
