@@ -30,7 +30,7 @@ mod custom_button;
 mod settingswindow;
 
 // Imports
-use adwaita::{gio, prelude::*, Application};
+use adwaita::{gio, glib, prelude::*, Application};
 use gdk::Display;
 use gio::resources_register_include;
 use gtk::{CssProvider, StyleContext};
@@ -54,7 +54,7 @@ const APP_ID: &str = "com.gtk_d.NvidiaMonitorRust";
  * Notes:
  *
  */
-fn main() {
+pub fn create_app() -> Application {
     // Resources
     resources_register_include!("nvidiamonitorrust.gresource")
         .expect("Failed to register resources.");
@@ -66,12 +66,12 @@ fn main() {
     let app: Application = Application::builder().application_id(APP_ID).build();
 
     // Connect to signals of `app`
-    //app.connect_startup(setup_shortcuts);
+    app.connect_startup(setup_shortcuts);
     app.connect_startup(|_| load_css());
     app.connect_activate(build_ui);
 
-    // Run the application
-    println!("{}", app.run());
+    // Return the application
+    app
 }
 
 /**
@@ -91,14 +91,18 @@ fn main() {
  * <https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/todo/5/main.rs>
  * <https://gtk-rs.org/gtk4-rs/stable/latest/book/todo_3.html>
  *
+ * https://gtk-rs.org/gtk4-rs/git/book/actions.html
+ * https://gtk-rs.org/gtk4-rs/git/docs/gtk4/struct.Window.html#actions
  */
-/*
 fn setup_shortcuts(app: &Application) {
-    app.set_accels_for_action("win.filter('All')", &["<Ctrl>a"]);
-    app.set_accels_for_action("win.filter('Open')", &["<Ctrl>o"]);
-    app.set_accels_for_action("win.filter('Done')", &["<Ctrl>d"]);
+    //app.set_accels_for_action("win.filter('All')", &["<Ctrl>a"]);
+    //app.set_accels_for_action("win.filter('Open')", &["<Ctrl>o"]);
+    //app.set_accels_for_action("win.filter('Done')", &["<Ctrl>d"]);
+    //app.set_accels_for_action("win.filter('Close')", &["<Ctrl>q"])
+    app.set_accels_for_action("window.close", &["<Ctrl>q"]);
+    app.set_accels_for_action("window.toggle-maximized", &["<Ctrl>w"]);
+    app.set_accels_for_action("window.minimize", &["<Ctrl>m"]);
 }
-*/
 
 /**
  * Name:
@@ -149,22 +153,20 @@ fn build_ui(app: &Application) {
     // Create a new custom window and show it
     let window: MainWindow = MainWindow::new(app);
 
+    // Create custom action to close window (for shortcuts)
+    // Was a "close" replica
+    /*
+    let action_close = SimpleAction::new("something", None);
+    action_close.connect_activate(clone!(@weak window => move |_, _| {
+        window.close();
+    }));
+    window.add_action(&action_close);
+    */
+
     // Present window
     window.show();
 
     /*
-    // Menu Child
-    let menu: Menu = Menu::new();
-    let item: Menu = Menu::new();
-    item.append(Some("Utilisation"), Some("app.util"));
-    item.append(Some("Temperature"), Some("app.temp"));
-    item.append(Some("Memory Usage"), Some("app.memo"));
-    item.append(Some("Fan Speed"), Some("app.fans"));
-    menu.append_submenu(Some("Item 1"), &item);
-    menu.append(Some("SMI"), Some("app.smi"));
-    menu.append(Some("Settings"), Some("app.settings"));
-    app.set_menubar(Some(&menu));
-
     // App Indicator
     //let mut indicator = AppIndicator::new("Nvidia App", "");
     //indicator.set_status(AppIndicatorStatus::Active);
@@ -172,21 +174,5 @@ fn build_ui(app: &Application) {
     //indicator.set_icon_theme_path(icon_path.to_str().unwrap());
     //indicator.set_icon_full("rust-logo", "icon");
     //indicator.set_menu(&mut menu);
-
-    // Create Parent window
-    let window: ApplicationWindow = ApplicationWindow::new(app);
-    window.set_title(Some("Nvidia App"));
-    window.set_default_size(400, 400);
-    window.set_show_menubar(true);
-
-    // Add children to window
-    //window.set_child(Some(&button1));
-    //window.set_child(Some(&button2));
-    //window.set_child(Some(&button3));
-    //window.set_child(Some(&button4));
-    //window.set_child(Some(&button5));
-
-    // Present window
-    window.show();
-    */
+     */
 }
