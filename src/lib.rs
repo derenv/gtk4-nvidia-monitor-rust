@@ -17,7 +17,6 @@
  * Notes:
  *
  */
-
 // Modules
 mod formatter;
 mod gpu_page;
@@ -175,5 +174,5 @@ fn build_ui(app: &Application) {
     //indicator.set_icon_theme_path(icon_path.to_str().unwrap());
     //indicator.set_icon_full("rust-logo", "icon");
     //indicator.set_menu(&mut menu);
-    */
+     */
 }
