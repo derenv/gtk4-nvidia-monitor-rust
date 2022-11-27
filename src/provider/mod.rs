@@ -310,6 +310,8 @@ impl Provider {
         match self.property::<i32>("provider-type") {
             // Open Nvidia Settings
             0 | 1 => {
+                //NOTE: This doesn't work for some reason, but seems to be to do with
+                //      nvidia-settings or the Cancellable implementation in the rust bindings..
                 // Add new cancellable object to stack
                 //let control: Cancellable = Cancellable::new();
                 //control.push_current();
