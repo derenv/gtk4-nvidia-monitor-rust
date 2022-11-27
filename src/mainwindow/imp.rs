@@ -1860,6 +1860,12 @@ impl WindowImpl for MainWindow {
         // serde_json::to_writer(file, &gpu_data)
         //     .expect("Could not write data to json file");
 
+        // Cancel any under-way sub processes
+        // if let Some(control) = Cancellable::current() {
+        //     println!("Closing open windows..");
+        //     control.cancel();
+        // }
+
         // Store sub-window states in settings
         self.update_setting("app-settings-open", false);
         self.update_setting("nvidia-settings-open", false);

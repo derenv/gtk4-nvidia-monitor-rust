@@ -22,7 +22,7 @@ mod imp;
 
 // Imports
 use adwaita::{gio, glib};
-use gio::Settings;
+use gio::{Settings, Cancellable};
 use glib::Object;
 use gtk::{prelude::*, subclass::prelude::*};
 use std::ffi::OsStr;
@@ -307,7 +307,12 @@ impl Provider {
         match self.property::<i32>("provider-type") {
             // Open Nvidia Settings
             0 | 1 => {
-                match exec_communicate_async(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>, |result| {
+                // Add new cancellable object to stack
+                //let control: Cancellable = Cancellable::new();
+                //control.push_current();
+
+                // Start cancellable async process
+                match exec_communicate_async(&[OsStr::new("nvidia-settings")], None::<&Cancellable>/*Some(&control)*/, |result| {
                     // Callback
                     match result {
                         Err(err) => {
