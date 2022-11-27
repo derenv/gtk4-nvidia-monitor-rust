@@ -21,7 +21,7 @@
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
 use glib::{
-    clone, once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
+    once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
     subclass::InitializingObject, FromVariant, ParamSpec, Value,
 };
 use gtk::{
@@ -29,7 +29,7 @@ use gtk::{
     TemplateChild,
 };
 use std::{
-    cell::Cell, cell::RefCell, cell::RefMut, rc::Rc, sync::Arc, sync::Mutex, sync::MutexGuard,
+    cell::Cell, cell::RefCell, cell::RefMut, rc::Rc
 };
 
 // Modules

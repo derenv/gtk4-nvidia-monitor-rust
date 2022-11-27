@@ -22,13 +22,13 @@ mod imp;
 
 // Imports
 use adwaita::{gio, glib};
+use gio::Settings;
 use glib::Object;
-use gtk::prelude::*;
-use gtk::subclass::prelude::*;
+use gtk::{prelude::*, subclass::prelude::*};
 use std::ffi::OsStr;
 
 // Crates
-use crate::{processor::Processor, property::Property, subprocess::subprocess::exec_check};
+use crate::{processor::Processor, property::Property, subprocess::subprocess::exec_communicate_async, APP_ID};
 
 // GObject wrapper for Provider
 glib::wrapper! {
@@ -306,24 +306,48 @@ impl Provider {
         // Check provider type
         match self.property::<i32>("provider-type") {
             // Open Nvidia Settings
-            0 => {
-                match exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
-                    Ok(result) => return Ok(result),
-                    Err(err) => return Err(String::from(err.message())),
-                };
-            }
-            1 => {
-                match exec_check(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>) {
-                    Ok(result) => return Ok(result),
-                    Err(err) => return Err(String::from(err.message())),
+            0 | 1 => {
+                match exec_communicate_async(&[OsStr::new("nvidia-settings")], None::<&gio::Cancellable>, |result| {
+                    // Callback
+                    match result {
+                        Err(err) => {
+                            println!(
+                                "Process failed with error: `{}`",
+                                err.to_string()
+                            );
+                        }
+                        Ok(buffers) => match buffers {
+                            // Success
+                            (Some(_), None) | (None, None) => {
+                                println!("Nvidia Settings now closed..");
+
+                                // Get settings for APP_ID
+                                let settings = Settings::new(APP_ID);
+
+                                // Update settings
+                                let name: &str = "nvidia-settings-open";
+                                match settings.set_boolean(name, false){
+                                    Ok(_) => println!("..Setting `{}` updated!", name),
+                                    Err(err) => panic!("..Cannot update `{}` setting: `{}`", name, err),
+                                }
+                            }
+                            // Error
+                            (None, Some(stderr_buffer)) | (Some(_), Some(stderr_buffer)) => {
+                                println!(
+                                    "Process failed with error: `{}`",
+                                    String::from_utf8_lossy(&stderr_buffer)
+                                );
+                            }
+                        },
+                    }
+                }) {
+                    Ok(()) => return Ok(()),
+                    Err(err) => return Err(err.to_string()),
                 };
             }
             // Error Message
-            2 => Err(String::from(
-                "Nvidia Settings is not enabled in preferences..",
-            )),
-            3 => Err(String::from(
-                "Nvidia Settings is not enabled in preferences..",
+            2 | 3 => Err(String::from(
+                "Nvidia Settings cabable provider is not enabled in preferences..",
             )),
             _ => Err(String::from("Invalid provider, check preferences..")),
         }
