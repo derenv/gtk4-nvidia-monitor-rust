@@ -27,7 +27,7 @@ use gtk::{gio, glib, prelude::ObjectExt};
 use std::ffi::OsStr;
 
 // Crates
-use crate::subprocess::subprocess::exec_communicate;
+use crate::subprocess::subprocess::exec_communicate_sync;
 
 // GObject wrapper for Processor
 glib::wrapper! {
@@ -194,14 +194,14 @@ impl Processor {
                 ];
 
                 // Run process, get output
-                match exec_communicate(&argv, None::<&gio::Cancellable>) {
+                match exec_communicate_sync(&argv, None::<&gio::Cancellable>) {
                     Ok(return_val) => match return_val {
                         // ACTUAL
                         (None, None) => return Ok(None),
 
                         (None, Some(stderr_buffer)) => {
                             println!(
-                                "Process failed with error: {}",
+                                "Process failed with error: `{}`",
                                 String::from_utf8_lossy(&stderr_buffer)
                             );
                         }
@@ -212,7 +212,7 @@ impl Processor {
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
                             println!(
-                                "Process succeeded, but with error: {}",
+                                "Process succeeded, but with error: `{}`",
                                 String::from_utf8_lossy(&stderr_buffer)
                             );
 
@@ -234,14 +234,14 @@ impl Processor {
                 ];
 
                 // Run process, get output
-                match exec_communicate(&argv, None::<&gio::Cancellable>) {
+                match exec_communicate_sync(&argv, None::<&gio::Cancellable>) {
                     Ok(return_val) => match return_val {
                         // ACTUAL
                         (None, None) => return Ok(None),
 
                         (None, Some(stderr_buffer)) => {
                             println!(
-                                "Process failed with error: {}",
+                                "Process failed with error: `{}`",
                                 String::from_utf8_lossy(&stderr_buffer)
                             );
                         }
@@ -252,7 +252,7 @@ impl Processor {
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
                             println!(
-                                "Process failed with error: {}",
+                                "Process failed with error: `{}`",
                                 String::from_utf8_lossy(&stderr_buffer)
                             );
 
@@ -273,14 +273,14 @@ impl Processor {
                 ];
 
                 // Run process, get output
-                match exec_communicate(&argv, None::<&gio::Cancellable>) {
+                match exec_communicate_sync(&argv, None::<&gio::Cancellable>) {
                     Ok(return_val) => match return_val {
                         // ACTUAL
                         (None, None) => return Ok(None),
 
                         (None, Some(stderr_buffer)) => {
                             println!(
-                                "Process failed with error: {}",
+                                "Process failed with error: `{}`",
                                 String::from_utf8_lossy(&stderr_buffer)
                             );
                         }
@@ -291,7 +291,7 @@ impl Processor {
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
                             println!(
-                                "Process failed with error: {}",
+                                "Process failed with error: `{}`",
                                 String::from_utf8_lossy(&stderr_buffer)
                             );
 
@@ -311,14 +311,14 @@ impl Processor {
                 ];
 
                 // Run process, get output
-                match exec_communicate(&argv, None::<&gio::Cancellable>) {
+                match exec_communicate_sync(&argv, None::<&gio::Cancellable>) {
                     Ok(return_val) => match return_val {
                         // ACTUAL
                         (None, None) => return Ok(None),
 
                         (None, Some(stderr_buffer)) => {
                             println!(
-                                "Process failed with error: {}",
+                                "Process failed with error: `{}`",
                                 String::from_utf8_lossy(&stderr_buffer)
                             );
                         }
@@ -329,7 +329,7 @@ impl Processor {
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
                             println!(
-                                "Process failed with error: {}",
+                                "Process failed with error: `{}`",
                                 String::from_utf8_lossy(&stderr_buffer)
                             );
 
@@ -345,14 +345,14 @@ impl Processor {
                 let argv: [&OsStr; 2] = [call_stack_items[0], call_stack_items[1]];
 
                 // Run process, get output
-                match exec_communicate(&argv, None::<&gio::Cancellable>) {
+                match exec_communicate_sync(&argv, None::<&gio::Cancellable>) {
                     Ok(return_val) => match return_val {
                         // ACTUAL
                         (None, None) => return Ok(None),
 
                         (None, Some(stderr_buffer)) => {
                             println!(
-                                "Process failed with error: {}",
+                                "Process failed with error: `{}`",
                                 String::from_utf8_lossy(&stderr_buffer)
                             );
                         }
@@ -363,7 +363,7 @@ impl Processor {
 
                         (Some(stdout_buffer), Some(stderr_buffer)) => {
                             println!(
-                                "Process failed with error: {}",
+                                "Process failed with error: `{}`",
                                 String::from_utf8_lossy(&stderr_buffer)
                             );
 

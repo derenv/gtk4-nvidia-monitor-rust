@@ -25,7 +25,7 @@ pub mod subprocess {
 
     /**
      * Name:
-     * execCheck
+     * exec_check_async
      *
      * Description:
      * Execute a command asynchronously and check the exit status
@@ -43,7 +43,7 @@ pub mod subprocess {
      * Notes:
      *
      */
-    pub fn exec_check(
+    pub fn exec_check_async(
         argv: &[&OsStr],
         cancellable: Option<&impl IsA<gio::Cancellable>>,
     ) -> Result<(), glib::Error> {
@@ -59,7 +59,7 @@ pub mod subprocess {
 
     /**
      * Name:
-     * exec_communicate
+     * exec_communicate_sync
      *
      * Description:
      * Execute a command and return any output
@@ -77,7 +77,7 @@ pub mod subprocess {
      * Notes:
      *
      */
-    pub fn exec_communicate(
+    pub fn exec_communicate_sync(
         argv: &[&OsStr],
         cancellable: Option<&impl IsA<gio::Cancellable>>,
     ) -> Result<(Option<Bytes>, Option<Bytes>), glib::Error> {
@@ -96,6 +96,46 @@ pub mod subprocess {
                     }
                 },
             },
+        }
+    }
+
+    /**
+     * Name:
+     * exec_communicate
+     *
+     * Description:
+     * Execute a command asynchronously and check the exit status
+     *
+     * If given, @cancellable can be used to stop the process before it finishes.
+     *
+     * <https://gtk-rs.org/gtk-rs-core/stable/0.14/docs/src/gio/auto/subprocess.rs.html>
+     *
+     * Made:
+     * 27/11/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn exec_communicate_async<
+        Q: FnOnce(Result<(Option<glib::Bytes>, Option<glib::Bytes>), glib::Error>) + Send + 'static,
+    >(
+        argv: &[&OsStr],
+        cancellable: Option<&impl IsA<gio::Cancellable>>,
+        // Callback? that way could modify settings....
+        callback: Q, //dyn FnOnce(Result<(Option<glib::Bytes>, Option<glib::Bytes>), glib::Error>) + 'static
+    ) -> Result<(), glib::Error> {
+        // Create subprocess
+        match gio::Subprocess::newv(argv, gio::SubprocessFlags::STDOUT_PIPE) {
+            Err(err) => Err(err),
+            // Run subprocess
+            Ok(proc) => {
+                proc.communicate_async(None, cancellable, callback);
+
+                Ok(())
+            }
         }
     }
 }

@@ -21,16 +21,14 @@
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
 use glib::{
-    clone, once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
+    once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
     subclass::InitializingObject, FromVariant, ParamSpec, Value,
 };
 use gtk::{
     subclass::prelude::*, Button, CompositeTemplate, PolicyType, ScrolledWindow, Stack,
     TemplateChild,
 };
-use std::{
-    cell::Cell, cell::RefCell, cell::RefMut, rc::Rc, sync::Arc, sync::Mutex, sync::MutexGuard,
-};
+use std::{cell::Cell, cell::RefCell, cell::RefMut, rc::Rc};
 
 // Modules
 use crate::{
@@ -1800,6 +1798,10 @@ impl WindowImpl for MainWindow {
      *
      */
     fn close_request(&self, window: &Self::Type) -> Inhibit {
+        /*
+        //NOTE: this was meant for saving to json, probably unecessary now that i'm not using it..
+
+
         // Create vector for final saving
         let mut save_data: Vec<Vec<(String, String)>> = vec![];
         //let mut save_data: gio::ListStore;
@@ -1830,35 +1832,21 @@ impl WindowImpl for MainWindow {
             //save_data.append(&test_s);
         }
 
-        // Create collection to store in json
         // TEST OUTPUT
         for gpu in save_data {
             for stat in gpu {
                 println!("STAT NAME: `{}` STAT VALUE: `{}`", stat.0, stat.1);
             }
         }
-        // let qq = save_data
-        //      .snapshot() //?
-        //      .iter()
-        //      .filter_map(Cast::downcast_ref::<TaskObject>)
-        //      .map(TaskObject::task_data)
-        //      .collect();
+        */
 
-        // let gpu_data: Vec<TaskData> = current_page
-        //     .tasks()    // change to "items" and grab all statistic pairs/objects
-        //     .snapshot() //?
-        //     .iter()
-        //     .filter_map(Cast::downcast_ref::<TaskObject>)
-        //     .map(TaskObject::task_data)
-        //     .collect();
-
-        // Store in json
-        // Create json file object
-        //let file = File::create(data_path()).expect("Could not create json file.");
-
-        // Write json file
-        // serde_json::to_writer(file, &gpu_data)
-        //     .expect("Could not write data to json file");
+        //NOTE: This doesn't work for some reason, but seems to be to do with
+        //      nvidia-settings or the Cancellable implementation in the rust bindings..
+        // Cancel any under-way sub processes
+        // if let Some(control) = Cancellable::current() {
+        //     println!("Closing open windows..");
+        //     control.cancel();
+        // }
 
         // Store sub-window states in settings
         self.update_setting("app-settings-open", false);

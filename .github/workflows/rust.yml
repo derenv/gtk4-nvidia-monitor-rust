@@ -5,20 +5,19 @@ name: Rust CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-      - '**.md'
+      - "**.md"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-      - '**.md'
+      - "**.md"
 
 env:
   CARGO_TERM_COLOR: always
   RUST_TOOLCHAIN: nightly
   TOOLCHAIN_PROFILE: minimal
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
 
 jobs:
   lints:

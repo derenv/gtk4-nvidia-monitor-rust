@@ -274,57 +274,63 @@ impl MainWindow {
             //let def = shell::Edge::Top;
             //let dd = gio::DesktopAppInfo::from_filename("nvidia-settings.desktop");
 
-            if !app_settings_open {
-                // Grab current stored provider
-                let mut provider: Option<Provider> = window.property("provider");
+            match app_settings_open {
+                false => {
+                    // Grab current stored provider
+                    let mut provider: Option<Provider> = window.property("provider");
 
-                // Check if provider exists
-                match provider {
-                    Some(prov) => {
-                        // Open Nvidia Settings
-                        match prov.open_settings() {
-                            Ok(_result) => {
-                                println!("Opening the Nvidia Settings app..");
-                            },
-                            Err(err) => println!(
-                                "An error occured: {}",
-                                err
-                            ),
-                        }
-                    },
-                    None => {
-                        // Check provider type
-                        let provider_type: i32 = window.imp().get_setting::<i32>("provider");
+                    // Check if provider exists
+                    match provider {
+                        Some(prov) => {
+                            // Open Nvidia Settings
+                            match prov.open_settings() {
+                                Ok(_) => {
+                                    println!("Opening the Nvidia Settings app..");
 
-                        // Create new provider
-                        //println!("Creating new Provider..");//TEST
-                        window.set_property("provider", Some(window.imp().create_provider(provider_type)));
+                                    // Set state in settings
+                                    window.imp().update_setting::<bool>("nvidia-settings-open", true);
+                                },
+                                Err(err) => println!(
+                                    "An error occured: {}",
+                                    err
+                                ),
+                            }
+                        },
+                        None => {
+                            // Check provider type
+                            let provider_type: i32 = window.imp().get_setting::<i32>("provider");
 
-                        // Grab new provider
-                        provider = window.property("provider");
+                            // Create new provider
+                            //println!("Creating new Provider..");//TEST
+                            window.set_property("provider", Some(window.imp().create_provider(provider_type)));
 
-                        // Open Nvidia Settings
-                        println!("Opening the Nvidia Settings app..");//TEST
-                        match provider {
-                            Some(prov) => {
-                                // Open Nvidia Settings
-                                match prov.open_settings() {
-                                    Ok(_result) => {
-                                        println!("Opening the Nvidia Settings app..");
-                                    },
-                                    Err(err) => println!(
-                                        "An error occured: {}",
-                                        err
-                                    ),
-                                }
-                            },
-                            None => panic!("Cannot find `Provider`!")
+                            // Grab new provider
+                            provider = window.property("provider");
+
+                            // Open Nvidia Settings
+                            println!("Opening the Nvidia Settings app..");//TEST
+                            match provider {
+                                Some(prov) => {
+                                    // Open Nvidia Settings
+                                    match prov.open_settings() {
+                                        Ok(_) => {
+                                            println!("Opening the Nvidia Settings app..");
+
+                                            // Set state in settings
+                                            window.imp().update_setting::<bool>("nvidia-settings-open", true);
+                                        },
+                                        Err(err) => println!(
+                                            "An error occured: {}",
+                                            err
+                                        ),
+                                    }
+                                },
+                                None => panic!("Cannot find `Provider`!")
+                            }
                         }
                     }
                 }
-
-                // Set state in settings
-                window.imp().update_setting::<bool>("nvidia-settings-open", true);
+                true => println!("Nvidia Settings app already open!"),
             }
         }));
         self.add_action(&open_nvidia_settings);
