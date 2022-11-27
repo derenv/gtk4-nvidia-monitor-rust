@@ -10,7 +10,7 @@ spinbutton {
 }
 
 grid#statistic_item_grid {
-	outline-style: solid;
-	outline-width: 1px;
-	border-radius: 3px;
+  outline-style: solid;
+  outline-width: 1px;
+  border-radius: 3px;
 }

@@ -22,13 +22,16 @@ mod imp;
 
 // Imports
 use adwaita::{gio, glib};
-use gio::{Settings, Cancellable};
+use gio::{Cancellable, Settings};
 use glib::Object;
 use gtk::{prelude::*, subclass::prelude::*};
 use std::ffi::OsStr;
 
 // Crates
-use crate::{processor::Processor, property::Property, subprocess::subprocess::exec_communicate_async, APP_ID};
+use crate::{
+    processor::Processor, property::Property, subprocess::subprocess::exec_communicate_async,
+    APP_ID,
+};
 
 // GObject wrapper for Provider
 glib::wrapper! {
@@ -312,40 +315,43 @@ impl Provider {
                 //control.push_current();
 
                 // Start cancellable async process
-                match exec_communicate_async(&[OsStr::new("nvidia-settings")], None::<&Cancellable>/*Some(&control)*/, |result| {
-                    // Callback
-                    match result {
-                        Err(err) => {
-                            println!(
-                                "Process failed with error: `{}`",
-                                err.to_string()
-                            );
-                        }
-                        Ok(buffers) => match buffers {
-                            // Success
-                            (Some(_), None) | (None, None) => {
-                                println!("Nvidia Settings now closed..");
+                match exec_communicate_async(
+                    &[OsStr::new("nvidia-settings")],
+                    None::<&Cancellable>, /*Some(&control)*/
+                    |result| {
+                        // Callback
+                        match result {
+                            Err(err) => {
+                                println!("Process failed with error: `{}`", err.to_string());
+                            }
+                            Ok(buffers) => match buffers {
+                                // Success
+                                (Some(_), None) | (None, None) => {
+                                    println!("Nvidia Settings now closed..");
 
-                                // Get settings for APP_ID
-                                let settings = Settings::new(APP_ID);
+                                    // Get settings for APP_ID
+                                    let settings = Settings::new(APP_ID);
 
-                                // Update settings
-                                let name: &str = "nvidia-settings-open";
-                                match settings.set_boolean(name, false){
-                                    Ok(_) => println!("..Setting `{}` updated!", name),
-                                    Err(err) => panic!("..Cannot update `{}` setting: `{}`", name, err),
+                                    // Update settings
+                                    let name: &str = "nvidia-settings-open";
+                                    match settings.set_boolean(name, false) {
+                                        Ok(_) => println!("..Setting `{}` updated!", name),
+                                        Err(err) => {
+                                            panic!("..Cannot update `{}` setting: `{}`", name, err)
+                                        }
+                                    }
                                 }
-                            }
-                            // Error
-                            (None, Some(stderr_buffer)) | (Some(_), Some(stderr_buffer)) => {
-                                println!(
-                                    "Process failed with error: `{}`",
-                                    String::from_utf8_lossy(&stderr_buffer)
-                                );
-                            }
-                        },
-                    }
-                }) {
+                                // Error
+                                (None, Some(stderr_buffer)) | (Some(_), Some(stderr_buffer)) => {
+                                    println!(
+                                        "Process failed with error: `{}`",
+                                        String::from_utf8_lossy(&stderr_buffer)
+                                    );
+                                }
+                            },
+                        }
+                    },
+                ) {
                     Ok(()) => return Ok(()),
                     Err(err) => return Err(err.to_string()),
                 };

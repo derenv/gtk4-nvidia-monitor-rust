@@ -125,7 +125,7 @@ pub mod subprocess {
         argv: &[&OsStr],
         cancellable: Option<&impl IsA<gio::Cancellable>>,
         // Callback? that way could modify settings....
-        callback: Q //dyn FnOnce(Result<(Option<glib::Bytes>, Option<glib::Bytes>), glib::Error>) + 'static
+        callback: Q, //dyn FnOnce(Result<(Option<glib::Bytes>, Option<glib::Bytes>), glib::Error>) + 'static
     ) -> Result<(), glib::Error> {
         // Create subprocess
         match gio::Subprocess::newv(argv, gio::SubprocessFlags::STDOUT_PIPE) {

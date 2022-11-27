@@ -28,9 +28,7 @@ use gtk::{
     subclass::prelude::*, Button, CompositeTemplate, PolicyType, ScrolledWindow, Stack,
     TemplateChild,
 };
-use std::{
-    cell::Cell, cell::RefCell, cell::RefMut, rc::Rc
-};
+use std::{cell::Cell, cell::RefCell, cell::RefMut, rc::Rc};
 
 // Modules
 use crate::{
