@@ -23,7 +23,7 @@ mod imp;
 // Imports
 use adwaita::{gio, glib};
 use gio::Settings;
-use glib::{Object, SourceId, translate::FromGlib, clone};
+use glib::{clone, translate::FromGlib, Object, SourceId};
 use gtk::{prelude::*, subclass::prelude::*, Align, Button, Grid, Label, LayoutChild, Orientation};
 use std::{sync::Arc, sync::Mutex, sync::MutexGuard};
 
@@ -154,7 +154,7 @@ impl GpuPage {
 
         // Load list of Views
         let loaded_views_data: Vec<String> = settings_obj.get::<Vec<String>>("viewconfigs");
-        println!("views saved:`{}`", loaded_views_data.len());//TEST
+        println!("views saved:`{}`", loaded_views_data.len()); //TEST
 
         // Create Views
         // If present in saved settings, use! otherwise follow below defaults
@@ -181,7 +181,8 @@ impl GpuPage {
             //child_manager.set_property("column-span", 1);
 
             // Build title label & add to grid
-            let label_value: String = String::from("Please edit the list of Views using 'Edit Views' button");
+            let label_value: String =
+                String::from("Please edit the list of Views using 'Edit Views' button");
             let new_title_label: Label = Label::builder()
                 .label(&label_value)
                 .name("default")
@@ -200,15 +201,15 @@ impl GpuPage {
                 &new_grid,
                 Some("default"),
                 "Default",
-                "package-x-generic-symbolic"
+                "package-x-generic-symbolic",
             );
-        }else{
+        } else {
             // Create temporary structure for sorting loaded data
             let mut loaded_views: Vec<String> = vec![String::from(""); loaded_views_data.len()];
 
             // For each loaded view
             for index in 0..loaded_views_data.len() {
-                println!("item: `{}`", loaded_views_data[index]);//TEST
+                println!("item: `{}`", loaded_views_data[index]); //TEST
 
                 // Split current item into the 4 parts
                 let parts: Vec<&str> = loaded_views_data[index].split(':').collect::<Vec<&str>>();
@@ -220,16 +221,18 @@ impl GpuPage {
 
                 // If from valid page
                 if parts[0] == self.property::<String>("uuid") {
-                    println!("VALID UUID");//TEST
+                    println!("VALID UUID"); //TEST
 
                     // If a valid position
                     match parts[1].parse::<usize>() {
-                        Ok(position) => if position <= loaded_views_data.len() {
-                            println!("VALID POSITION INDEX: `{}`", position);//TEST
+                        Ok(position) => {
+                            if position <= loaded_views_data.len() {
+                                println!("VALID POSITION INDEX: `{}`", position); //TEST
 
-                            // Add to final list
-                            loaded_views[position] = parts[2].to_owned();
-                        },
+                                // Add to final list
+                                loaded_views[position] = parts[2].to_owned();
+                            }
+                        }
                         Err(_) => panic!("Invalid Property position in gschema data.."),
                     }
                 }
@@ -269,7 +272,7 @@ impl GpuPage {
                     &new_view_grid,
                     Some(&new_stack_item_name),
                     &loaded_views[index],
-                    "package-x-generic-symbolic"
+                    "package-x-generic-symbolic",
                 );
             }
         }
@@ -297,7 +300,7 @@ impl GpuPage {
 
         // Load list of Properties for current Page
         let loaded_properties_data: Vec<String> = settings_obj.get::<Vec<String>>("pageconfigs");
-        println!("items saved:`{}`", loaded_properties_data.len());//TEST
+        println!("items saved:`{}`", loaded_properties_data.len()); //TEST
 
         // If present in saved settings, use! otherwise follow below defaults
         if let 0 = loaded_properties_data.len() {
@@ -310,13 +313,16 @@ impl GpuPage {
             }
         } else {
             // Create temporary structure for sorting loaded data
-            let mut loaded_properties: Vec<String> = vec![String::from(""); loaded_properties_data.len()];
+            let mut loaded_properties: Vec<String> =
+                vec![String::from(""); loaded_properties_data.len()];
 
             for index in 0..loaded_properties_data.len() {
-                println!("item: `{}`", loaded_properties_data[index]);//TEST
+                println!("item: `{}`", loaded_properties_data[index]); //TEST
 
                 // Split current item into the 4 parts
-                let parts: Vec<&str> = loaded_properties_data[index].split(':').collect::<Vec<&str>>();
+                let parts: Vec<&str> = loaded_properties_data[index]
+                    .split(':')
+                    .collect::<Vec<&str>>();
 
                 // Catch any malformed items
                 if parts.len() != 4 {
@@ -325,22 +331,24 @@ impl GpuPage {
 
                 // If from valid page
                 if parts[0] == self.property::<String>("uuid") {
-                    println!("VALID UUID");//TEST
+                    println!("VALID UUID"); //TEST
 
                     // If from valid view
                     if parts[1] == view_name {
-                        println!("VALID VIEW #");//TEST
+                        println!("VALID VIEW #"); //TEST
 
                         // If a valid position
                         match parts[2].parse::<usize>() {
-                            Ok(position) => if position <= loaded_properties_data.len() {
-                                println!("VALID POSITION INDEX: `{}`", position);//TEST
+                            Ok(position) => {
+                                if position <= loaded_properties_data.len() {
+                                    println!("VALID POSITION INDEX: `{}`", position); //TEST
 
-                                println!("VALID PROPERTY: `{}`", parts[3]);//TEST
+                                    println!("VALID PROPERTY: `{}`", parts[3]); //TEST
 
-                                // Add to final list
-                                loaded_properties[position] = parts[3].to_owned();
-                            },
+                                    // Add to final list
+                                    loaded_properties[position] = parts[3].to_owned();
+                                }
+                            }
                             Err(_) => panic!("Invalid Property position in gschema data.."),
                         }
                     }
@@ -391,9 +399,9 @@ impl GpuPage {
                 // Remove recurring closure
                 id.remove();
 
-                println!("REMOVED RECURRING CLOSURE..");//TEST
+                println!("REMOVED RECURRING CLOSURE.."); //TEST
             } else {
-                println!("NO PRE-EXISTING RECURRING CLOSURE..");//TEST
+                println!("NO PRE-EXISTING RECURRING CLOSURE.."); //TEST
             }
         }
 
@@ -414,7 +422,7 @@ impl GpuPage {
         // For each Property
         let mut labels: Vec<Label> = Vec::new();
         for property in Arc::clone(&properties_store).lock().unwrap().iter() {
-            println!("BUILDING PROPERTY LABEL: `{}`", property);//TEST
+            println!("BUILDING PROPERTY LABEL: `{}`", property); //TEST
 
             //==BUILD==
             // Build grid for 2 labels and attach to this page
@@ -536,7 +544,7 @@ impl GpuPage {
 
                     // Add to list of content labels, for updating in closure (see below)
                     labels.push(new_content_label);
-                },
+                }
                 None => panic!("Cannot find layout manager.."),
             }
         }

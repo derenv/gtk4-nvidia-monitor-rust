@@ -105,7 +105,13 @@ impl GpuPage {
      * Notes:
      *
      */
-    pub fn add_stack_item<T: IsA<gtk::Widget>>(&self, item: &T, name: Option<&str>, title: &str, icon: &str) {
+    pub fn add_stack_item<T: IsA<gtk::Widget>>(
+        &self,
+        item: &T,
+        name: Option<&str>,
+        title: &str,
+        icon: &str,
+    ) {
         // Add the passed item to the stack
         self.view_stack.add_titled(item, name, title);
 
