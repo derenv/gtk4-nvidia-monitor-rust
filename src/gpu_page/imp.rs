@@ -25,7 +25,7 @@ use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject, ParamSpec,
     ToValue, Value,
 };
-use gtk::{subclass::prelude::*, CompositeTemplate};
+use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild};
 use std::cell::Cell;
 
 // Modules
@@ -39,6 +39,10 @@ pub struct GpuPage {
     uuid: Cell<String>,
     name: Cell<String>,
     provider: Cell<Option<Provider>>,
+    refreshid: Cell<u32>,
+
+    #[template_child]
+    pub view_stack: TemplateChild<adwaita::ViewStack>,
 }
 
 /// The central trait for subclassing a GObject
@@ -84,6 +88,35 @@ impl GpuPage {
     // }
 }
 
+impl GpuPage {
+    /*
+     * Name:
+     * add_stack_item
+     *
+     * Description:
+     * Add item passed as a parameter to the view_stack object, using name, title & icon passed as parameters
+     *
+     * Made:
+     * 03/12/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn add_stack_item<T: IsA<gtk::Widget>>(&self, item: &T, name: Option<&str>, title: &str, icon: &str) {
+        // Add the passed item to the stack
+        self.view_stack.add_titled(item, name, title);
+
+        // Set the icon of the new item
+        //NOTE: see https://world.pages.gitlab.gnome.org/Rust/libadwaita-rs/stable/latest/docs/libadwaita/struct.ViewStack.html
+        //      function "add_titled_with_icon" not in stable yet
+        let new_item = self.view_stack.page(item);
+        new_item.set_icon_name(Some(icon));
+    }
+}
+
 /**
  * Trait Name:
  * ObjectImpl
@@ -123,6 +156,7 @@ impl ObjectImpl for GpuPage {
         self.parent_constructed(obj);
 
         // Setup
+        self.refreshid.set(0);
         //obj.setup_settings();
         //obj.load_properties();//TODO
         //obj.setup_widgets();
@@ -161,6 +195,7 @@ impl ObjectImpl for GpuPage {
                 glib::ParamSpecString::builder("uuid").build(),
                 glib::ParamSpecString::builder("name").build(),
                 glib::ParamSpecObject::builder("provider", glib::Type::OBJECT).build(),
+                glib::ParamSpecUInt::builder("refreshid").build(),
             ]
         });
 
@@ -216,6 +251,12 @@ impl ObjectImpl for GpuPage {
                 }
                 Err(_) => panic!("The value needs to be of type `Provider`."),
             },
+            "refreshid" => match value.get() {
+                Ok(input_refreshid_property) => {
+                    self.refreshid.replace(input_refreshid_property);
+                }
+                Err(_) => panic!("The value needs to be of type `u32`."),
+            },
             _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
 
@@ -267,6 +308,13 @@ impl ObjectImpl for GpuPage {
                 let value: Option<Provider> = self.provider.take();
 
                 self.provider.set(value.clone());
+
+                value.to_value()
+            }
+            "refreshid" => {
+                let value: u32 = self.refreshid.take();
+
+                self.refreshid.set(value.clone());
 
                 value.to_value()
             }

@@ -25,5 +25,104 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <property name="column-homogeneous">True</property>
     -->
 
+    <child>
+      <object class="GtkBox">
+        <!-- Properties -->
+        <property name="orientation">vertical</property>
+
+        <!-- Children -->
+        <child>
+          <object class="AdwViewSwitcherTitle" id="title">
+            <!-- Properties -->
+            <property name="stack">view_stack</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="AdwViewStack" id="view_stack">
+            <!-- Children -->
+            <!-- Default (NO VIEWS) Child - ->
+            <child>
+              <object class="AdwViewStackPage" id="default_view_1">
+                <!- - Properties - ->
+                <property name="icon-name">package-x-generic-symbolic</property>
+                <property name="name">default_view_1</property>
+                <property name="title" translatable="yes">Default View</property>
+
+                <!- - Children - ->
+                <property name="child">
+                  <object class="GtkLabel" id="content1">
+                    <!- - Properties - ->
+                    <property name="label">Please edit the list of Views using 'Edit Views' button</property>
+                  </object>
+                </property>
+              </object>
+            </child>
+
+            <!- - Default (NO PROPERTIES) Child - ->
+            <child>
+              <object class="AdwViewStackPage" id="default_view_2">
+                <!- - Properties - ->
+                <property name="icon-name">package-x-generic-symbolic</property>
+                <property name="name">default_view_2</property>
+                <property name="title" translatable="yes">Default View</property>
+
+                <!- - Children - ->
+                <property name="child">
+                  <object class="GtkLabel" id="content2">
+                    <!- - Properties - ->
+                    <property name="label">Please edit the list of Properties using 'Edit View' button</property>
+                  </object>
+                </property>
+              </object>
+            </child>
+
+            <!- - Example Children - ->
+            <child>
+              <object class="AdwViewStackPage" id="example_view_1">
+                <!- - Properties - ->
+                <property name="icon-name">package-x-generic-symbolic</property>
+                <property name="name">example_view_1</property>
+                <property name="title" translatable="yes">Example View 1</property>
+
+                <!- - Children - ->
+                <property name="child">
+                  <object class="GtkLabel" id="content3">
+                    <!- - Properties - ->
+                    <property name="label">This is an example label 1</property>
+                  </object>
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwViewStackPage" id="example_view_2">
+                <!- - Properties - ->
+                <property name="icon-name">package-x-generic-symbolic</property>
+                <property name="name">example_view_2</property>
+                <property name="title" translatable="yes">Example View 2</property>
+
+                <!- - Children - ->
+                <property name="child">
+                  <object class="GtkLabel" id="content4">
+                    <!- - Properties - ->
+                    <property name="label">This is an example label 2</property>
+                  </object>
+                </property>
+              </object>
+            </child>
+            -->
+          </object>
+        </child>
+        <child>
+          <object class="AdwViewSwitcherBar">
+            <property name="stack">view_stack</property>
+            <binding name="reveal">
+              <lookup name="title-visible">title</lookup>
+            </binding>
+          </object>
+        </child>
+      </object>
+    </child>
+
   </template>
 </interface>
