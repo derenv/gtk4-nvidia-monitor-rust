@@ -7,16 +7,23 @@ SPDX-License-Identifier: GPL-3.0-or-later
   <schema id="com.gtk_d.NvidiaMonitorRust" path="/com/gtk_d/NvidiaMonitorRust/">
     <key name="nvidia-settings-open" type="b">
       <default>false</default>
-      <summary>Nvidia settings state</summary>
+      <summary>Nvidia settings window state</summary>
       <description>
         Nvidia settings open/closed
       </description>
     </key>
     <key name="app-settings-open" type="b">
       <default>false</default>
-      <summary>App settings state</summary>
+      <summary>App settings window state</summary>
       <description>
         App settings window open/closed
+      </description>
+    </key>
+    <key name="modification-open" type="b">
+      <default>false</default>
+      <summary>App view-modification window state</summary>
+      <description>
+        App view-modification window open/closed
       </description>
     </key>
 
@@ -42,18 +49,26 @@ SPDX-License-Identifier: GPL-3.0-or-later
       </description>
     </key>
 
-    <!-- Not entirely sure what these are for..-->
-    <key name="settingsconfig" type="as">
-      <default>[]</default>
+    <key name="viewconfigs" type="as">
+      <default>[
+      "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:0:GPU",
+      "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:1:VRAM",
+      "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:2:Fans"
+      ]</default>
     </key>
-    <key name="smiconfig" type="as">
-      <default>[]</default>
-    </key>
-    <key name="settingsandsmiconfig" type="as">
-      <default>[]</default>
-    </key>
-    <key name="optimusconfig" type="as">
-      <default>[]</default>
+
+    <key name="pageconfigs" type="as">
+      <default>[
+        "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:GPU:0:util",
+        "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:GPU:1:temp",
+        "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:GPU:2:power_usage",
+
+        "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:VRAM:2:memory_usage",
+        "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:VRAM:3:memory_total",
+        "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:VRAM:4:mem_ctrl_util",
+
+        "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:Fans:5:fan_speed"
+      ]</default>
     </key>
   </schema>
 </schemalist>

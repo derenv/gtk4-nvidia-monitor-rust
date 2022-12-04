@@ -4,40 +4,52 @@ SPDX-FileCopyrightText: 2022 Deren Vural
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 <interface>
-  <!-- Header Implementation (implements main-menu) -->
+  <!-- Header Implementation -->
   <template class="NvidiaExtensionSettingsWindow" parent="GtkApplicationWindow">
     <property name="title" translatable="yes">Settings</property>
     <property name="width-request">500</property>
     <property name="height-request">200</property>
+
+    <!-- Children -->
     <child type="titlebar">
       <object class="AdwHeaderBar"/>
     </child>
 
-    <!-- Content Container Implementation -->
+    <!-- Content Container -->
     <child>
       <object class="GtkScrolledWindow">
+        <!-- Properties -->
         <property name="hscrollbar-policy">never</property>
         <property name="min-content-height">200</property>
         <property name="vexpand">True</property>
+
+        <!-- Children -->
         <property name="child">
           <object class="AdwClamp">
             <property name="child">
               <object class="GtkListBox">
+                <!-- Properties -->
                 <property name="margin-top">12</property>
                 <property name="margin-bottom">12</property>
                 <property name="margin-start">12</property>
                 <property name="margin-end">12</property>
 
-                <!-- Content Implementation -->
+                <!-- Children -->
                 <child>
                   <object class="AdwActionRow">
+                    <!-- Properties -->
                     <property name="title">Refresh Rate (s)</property>
                     <property name="subtitle">The time between refreshes in seconds</property>
                     <property name="activatable">false</property>
                     <property name="selectable">false</property>
+
+                    <!-- Children -->
                     <child>
                       <object class="GtkSpinButton" id="refreshrate_input">
+                        <!-- Signals -->
                         <signal name="value-changed" handler="refreshrate_set" swapped="true"/>
+
+                        <!-- Properties -->
                         <property name="digits" translatable="yes">0</property>
                         <property name="numeric">True</property>
                       </object>
@@ -47,19 +59,28 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
                 <child>
                   <object class="AdwActionRow">
+                    <!-- Properties -->
                     <property name="title">Temperature Unit</property>
                     <property name="subtitle">Temperature unit to be displayed</property>
                     <property name="activatable">false</property>
                     <property name="selectable">false</property>
+
+                    <!-- Children -->
                     <child>
                       <object class="GtkCheckButton" id="temp_unit_c">
+                        <!-- Signals -->
                         <signal name="toggled" handler="temp_unit_set" swapped="true"/>
+
+                        <!-- Properties -->
                         <property name="label">Celcius (C)</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkCheckButton" id="temp_unit_f">
+                        <!-- Signals -->
                         <signal name="toggled" handler="temp_unit_set" swapped="true"/>
+
+                        <!-- Properties -->
                         <property name="label">Fahrenheit (F)</property>
                       </object>
                     </child>
@@ -68,6 +89,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
                 <child>
                   <object class="AdwComboRow" id="provider_input">
+                    <!-- Properties -->
                     <property name="title">Properties Provider</property>
                     <property name="subtitle">The properties provider to use</property>
                     <property name="activatable">false</property>
@@ -89,8 +111,12 @@ SPDX-License-Identifier: GPL-3.0-or-later
             </property>
           </object>
         </property>
+
       </object>
     </child>
 
   </template>
+
+  <!-- Main Menu -->
+  <!-- (none) -->
 </interface>

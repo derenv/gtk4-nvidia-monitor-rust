@@ -50,10 +50,13 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <!-- Content Container -->
     <child>
       <object class="GtkPaned" id="home_paned">
+        <!-- Properties -->
         <property name="can-focus">True</property>
         <property name="visible">True</property>
         <property name="width-request">500</property>
         <property name="height-request">500</property>
+
+        <!-- Children -->
         <child>
           <object class="GtkStackSidebar" id="stack_sidebar">
             <!-- Properties -->
@@ -93,6 +96,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
                 </property>
               </object>
             </child>
+
 
           </object>
         </child>

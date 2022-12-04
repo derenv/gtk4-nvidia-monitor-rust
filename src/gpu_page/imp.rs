@@ -19,17 +19,24 @@
  */
 
 // Imports
-use adwaita::{gio, glib, prelude::*};
+use adwaita::{gio, glib, prelude::*, ViewStack, ViewSwitcherBar};
 use gio::Settings;
 use glib::{
-    once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject, ParamSpec,
-    ToValue, Value,
+    once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject, FromVariant,
+    ParamSpec, ToValue, Value,
 };
-use gtk::{subclass::prelude::*, CompositeTemplate};
-use std::cell::Cell;
+use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild};
+use std::{cell::Cell, cell::RefCell, rc::Rc};
 
 // Modules
-use crate::provider::Provider;
+use crate::{modificationwindow::ModificationWindow, provider::Provider};
+
+/// Structure for storing a SettingsWindow object and any related information
+#[derive(Default)]
+pub struct ModificationWindowContainer {
+    pub window: Option<ModificationWindow>,
+    pub open: bool,
+}
 
 /// Object holding the State and any Template Children
 #[derive(CompositeTemplate, Default)]
@@ -39,6 +46,12 @@ pub struct GpuPage {
     uuid: Cell<String>,
     name: Cell<String>,
     provider: Cell<Option<Provider>>,
+    refreshid: Cell<u32>,
+
+    pub modification_window: Rc<RefCell<ModificationWindowContainer>>,
+
+    #[template_child]
+    pub view_switcher: TemplateChild<ViewSwitcherBar>,
 }
 
 /// The central trait for subclassing a GObject
@@ -84,6 +97,79 @@ impl GpuPage {
     // }
 }
 
+impl GpuPage {
+    /**
+     * Name:
+     * get_setting
+     *
+     * Description:
+     * Generic function for getting setting value
+     *
+     * Made:
+     * 04/12/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn get_setting<T: FromVariant>(&self, name: &str) -> T {
+        // Return the value of the property
+        match self.settings.get() {
+            Some(settings) => settings.get::<T>(name),
+            None => panic!("`settings` should be set in `setup_settings`."),
+        }
+    }
+
+    /**
+     * Name:
+     * update_setting
+     *
+     * Description:
+     * Generic function for updating setting values
+     *
+     * Made:
+     * 04/12/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn update_setting<T: ToVariant>(&self, name: &str, value: T) {
+        // Fetch settings
+        match self.settings.get() {
+            Some(settings) => match settings.set(name, &value) {
+                Ok(_) => println!("..Setting `{}` updated!", name),
+                Err(err) => panic!("..Cannot update `{}` setting: `{}`", name, err),
+            },
+            None => panic!("..Cannot retrieve settings"),
+        }
+    }
+
+    /**
+     * Name:
+     * replace_stack
+     *
+     * Description:
+     * Replace current view_stack using passed value
+     *
+     * Made:
+     * 04/12/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn replace_stack(&self, stack: Option<&ViewStack>) {
+        self.view_switcher.set_stack(stack);
+    }
+}
+
 /**
  * Trait Name:
  * ObjectImpl
@@ -123,6 +209,7 @@ impl ObjectImpl for GpuPage {
         self.parent_constructed(obj);
 
         // Setup
+        self.refreshid.set(0);
         //obj.setup_settings();
         //obj.load_properties();//TODO
         //obj.setup_widgets();
@@ -161,6 +248,7 @@ impl ObjectImpl for GpuPage {
                 glib::ParamSpecString::builder("uuid").build(),
                 glib::ParamSpecString::builder("name").build(),
                 glib::ParamSpecObject::builder("provider", glib::Type::OBJECT).build(),
+                glib::ParamSpecUInt::builder("refreshid").build(),
             ]
         });
 
@@ -216,6 +304,12 @@ impl ObjectImpl for GpuPage {
                 }
                 Err(_) => panic!("The value needs to be of type `Provider`."),
             },
+            "refreshid" => match value.get() {
+                Ok(input_refreshid_property) => {
+                    self.refreshid.replace(input_refreshid_property);
+                }
+                Err(_) => panic!("The value needs to be of type `u32`."),
+            },
             _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
 
@@ -267,6 +361,13 @@ impl ObjectImpl for GpuPage {
                 let value: Option<Provider> = self.provider.take();
 
                 self.provider.set(value.clone());
+
+                value.to_value()
+            }
+            "refreshid" => {
+                let value: u32 = self.refreshid.take();
+
+                self.refreshid.set(value.clone());
 
                 value.to_value()
             }
