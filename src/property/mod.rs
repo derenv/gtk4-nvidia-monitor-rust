@@ -101,29 +101,29 @@ impl Property {
      *
      */
     pub fn parse(self, uuid: &str) -> Option<String> {
-        println!("UUID: `{}`", uuid); //TEST
+        // println!("UUID: `{}`", uuid); //TEST
                                       // Grab formatter & processor
         let formatter: Formatter = self.property("formatter");
         let processor: Processor = self.property("processor");
         // Grab property name
         let mut property: String = self.property("id");
-        println!("ID: `{}`", property); //TEST
+        // println!("ID: `{}`", property); //TEST
         if let "GPUUtilization.gpu" | "GPUUtilization.mem" = property.as_str() {
             property = String::from("GPUUtilization");
         }
-        println!("NEW ID: `{}`", property); //TEST
+        // println!("NEW ID: `{}`", property); //TEST
 
         // Give processor the uuid and property we want
         match processor.process(Some(uuid), Some(&property)) {
             Ok(result) => {
-                println!("PROCESS COMPLETE"); //TEST
+                // println!("PROCESS COMPLETE"); //TEST
 
                 match result {
                     Some(valid_result) => {
-                        println!("RESULT IS NOT NONE"); //TEST
-                        println!("RESULT: `{:?}`", valid_result); //TEST
-                        println!("RESULT len: `{}`", valid_result.len()); //TEST
-                        println!("RESULT[0]: `{}`", valid_result[0].to_owned()); //TEST
+                        // println!("RESULT IS NOT NONE"); //TEST
+                        // println!("RESULT: `{:?}`", valid_result); //TEST
+                        // println!("RESULT len: `{}`", valid_result.len()); //TEST
+                        // println!("RESULT[0]: `{}`", valid_result[0].to_owned()); //TEST
 
                         // Catch these as formatting screws them up
                         let mut clean_required: bool = true;

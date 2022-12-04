@@ -114,7 +114,7 @@ impl Processor {
         uuid: Option<&str>,
         property: Option<&str>,
     ) -> Result<Option<Vec<String>>, glib::Error> {
-        println!("PROCESS BEGINNING"); //TEST
+        // println!("PROCESS BEGINNING"); //TEST
 
         // Create call stack of program and args
         let mut call_stack: String = self.property("base-call"); //"nvidia-smi" OR "nvidia-settings" OR "optirun"
@@ -143,7 +143,7 @@ impl Processor {
             }
         }
 
-        println!("CALL STACK: `{}`", call_stack); //TEST
+        // println!("CALL STACK: `{}`", call_stack); //TEST
 
         // Turn call stack into bytes and create vector for final call stack
         let call_stack_bytes: &[u8] = call_stack.as_bytes();

@@ -42,6 +42,7 @@ pub struct SettingsWindowContainer {
     pub window: Option<SettingsWindow>,
     pub open: bool,
 }
+/// Enum for choosing temperature units
 #[derive(Debug, PartialEq, Eq)]
 enum TemperatureUnit {
     CELCIUS = 0,
@@ -1596,11 +1597,6 @@ impl MainWindow {
         });
         */
     }
-
-    fn update_prov(&'static self) {
-        //
-        println!("FUCKER");
-    }
 }
 
 /**
@@ -1851,6 +1847,7 @@ impl WindowImpl for MainWindow {
         // Store sub-window states in settings
         self.update_setting("app-settings-open", false);
         self.update_setting("nvidia-settings-open", false);
+        self.update_setting("modification-open", false);
 
         // Pass close request on to the parent
         self.parent_close_request(window)

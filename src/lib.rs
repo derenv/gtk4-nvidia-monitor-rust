@@ -28,9 +28,10 @@ mod subprocess;
 use mainwindow::MainWindow;
 mod custom_button;
 mod settingswindow;
+mod modificationwindow;
 
 // Imports
-use adwaita::{gio, glib, prelude::*, Application};
+use adwaita::{gio, prelude::*, Application};
 use gdk::Display;
 use gio::resources_register_include;
 use gtk::{CssProvider, StyleContext};

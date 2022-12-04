@@ -203,9 +203,9 @@ impl Provider {
        ];
     */
     pub fn get_gpu_data(&self, uuid: &str, property: &str) -> Result<String, String> {
-        println!("UUID: `{}`", uuid); //TEST
-        println!("ASKED TO FETCH: `{}`", property); //TEST
-        println!("TYPE: `{}`", self.property::<i32>("provider_type")); //TEST
+        // println!("UUID: `{}`", uuid); //TEST
+        // println!("ASKED TO FETCH: `{}`", property); //TEST
+        // println!("TYPE: `{}`", self.property::<i32>("provider_type")); //TEST
 
         // Translate to appropriate name
         let final_property: String;
@@ -270,8 +270,8 @@ impl Provider {
 
         // Grab relevant property
         for prop in self.imp().properties.borrow().iter() {
-            println!("current property: `{}`", prop.property::<String>("id")); //TEST
-            println!("looking for property: `{}`", final_property); //TEST
+            // println!("current property: `{}`", prop.property::<String>("id")); //TEST
+            // println!("looking for property: `{}`", final_property); //TEST
 
             if prop.property::<String>("id") == final_property {
                 // Run and return output

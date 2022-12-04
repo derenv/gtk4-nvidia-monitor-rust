@@ -1,17 +1,15 @@
 // SPDX-FileCopyrightText: 2022 Deren Vural
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ComboRow};
-use gio::Settings;
 /**
  * Name:
  * imp.rs
  *
  * Description:
- * Implementation of our custom GObject class (SettingsWindow)
+ * Implementation of our custom GObject class (ModificationWindow)
  *
  * Made:
- * 10/10/2022
+ * 04/12/2022
  *
  * Made by:
  * Deren Vural
@@ -20,35 +18,38 @@ use gio::Settings;
  *
  */
 // Imports
-use glib::{once_cell::sync::Lazy, ParamSpec, Value};
-use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject};
-use gtk::{subclass::prelude::*, CheckButton, CompositeTemplate, SpinButton, TemplateChild};
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
+use gio::Settings;
+use glib::{
+    once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
+    subclass::InitializingObject, FromVariant, ParamSpec, Value,
+};
+use gtk::{
+    subclass::prelude::*, CompositeTemplate,
+    //ScrolledWindow, TemplateChild,
+};
+//use std::{cell::Cell};
 
 // Modules
-//use crate::utils::data_path;
+//
 
 /// Object holding the State and any Template Children
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/settings-window.ui")]
-pub struct SettingsWindow {
+#[template(resource = "/modification-window.ui")]
+pub struct ModificationWindow {
     pub settings: OnceCell<Settings>,
-    #[template_child]
-    pub refreshrate_input: TemplateChild<SpinButton>,
-    #[template_child]
-    pub temp_unit_c: TemplateChild<CheckButton>,
-    #[template_child]
-    pub temp_unit_f: TemplateChild<CheckButton>,
-    #[template_child]
-    pub provider_input: TemplateChild<ComboRow>,
+
+    // #[template_child]
+    // left: TemplateChild<Stack>,
+    // right: TemplateChild<Stack>,
 }
 
 /// The central trait for subclassing a GObject
 #[glib::object_subclass]
-impl ObjectSubclass for SettingsWindow {
+impl ObjectSubclass for ModificationWindow {
     // `NAME` needs to match `class` attribute of template
-    const NAME: &'static str = "NvidiaExtensionSettingsWindow";
-    type Type = super::SettingsWindow;
-    //type ParentType = adwaita::PreferencesWindow;
+    const NAME: &'static str = "NvidiaExtensionModificationWindow";
+    type Type = super::ModificationWindow;
     type ParentType = gtk::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
@@ -63,13 +64,13 @@ impl ObjectSubclass for SettingsWindow {
 
 /**
  * Name:
- * SettingsWindow
+ * ModificationWindow
  *
  * Description:
- * Trait shared by all SettingsWindow objects
+ * Trait shared by all ModificationWindow objects
  *
  * Made:
- * 13/10/2022
+ * 04/12/2022
  *
  * Made by:
  * Deren Vural
@@ -77,8 +78,31 @@ impl ObjectSubclass for SettingsWindow {
  * Notes:
  *
  */
-#[gtk::template_callbacks]
-impl SettingsWindow {
+impl ModificationWindow {
+    /**
+     * Name:
+     * get_setting
+     *
+     * Description:
+     * Generic function for getting setting value
+     *
+     * Made:
+     * 04/12/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn get_setting<T: FromVariant>(&self, name: &str) -> T {
+        // Return the value of the property
+        match self.settings.get() {
+            Some(settings) => settings.get::<T>(name),
+            None => panic!("`settings` should be set in `setup_settings`."),
+        }
+    }
+
     /**
      * Name:
      * update_setting
@@ -87,7 +111,7 @@ impl SettingsWindow {
      * Generic function for updating setting values
      *
      * Made:
-     * 30/10/2022
+     * 04/12/2022
      *
      * Made by:
      * Deren Vural
@@ -105,47 +129,27 @@ impl SettingsWindow {
             None => panic!("..Cannot retrieve settings"),
         }
     }
-
-    #[template_callback]
-    fn refreshrate_set(&self, button: &SpinButton) {
-        // Get new refresh rate input
-        let new_value: i32 = button.value_as_int();
-
-        // Set refresh rate property
-        self.update_setting("refreshrate", new_value);
-    }
-
-    #[template_callback]
-    fn temp_unit_set(&self, button: &CheckButton) {
-        // Get list of buttons
-        let check_buttons: [&CheckButton; 2] = [&self.temp_unit_c, &self.temp_unit_f];
-
-        // For each button in the group
-        for current_button in check_buttons {
-            // Check if current button active
-            if current_button.is_active() {
-                // Get new unit
-                match button.label() {
-                    Some(unit) => {
-                        // Set appropriate setting
-                        match String::from(unit).as_str() {
-                            "Celcius (C)" => {
-                                // Set temperature unit as C
-                                self.update_setting("tempformat", 0);
-                            }
-                            "Fahrenheit (F)" => {
-                                // Set temperature unit as F
-                                self.update_setting("tempformat", 1);
-                            }
-                            _ => panic!("..Unexpected temperature unit"),
-                        }
-                    }
-                    None => panic!("..Could not fetch contents of temperature unit button label"),
-                }
-            }
-        }
-    }
 }
+
+/**
+ * Name:
+ * ModificationWindow
+ *
+ * Description:
+ * Trait defining template callbacks shared by all ModificationWindow objects
+ *
+ * Made:
+ * 04/12/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+#[gtk::template_callbacks]
+impl ModificationWindow {}
+
 
 /**
  * Trait Name:
@@ -155,7 +159,7 @@ impl SettingsWindow {
  * Trait shared by all GObjects
  *
  * Made:
- * 10/10/2022
+ * 04/12/2022
  *
  * Made by:
  * Deren Vural
@@ -163,7 +167,7 @@ impl SettingsWindow {
  * Notes:
  *
  */
-impl ObjectImpl for SettingsWindow {
+impl ObjectImpl for ModificationWindow {
     /**
      * Name:
      * constructed
@@ -172,7 +176,7 @@ impl ObjectImpl for SettingsWindow {
      * Called during construction, allows calling setup functions
      *
      * Made:
-     * 09/10/2022
+     * 04/12/2022
      *
      * Made by:
      * Deren Vural
@@ -186,8 +190,8 @@ impl ObjectImpl for SettingsWindow {
 
         // Setup
         obj.setup_settings();
-        obj.restore_data();
         obj.setup_widgets();
+        obj.restore_data();
         obj.setup_callbacks();
         obj.setup_actions();
     }
@@ -200,7 +204,7 @@ impl ObjectImpl for SettingsWindow {
      * Create list of custom properties for our GObject
      *
      * Made:
-     * 05/10/2022
+     * 04/12/2022
      *
      * Made by:
      * Deren Vural
@@ -218,9 +222,7 @@ impl ObjectImpl for SettingsWindow {
      */
     fn properties() -> &'static [ParamSpec] {
         static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
-            vec![
-                //
-            ]
+            vec![]
         });
 
         //println!("PROPERTIES: {:?}", PROPERTIES);//TEST
@@ -237,7 +239,7 @@ impl ObjectImpl for SettingsWindow {
      * Mutator for custom GObject properties
      *
      * Made:
-     * 05/10/2022
+     * 04/12/2022
      *
      * Made by:
      * Deren Vural
@@ -245,11 +247,10 @@ impl ObjectImpl for SettingsWindow {
      * Notes:
      *
      */
-    fn set_property(&self, _obj: &Self::Type, _id: usize, _value: &Value, pspec: &ParamSpec) {
+    fn set_property(&self, _obj: &Self::Type, _id: usize, value: &Value, pspec: &ParamSpec) {
         //println!("setting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            //
             _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
@@ -259,10 +260,10 @@ impl ObjectImpl for SettingsWindow {
      * property
      *
      * Description:
-     * Accessir for custom GObject properties
+     * Accessor for custom GObject properties
      *
      * Made:
-     * 05/10/2022
+     * 04/12/2022
      *
      * Made by:
      * Deren Vural
@@ -274,7 +275,6 @@ impl ObjectImpl for SettingsWindow {
         //println!("getting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            //
             _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
     }
@@ -288,7 +288,7 @@ impl ObjectImpl for SettingsWindow {
  * Trait shared by all widgets
  *
  * Made:
- * 10/10/2022
+ * 04/12/2022
  *
  * Made by:
  * Deren Vural
@@ -296,7 +296,7 @@ impl ObjectImpl for SettingsWindow {
  * Notes:
  *
  */
-impl WidgetImpl for SettingsWindow {}
+impl WidgetImpl for ModificationWindow {}
 
 /**
  * Trait Name:
@@ -306,7 +306,7 @@ impl WidgetImpl for SettingsWindow {}
  * Trait shared by all Window's
  *
  * Made:
- * 10/10/2022
+ * 04/12/2022
  *
  * Made by:
  * Deren Vural
@@ -314,27 +314,29 @@ impl WidgetImpl for SettingsWindow {}
  * Notes:
  *
  */
-impl WindowImpl for SettingsWindow {
+impl WindowImpl for ModificationWindow {
+    /*
+     * Name:
+     * close_request
+     *
+     * Description:
+     * Run when window closed
+     *
+     * Made:
+     * 04/12/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
     fn close_request(&self, window: &Self::Type) -> Inhibit {
-        /*
-        // Store task data in vector
-        let backup_data: Vec<TaskData> = window
-            .tasks()
-            .snapshot()
-            .iter()
-            .filter_map(Cast::downcast_ref::<TaskObject>)
-            .map(TaskObject::task_data)
-            .collect();
-
-        // Save state to file
-        let file = File::create(data_path()).expect("Could not create json file.");
-        serde_json::to_writer(file, &backup_data)
-            .expect("Could not write data to json file");
-
-        */
-
         // Store state in settings
-        self.update_setting("app-settings-open", false);
+        self.update_setting("modification-open", false);
+
+        //TODO: Save any changes to selection here
+        //
 
         // Pass close request on to the parent
         self.parent_close_request(window)
@@ -349,7 +351,7 @@ impl WindowImpl for SettingsWindow {
  * Trait shared by all AdwWindow's
  *
  * Made:
- * 10/10/2022
+ * 04/12/2022
  *
  * Made by:
  * Deren Vural
@@ -357,7 +359,7 @@ impl WindowImpl for SettingsWindow {
  * Notes:
  *
  */
-impl AdwWindowImpl for SettingsWindow {}
+impl AdwWindowImpl for ModificationWindow {}
 
 /**
  * Trait Name:
@@ -367,7 +369,7 @@ impl AdwWindowImpl for SettingsWindow {}
  * Trait shared by all ApplicationWindow's
  *
  * Made:
- * 09/10/2022
+ * 04/12/2022
  *
  * Made by:
  * Deren Vural
@@ -375,7 +377,7 @@ impl AdwWindowImpl for SettingsWindow {}
  * Notes:
  *
  */
-impl ApplicationWindowImpl for SettingsWindow {}
+impl ApplicationWindowImpl for ModificationWindow {}
 
 /**
  * Trait Name:
@@ -385,7 +387,7 @@ impl ApplicationWindowImpl for SettingsWindow {}
  * Trait shared by all AdwApplicationWindow's
  *
  * Made:
- * 09/10/2022
+ * 04/12/2022
  *
  * Made by:
  * Deren Vural
@@ -393,4 +395,4 @@ impl ApplicationWindowImpl for SettingsWindow {}
  * Notes:
  *
  */
-impl AdwApplicationWindowImpl for SettingsWindow {}
+impl AdwApplicationWindowImpl for ModificationWindow {}

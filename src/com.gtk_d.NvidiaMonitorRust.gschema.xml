@@ -7,16 +7,23 @@ SPDX-License-Identifier: GPL-3.0-or-later
   <schema id="com.gtk_d.NvidiaMonitorRust" path="/com/gtk_d/NvidiaMonitorRust/">
     <key name="nvidia-settings-open" type="b">
       <default>false</default>
-      <summary>Nvidia settings state</summary>
+      <summary>Nvidia settings window state</summary>
       <description>
         Nvidia settings open/closed
       </description>
     </key>
     <key name="app-settings-open" type="b">
       <default>false</default>
-      <summary>App settings state</summary>
+      <summary>App settings window state</summary>
       <description>
         App settings window open/closed
+      </description>
+    </key>
+    <key name="modification-open" type="b">
+      <default>false</default>
+      <summary>App view-modification window state</summary>
+      <description>
+        App view-modification window open/closed
       </description>
     </key>
 

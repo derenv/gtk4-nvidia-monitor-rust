@@ -19,17 +19,24 @@
  */
 
 // Imports
-use adwaita::{gio, glib, prelude::*};
+use adwaita::{gio, glib, prelude::*, ViewStack, ViewSwitcherBar};
 use gio::Settings;
 use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject, ParamSpec,
-    ToValue, Value,
+    ToValue, Value, FromVariant
 };
 use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild};
-use std::cell::Cell;
+use std::{cell::Cell, cell::RefCell, rc::Rc};
 
 // Modules
-use crate::provider::Provider;
+use crate::{provider::Provider, modificationwindow::ModificationWindow};
+
+/// Structure for storing a SettingsWindow object and any related information
+#[derive(Default)]
+pub struct ModificationWindowContainer {
+    pub window: Option<ModificationWindow>,
+    pub open: bool,
+}
 
 /// Object holding the State and any Template Children
 #[derive(CompositeTemplate, Default)]
@@ -41,8 +48,10 @@ pub struct GpuPage {
     provider: Cell<Option<Provider>>,
     refreshid: Cell<u32>,
 
+    pub modification_window: Rc<RefCell<ModificationWindowContainer>>,
+
     #[template_child]
-    pub view_stack: TemplateChild<adwaita::ViewStack>,
+    pub view_switcher: TemplateChild<ViewSwitcherBar>,
 }
 
 /// The central trait for subclassing a GObject
@@ -89,15 +98,15 @@ impl GpuPage {
 }
 
 impl GpuPage {
-    /*
+    /**
      * Name:
-     * add_stack_item
+     * get_setting
      *
      * Description:
-     * Add item passed as a parameter to the view_stack object, using name, title & icon passed as parameters
+     * Generic function for getting setting value
      *
      * Made:
-     * 03/12/2022
+     * 04/12/2022
      *
      * Made by:
      * Deren Vural
@@ -105,21 +114,59 @@ impl GpuPage {
      * Notes:
      *
      */
-    pub fn add_stack_item<T: IsA<gtk::Widget>>(
-        &self,
-        item: &T,
-        name: Option<&str>,
-        title: &str,
-        icon: &str,
-    ) {
-        // Add the passed item to the stack
-        self.view_stack.add_titled(item, name, title);
+    pub fn get_setting<T: FromVariant>(&self, name: &str) -> T {
+        // Return the value of the property
+        match self.settings.get() {
+            Some(settings) => settings.get::<T>(name),
+            None => panic!("`settings` should be set in `setup_settings`."),
+        }
+    }
 
-        // Set the icon of the new item
-        //NOTE: see https://world.pages.gitlab.gnome.org/Rust/libadwaita-rs/stable/latest/docs/libadwaita/struct.ViewStack.html
-        //      function "add_titled_with_icon" not in stable yet
-        let new_item = self.view_stack.page(item);
-        new_item.set_icon_name(Some(icon));
+    /**
+     * Name:
+     * update_setting
+     *
+     * Description:
+     * Generic function for updating setting values
+     *
+     * Made:
+     * 04/12/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn update_setting<T: ToVariant>(&self, name: &str, value: T) {
+        // Fetch settings
+        match self.settings.get() {
+            Some(settings) => match settings.set(name, &value) {
+                Ok(_) => println!("..Setting `{}` updated!", name),
+                Err(err) => panic!("..Cannot update `{}` setting: `{}`", name, err),
+            },
+            None => panic!("..Cannot retrieve settings"),
+        }
+    }
+
+    /**
+     * Name:
+     * replace_stack
+     *
+     * Description:
+     * Replace current view_stack using passed value
+     *
+     * Made:
+     * 04/12/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn replace_stack(&self, stack: Option<&ViewStack>) {
+        self.view_switcher.set_stack(stack);
     }
 }
 
