@@ -22,14 +22,14 @@
 use adwaita::{gio, glib, prelude::*, ViewStack, ViewSwitcherBar};
 use gio::Settings;
 use glib::{
-    once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject, ParamSpec,
-    ToValue, Value, FromVariant
+    once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject, FromVariant,
+    ParamSpec, ToValue, Value,
 };
 use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild};
 use std::{cell::Cell, cell::RefCell, rc::Rc};
 
 // Modules
-use crate::{provider::Provider, modificationwindow::ModificationWindow};
+use crate::{modificationwindow::ModificationWindow, provider::Provider};
 
 /// Structure for storing a SettingsWindow object and any related information
 #[derive(Default)]

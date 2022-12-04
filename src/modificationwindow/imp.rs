@@ -25,7 +25,8 @@ use glib::{
     subclass::InitializingObject, FromVariant, ParamSpec, Value,
 };
 use gtk::{
-    subclass::prelude::*, CompositeTemplate,
+    subclass::prelude::*,
+    CompositeTemplate,
     //ScrolledWindow, TemplateChild,
 };
 //use std::{cell::Cell};
@@ -38,7 +39,6 @@ use gtk::{
 #[template(resource = "/modification-window.ui")]
 pub struct ModificationWindow {
     pub settings: OnceCell<Settings>,
-
     // #[template_child]
     // left: TemplateChild<Stack>,
     // right: TemplateChild<Stack>,
@@ -150,7 +150,6 @@ impl ModificationWindow {
 #[gtk::template_callbacks]
 impl ModificationWindow {}
 
-
 /**
  * Trait Name:
  * ObjectImpl
@@ -221,9 +220,7 @@ impl ObjectImpl for ModificationWindow {
      * glib::ParamSpecObject::builder("formatter").build(),
      */
     fn properties() -> &'static [ParamSpec] {
-        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
-            vec![]
-        });
+        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| vec![]);
 
         //println!("PROPERTIES: {:?}", PROPERTIES);//TEST
         //println!("trying to add `base_call`: {:?}", glib::ParamSpecString::builder("base_call").build());//TEST
