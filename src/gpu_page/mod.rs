@@ -358,8 +358,8 @@ impl GpuPage {
                 // Grab all saved properties
                 let properties: Vec<String> = self.check_properties_for_view(&loaded_views[index]);
 
-                // Add prope
-                for prop in &properties {rty items to the final list
+                // Add property items to the final list
+                for prop in &properties {
                     props.push(prop.as_str().clone().to_owned());
                 }
 
