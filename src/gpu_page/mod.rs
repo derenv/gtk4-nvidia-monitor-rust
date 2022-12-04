@@ -22,14 +22,14 @@ mod imp;
 use imp::ModificationWindowContainer;
 
 // Imports
-use adwaita::{gio, glib, ViewStack, Application};
+use adwaita::{gio, glib, Application, ViewStack};
 use gio::Settings;
 use glib::{clone, translate::FromGlib, Object, SourceId};
 use gtk::{prelude::*, subclass::prelude::*, Align, Button, Grid, Label, LayoutChild, Orientation};
-use std::{sync::Arc, sync::Mutex, cell::RefMut, sync::MutexGuard};
+use std::{cell::RefMut, sync::Arc, sync::Mutex, sync::MutexGuard};
 
 // Modules
-use crate::{provider::Provider, modificationwindow::ModificationWindow, APP_ID};
+use crate::{modificationwindow::ModificationWindow, provider::Provider, APP_ID};
 
 // GObject wrapper for GpuPage
 glib::wrapper! {
@@ -382,14 +382,19 @@ impl GpuPage {
                 content_grid.attach(&new_grid, 0, 0 as i32, 100, 12);
 
                 // Populate view given list of properties
-                let output: (Grid, Vec<Label>) = self.create_properties(new_grid, properties, labels);
+                let output: (Grid, Vec<Label>) =
+                    self.create_properties(new_grid, properties, labels);
                 let new_view_grid: Grid = output.0;
                 labels = output.1;
 
                 // Save built view
                 // Add object
                 let new_stack_item_name: String = index.to_string() + "_stack_item";
-                new_stack.add_titled(&new_view_grid, Some(&new_stack_item_name), &loaded_views[index]);
+                new_stack.add_titled(
+                    &new_view_grid,
+                    Some(&new_stack_item_name),
+                    &loaded_views[index],
+                );
                 // println!("NEW STACK ITEM: `{}`", new_stack_item_name);//TEST
                 // Add icon
                 //NOTE: see https://world.pages.gitlab.gnome.org/Rust/libadwaita-rs/stable/latest/docs/libadwaita/struct.ViewStack.html
@@ -506,7 +511,12 @@ impl GpuPage {
      * Notes:
      *
      */
-    fn create_properties(&self, grid: Grid, properties: Vec<String>, mut labels: Vec<Label>) -> (Grid, Vec<Label>) {
+    fn create_properties(
+        &self,
+        grid: Grid,
+        properties: Vec<String>,
+        mut labels: Vec<Label>,
+    ) -> (Grid, Vec<Label>) {
         // Load properties from struct
         let properties_store: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(properties));
 
@@ -699,7 +709,6 @@ impl GpuPage {
 
         // Load refresh time (s) from settings
         let refresh_rate: u32 = settings_obj.get::<i32>("refreshrate") as u32;
-
 
         // Create thread safe container for properties
         let properties_store: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(properties));
