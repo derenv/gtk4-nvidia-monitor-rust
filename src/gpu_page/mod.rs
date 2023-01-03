@@ -155,7 +155,8 @@ impl GpuPage {
 
         // Load list of Views
         let loaded_views_data: Vec<String> = settings_obj.get::<Vec<String>>("viewconfigs");
-        // println!("views saved:`{}`", loaded_views_data.len()); //TEST
+        println!("views saved:`{}`", loaded_views_data.len()); //TEST
+        println!("views saved:`{:?}`", loaded_views_data); //TEST
 
         // Remove old content grid
         match self.child_at(0, 0) {
@@ -167,97 +168,10 @@ impl GpuPage {
         let content_grid: Grid = Grid::builder()
             .name("content_grid")
             .orientation(Orientation::Vertical)
+            .vexpand(true)
+            .vexpand_set(true)
             .build();
         self.attach(&content_grid, 0, 0 as i32, 1, 1);
-
-        // Fetch grid's layout manager
-        match content_grid.layout_manager() {
-            Some(grid_manager) => {
-                // Create edit button
-                let edit_button: Button = Button::builder()
-                    .name("edit_button")
-                    .label("Edit View")
-                    .margin_start(12)
-                    .margin_end(12)
-                    .margin_top(12)
-                    .margin_bottom(12)
-                    .halign(Align::Center)
-                    .build();
-                content_grid.attach(&edit_button, 0, 80, 1, 1);
-                edit_button.connect_clicked(clone!(@weak self as gpage => move |_| {
-                    // Create modification window
-                    // Borrow (mutable) the window's container
-                    let mut modification_window_container: RefMut<ModificationWindowContainer> = gpage.imp().modification_window.borrow_mut();
-
-                    // Get state from settings
-                    modification_window_container.open = gpage.imp().get_setting::<bool>("modification-open");
-
-                    // Check if an object is stored
-                    match &modification_window_container.window {
-                        Some(_window) => {
-                            println!("..window exists");//DEBUG
-
-                            // Check if the window is already open
-                            match modification_window_container.open {
-                                false => {
-                                    println!("....opening window");//DEBUG
-
-                                    // Create an app object
-                                    let app: Application = Application::builder().application_id(APP_ID).build();
-
-                                    // Create new modification window
-                                    let new_modification_window: ModificationWindow = ModificationWindow::new(&app);
-
-                                    // Show new modification window
-                                    new_modification_window.show();
-
-                                    // Store object and state back in container
-                                    modification_window_container.open = true;
-                                    modification_window_container.window = Some(new_modification_window);
-
-                                    // Re-create views & properties
-                                    //NOTE: any changes are saved to settings on close
-                                    gpage.load_views();
-                                },
-                                true => {
-                                    println!("....window already open");//DEBUG
-                                },
-                            }
-                        },
-                        None => {
-                            println!("..window does not exist");//DEBUG
-                            println!("....opening window");//DEBUG
-
-                            // Create an app object
-                            let app: Application = Application::builder().application_id(APP_ID).build();
-
-                            // Create modification window
-                            let new_modification_window: ModificationWindow = ModificationWindow::new(&app);
-
-                            // Show new modification window
-                            new_modification_window.show();
-
-                            // Store object and state back in container
-                            modification_window_container.open = true;
-                            modification_window_container.window = Some(new_modification_window);
-
-                            // Re-create views & properties
-                            //NOTE: any changes are saved to settings on close
-                            gpage.load_views();
-                        },
-                    }
-
-                    // Set new state in settings
-                    gpage.imp().update_setting::<bool>("modification-open", modification_window_container.open);
-                }));
-
-                // Set layout properties of button
-                let child_manager: LayoutChild = grid_manager.layout_child(&edit_button);
-                child_manager.set_property("row-span", 2);
-                child_manager.set_property("column-span", 2);
-            }
-            None => panic!("Cannot fetch layout manager of grid.."),
-        }
 
         // Create Views
         // If present in saved settings, use! otherwise follow below defaults
@@ -299,6 +213,96 @@ impl GpuPage {
                 .build();
             new_grid.attach(&new_title_label, 1, 1, 1, 1);
 
+            // Add edit button for current view
+            // Fetch grid's layout manager
+            match new_grid.layout_manager() {
+                Some(grid_manager) => {
+                    // Create edit button
+                    let edit_button: Button = Button::builder()
+                        .name("edit_button")
+                        .label("Edit View")
+                        .margin_start(12)
+                        .margin_end(12)
+                        .margin_top(12)
+                        .margin_bottom(12)
+                        .halign(Align::Center)
+                        .build();
+                    new_grid.attach(&edit_button, 0, 80, 1, 1);
+                    edit_button.connect_clicked(clone!(@weak self as gpage => move |_| {
+                        // Create modification window
+                        // Borrow (mutable) the window's container
+                        let mut modification_window_container: RefMut<ModificationWindowContainer> = gpage.imp().modification_window.borrow_mut();
+
+                        // Get state from settings
+                        modification_window_container.open = gpage.imp().get_setting::<bool>("modification-open");
+
+                        // Check if an object is stored
+                        match &modification_window_container.window {
+                            Some(_window) => {
+                                println!("..window exists");//DEBUG
+
+                                // Check if the window is already open
+                                match modification_window_container.open {
+                                    false => {
+                                        println!("....opening window");//DEBUG
+
+                                        // Create an app object
+                                        let app: Application = Application::builder().application_id(APP_ID).build();
+
+                                        // Create new modification window
+                                        let new_modification_window: ModificationWindow = ModificationWindow::new(&app, 0, &gpage.property::<String>("uuid"));
+
+                                        // Show new modification window
+                                        new_modification_window.show();
+
+                                        // Store object and state back in container
+                                        modification_window_container.open = true;
+                                        modification_window_container.window = Some(new_modification_window);
+
+                                        // Re-create views & properties
+                                        //NOTE: any changes are saved to settings on close
+                                        gpage.load_views();
+                                    },
+                                    true => {
+                                        println!("....window already open");//DEBUG
+                                    },
+                                }
+                            },
+                            None => {
+                                println!("..window does not exist");//DEBUG
+                                println!("....opening window");//DEBUG
+
+                                // Create an app object
+                                let app: Application = Application::builder().application_id(APP_ID).build();
+
+                                // Create modification window
+                                let new_modification_window: ModificationWindow = ModificationWindow::new(&app, 0, &gpage.property::<String>("uuid"));
+
+                                // Show new modification window
+                                new_modification_window.show();
+
+                                // Store object and state back in container
+                                modification_window_container.open = true;
+                                modification_window_container.window = Some(new_modification_window);
+
+                                // Re-create views & properties
+                                //NOTE: any changes are saved to settings on close
+                                gpage.load_views();
+                            },
+                        }
+
+                        // Set new state in settings
+                        gpage.imp().update_setting::<bool>("modification-open", modification_window_container.open);
+                    }));
+
+                    // Set layout properties of button
+                    let child_manager: LayoutChild = grid_manager.layout_child(&edit_button);
+                    child_manager.set_property("row-span", 2);
+                    child_manager.set_property("column-span", 2);
+                }
+                None => panic!("Cannot fetch layout manager of grid.."),
+            }
+
             // Save built view
             // Create new view stack
             let new_stack: ViewStack = ViewStack::new();
@@ -320,7 +324,7 @@ impl GpuPage {
 
             // For each loaded view
             for index in 0..loaded_views_data.len() {
-                // println!("item: `{}`", loaded_views_data[index]); //TEST
+                println!("item: `{}`", loaded_views_data[index]); //TEST
 
                 // Split current item into the 4 parts
                 let parts: Vec<&str> = loaded_views_data[index].split(':').collect::<Vec<&str>>();
@@ -370,8 +374,8 @@ impl GpuPage {
                 let new_grid: Grid = Grid::builder()
                     .name(&new_grid_name)
                     .orientation(Orientation::Horizontal)
-                    //.margin_start(12)
-                    //.margin_end(12)
+                    .margin_start(12)
+                    .margin_end(12)
                     //.margin_top(12)
                     //.margin_bottom(12)
                     //.halign(Align::Center)
@@ -386,6 +390,96 @@ impl GpuPage {
                     self.create_properties(new_grid, properties, labels);
                 let new_view_grid: Grid = output.0;
                 labels = output.1;
+
+                // Add edit button for current view
+                // Fetch grid's layout manager
+                match new_view_grid.layout_manager() {
+                    Some(grid_manager) => {
+                        // Create edit button
+                        let edit_button: Button = Button::builder()
+                            .name("edit_button")
+                            .label("Edit View")
+                            .margin_start(12)
+                            .margin_end(12)
+                            .margin_top(12)
+                            .margin_bottom(12)
+                            .halign(Align::Center)
+                            .build();
+                        new_view_grid.attach(&edit_button, 0, 80, 1, 1);
+                        edit_button.connect_clicked(clone!(@weak self as gpage => move |_| {
+                            // Create modification window
+                            // Borrow (mutable) the window's container
+                            let mut modification_window_container: RefMut<ModificationWindowContainer> = gpage.imp().modification_window.borrow_mut();
+
+                            // Get state from settings
+                            modification_window_container.open = gpage.imp().get_setting::<bool>("modification-open");
+
+                            // Check if an object is stored
+                            match &modification_window_container.window {
+                                Some(_window) => {
+                                    println!("..window exists");//DEBUG
+
+                                    // Check if the window is already open
+                                    match modification_window_container.open {
+                                        false => {
+                                            println!("....opening window");//DEBUG
+
+                                            // Create an app object
+                                            let app: Application = Application::builder().application_id(APP_ID).build();
+
+                                            // Create new modification window
+                                            let new_modification_window: ModificationWindow = ModificationWindow::new(&app, index as i32, &gpage.property::<String>("uuid"));
+
+                                            // Show new modification window
+                                            new_modification_window.show();
+
+                                            // Store object and state back in container
+                                            modification_window_container.open = true;
+                                            modification_window_container.window = Some(new_modification_window);
+
+                                            // Re-create views & properties
+                                            //NOTE: any changes are saved to settings on close
+                                            gpage.load_views();
+                                        },
+                                        true => {
+                                            println!("....window already open");//DEBUG
+                                        },
+                                    }
+                                },
+                                None => {
+                                    println!("..window does not exist");//DEBUG
+                                    println!("....opening window");//DEBUG
+
+                                    // Create an app object
+                                    let app: Application = Application::builder().application_id(APP_ID).build();
+
+                                    // Create modification window
+                                    let new_modification_window: ModificationWindow = ModificationWindow::new(&app, index as i32, &gpage.property::<String>("uuid"));
+
+                                    // Show new modification window
+                                    new_modification_window.show();
+
+                                    // Store object and state back in container
+                                    modification_window_container.open = true;
+                                    modification_window_container.window = Some(new_modification_window);
+
+                                    // Re-create views & properties
+                                    //NOTE: any changes are saved to settings on close
+                                    gpage.load_views();
+                                },
+                            }
+
+                            // Set new state in settings
+                            gpage.imp().update_setting::<bool>("modification-open", modification_window_container.open);
+                        }));
+
+                        // Set layout properties of button
+                        let child_manager: LayoutChild = grid_manager.layout_child(&edit_button);
+                        child_manager.set_property("row-span", 2);
+                        child_manager.set_property("column-span", 2);
+                    }
+                    None => panic!("Cannot fetch layout manager of grid.."),
+                }
 
                 // Save built view
                 // Add object
@@ -431,7 +525,7 @@ impl GpuPage {
         let settings_obj: &Settings = self.settings();
 
         // Load list of Properties for current Page
-        let loaded_properties_data: Vec<String> = settings_obj.get::<Vec<String>>("pageconfigs");
+        let loaded_properties_data: Vec<String> = settings_obj.get::<Vec<String>>("viewcomponentconfigs");
         // println!("items saved:`{}`", loaded_properties_data.len()); //TEST
 
         // If present in saved settings, use! otherwise follow below defaults
@@ -634,7 +728,7 @@ impl GpuPage {
                     // Build content label & add to grid
                     let new_content: String = String::from(property.to_owned());
                     let new_content_label: Label = Label::builder()
-                        .label("X")
+                        .label("")
                         .name(&new_content)
                         .halign(Align::End)
                         //.valign(Align::Center)

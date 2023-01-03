@@ -6,6 +6,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 <interface>
   <!-- Header Implementation -->
   <template class="NvidiaExtensionSettingsWindow" parent="GtkApplicationWindow">
+    <!-- Properties -->
     <property name="title" translatable="yes">Settings</property>
     <property name="width-request">500</property>
     <property name="height-request">200</property>

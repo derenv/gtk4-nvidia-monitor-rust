@@ -43,9 +43,9 @@ pub struct ModificationWindowContainer {
 #[template(resource = "/gpu-page.ui")]
 pub struct GpuPage {
     pub settings: OnceCell<Settings>,
-    uuid: Cell<String>,
-    name: Cell<String>,
-    provider: Cell<Option<Provider>>,
+    uuid: OnceCell<String>,
+    name: OnceCell<String>,
+    provider: OnceCell<Option<Provider>>,
     refreshid: Cell<u32>,
 
     pub modification_window: Rc<RefCell<ModificationWindowContainer>>,
@@ -288,19 +288,19 @@ impl ObjectImpl for GpuPage {
         match pspec.name() {
             "uuid" => match value.get() {
                 Ok(input_uuid) => {
-                    self.uuid.replace(input_uuid);
+                   self.uuid.set(input_uuid).expect("`uuid` should not be set after calling constructor..")
                 }
                 Err(_) => panic!("The value needs to be of type `String`."),
             },
             "name" => match value.get() {
                 Ok(input_name) => {
-                    self.name.replace(input_name);
+                   self.name.set(input_name).expect("`name` should not be set after calling constructor..")
                 }
                 Err(_) => panic!("The value needs to be of type `String`."),
             },
             "provider" => match value.get() {
-                Ok(input_provider_property) => {
-                    self.provider.replace(input_provider_property);
+                Ok(input_provider) => {
+                   self.provider.set(input_provider).expect("`provider` should not be set after calling constructor..")
                 }
                 Err(_) => panic!("The value needs to be of type `Provider`."),
             },
@@ -342,27 +342,22 @@ impl ObjectImpl for GpuPage {
 
         match pspec.name() {
             "uuid" => {
-                //TODO: this seems ridiculous..
-                let value: String = self.uuid.take();
-
-                self.uuid.set(value.clone());
-
-                value.to_value()
-            }
+                match self.uuid.clone().get() {
+                    Some(value) => return value.to_value(),
+                    None => panic!("Cannot get value of `uuid` property.."),
+                }
+            },
             "name" => {
-                //TODO: this seems ridiculous..
-                let value: String = self.name.take();
-
-                self.name.set(value.clone());
-
-                value.to_value()
+                match self.name.clone().get() {
+                    Some(value) => return value.to_value(),
+                    None => panic!("Cannot get value of `name` property.."),
+                }
             }
             "provider" => {
-                let value: Option<Provider> = self.provider.take();
-
-                self.provider.set(value.clone());
-
-                value.to_value()
+                match self.provider.clone().get() {
+                    Some(value) => return value.to_value(),
+                    None => panic!("Cannot get value of `provider` property.."),
+                }
             }
             "refreshid" => {
                 let value: u32 = self.refreshid.take();
