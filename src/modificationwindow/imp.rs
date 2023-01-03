@@ -24,12 +24,7 @@ use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
     subclass::InitializingObject, FromVariant, ParamSpec, Value,
 };
-use gtk::{
-    subclass::prelude::*,
-    CompositeTemplate,
-    TemplateChild,
-    CheckButton,
-};
+use gtk::{subclass::prelude::*, CheckButton, CompositeTemplate, TemplateChild};
 use std::cell::Cell;
 
 // Modules
@@ -126,12 +121,23 @@ impl ModificationWindow {
     pub fn update_stored_data(&self) {
         // Get stored & const view data
         let mut stored_views_data: Vec<String> = self.get_setting::<Vec<String>>("viewconfigs");
-        let mut stored_views_components: Vec<String> = self.get_setting::<Vec<String>>("viewcomponentconfigs");
-        let uuid: String = self.uuid.clone().get().expect("missing `uuid`..").to_owned();
+        let mut stored_views_components: Vec<String> =
+            self.get_setting::<Vec<String>>("viewcomponentconfigs");
+        let uuid: String = self
+            .uuid
+            .clone()
+            .get()
+            .expect("missing `uuid`..")
+            .to_owned();
         println!("stored views: `{:?}`", stored_views_data); //TEST
 
         // Get old + new view title
-        let old_view_title: String = self.old_view_title.clone().get().expect("missing `old-view-title`..").to_owned();
+        let old_view_title: String = self
+            .old_view_title
+            .clone()
+            .get()
+            .expect("missing `old-view-title`..")
+            .to_owned();
         let new_view_title: String = self.new_view_title.take();
         self.new_view_title.set(new_view_title.clone());
 
@@ -143,13 +149,10 @@ impl ModificationWindow {
 
             // Create new viewconfig
             //UUID:POSITION:VIEW_TITLE
-            let new_viewconfig: String = String::from(&uuid) +
-                                        ":0:" +
-                                        &new_view_title;
+            let new_viewconfig: String = String::from(&uuid) + ":0:" + &new_view_title;
 
             // Save new viewconfig
             self.update_setting::<Vec<String>>("viewconfigs", vec![new_viewconfig]);
-
 
             // Get current components
             let current_components: Vec<ViewComponent> = self.view_components_list.take();
@@ -159,13 +162,13 @@ impl ModificationWindow {
             // For each selected property component
             for component in current_components {
                 //UUID:VIEW_TITLE:POSITION:name
-                let formatted_component: String = String::from(&uuid) +
-                                            ":" +
-                                            &new_view_title +
-                                            ":" +
-                                            &component.position.to_string() +
-                                            ":" +
-                                            &component.name;
+                let formatted_component: String = String::from(&uuid)
+                    + ":"
+                    + &new_view_title
+                    + ":"
+                    + &component.position.to_string()
+                    + ":"
+                    + &component.name;
 
                 // Add to final list
                 final_viewcomponentconfigs.push(formatted_component);
@@ -193,12 +196,17 @@ impl ModificationWindow {
             // If we are modifying an existing viewconfig
             if component_index != -1 {
                 // Get old + new view id
-                let old_view_id: i32 = self.old_view_id.clone().get().expect("missing `old-view-id`..").to_owned();
+                let old_view_id: i32 = self
+                    .old_view_id
+                    .clone()
+                    .get()
+                    .expect("missing `old-view-id`..")
+                    .to_owned();
                 let new_view_id: i32 = self.new_view_id.take();
                 self.new_view_id.set(new_view_id.clone());
 
                 // Update viewconfigs accordingly
-                match (old_view_title == new_view_title, old_view_id == new_view_id){
+                match (old_view_title == new_view_title, old_view_id == new_view_id) {
                     // MATCH name is different, id is the same
                     (false, true) => {
                         // Remove old viewconfig
@@ -206,11 +214,8 @@ impl ModificationWindow {
 
                         // Create new viewconfig
                         //UUID:POSITION:VIEW_TITLE
-                        let new_viewconfig: String = uuid.clone() +
-                                                    ":" +
-                                                    &old_view_id.to_string() +
-                                                    ":" +
-                                                    &new_view_title;
+                        let new_viewconfig: String =
+                            uuid.clone() + ":" + &old_view_id.to_string() + ":" + &new_view_title;
 
                         // Update viewconfigs item with new viewconfig
                         stored_views_data.push(new_viewconfig);
@@ -218,7 +223,7 @@ impl ModificationWindow {
                         // Update stored viewconfigs
                         self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
                         println!("viewconfig updated.."); //TEST
-                    },
+                    }
                     // MATCH name is different, id is different
                     (false, false) => {
                         // Remove old viewconfig
@@ -226,11 +231,8 @@ impl ModificationWindow {
 
                         // Create new viewconfig
                         //UUID:POSITION:VIEW_TITLE
-                        let new_viewconfig: String = uuid.clone() +
-                                                    ":" +
-                                                    &new_view_id.to_string() +
-                                                    ":" +
-                                                    &new_view_title;
+                        let new_viewconfig: String =
+                            uuid.clone() + ":" + &new_view_id.to_string() + ":" + &new_view_title;
 
                         // Update viewconfigs item with new viewconfig
                         stored_views_data.push(new_viewconfig);
@@ -238,7 +240,7 @@ impl ModificationWindow {
                         // Update stored viewconfigs
                         self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
                         println!("viewconfig updated.."); //TEST
-                    },
+                    }
                     // MATCH name is the same, id is different
                     (true, false) => {
                         // Remove old viewconfig
@@ -246,11 +248,8 @@ impl ModificationWindow {
 
                         // Create new viewconfig
                         //UUID:POSITION:VIEW_TITLE
-                        let new_viewconfig: String = uuid.clone() +
-                                                    ":" +
-                                                    &new_view_id.to_string() +
-                                                    ":" +
-                                                    &old_view_title;
+                        let new_viewconfig: String =
+                            uuid.clone() + ":" + &new_view_id.to_string() + ":" + &old_view_title;
 
                         // Update viewconfigs item with new viewconfig
                         stored_views_data.push(new_viewconfig);
@@ -258,12 +257,12 @@ impl ModificationWindow {
                         // Update stored viewconfigs
                         self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
                         println!("viewconfig updated.."); //TEST
-                    },
+                    }
                     // MATCH name is the same, id is the same
                     (true, true) => {
                         // Do nothing
                         println!("No viewconfig to update.."); //TEST
-                    },
+                    }
                 }
 
                 // Create empty final list of viewcomponentconfigs
@@ -279,63 +278,70 @@ impl ModificationWindow {
                     // If viewcomponentconfig from this view
                     if (sub_items[0] == &uuid, sub_items[1] == old_view_title) == (true, true) {
                         // Get current components
-                        let current_components: Vec<ViewComponent> = self.view_components_list.take();
+                        let current_components: Vec<ViewComponent> =
+                            self.view_components_list.take();
 
                         // for each new possible viewcomponentconfig
                         for c_index in 0..current_components.len() {
-                        //for component in current_components {
+                            //for component in current_components {
                             // If it is the same viewcomponentconfig
-                            match (current_components[c_index].name == sub_items[3], old_view_title == new_view_title, current_components[c_index].position.to_string() == sub_items[2]){
+                            match (
+                                current_components[c_index].name == sub_items[3],
+                                old_view_title == new_view_title,
+                                current_components[c_index].position.to_string() == sub_items[2],
+                            ) {
                                 // CORRECT NAME, TITLE CHANGE, POSITION CHANGE
                                 (true, false, false) => {
                                     // Create new viewcomponentconfig
-                                    let new_viewcomponentconfig: String = uuid.clone() +
-                                                                        ":" +
-                                                                        &new_view_title + ":" +
-                                                                        &current_components[c_index].position.to_string() +
-                                                                        ":" +
-                                                                        &current_components[c_index].name;
+                                    let new_viewcomponentconfig: String = uuid.clone()
+                                        + ":"
+                                        + &new_view_title
+                                        + ":"
+                                        + &current_components[c_index].position.to_string()
+                                        + ":"
+                                        + &current_components[c_index].name;
 
                                     // Add to updated list of stored viewcomponentconfigs
                                     new_components_list.push(new_viewcomponentconfig);
                                     changes = true;
-                                },
+                                }
                                 // CORRECT NAME, TITLE CHANGE, NO POSITION CHANGE
                                 (true, false, true) => {
                                     // Create new viewcomponentconfig
-                                    let new_viewcomponentconfig: String = uuid.clone() +
-                                                                        ":" +
-                                                                        &new_view_title +
-                                                                        ":" +
-                                                                        sub_items[2] +
-                                                                        ":" +
-                                                                        &current_components[c_index].name;
+                                    let new_viewcomponentconfig: String = uuid.clone()
+                                        + ":"
+                                        + &new_view_title
+                                        + ":"
+                                        + sub_items[2]
+                                        + ":"
+                                        + &current_components[c_index].name;
 
                                     // Add to updated list of stored viewcomponentconfigs
                                     new_components_list.push(new_viewcomponentconfig);
                                     changes = true;
-                                },
+                                }
 
                                 // CORRECT NAME, NO TITLE CHANGE, POSITION CHANGE
                                 (true, true, false) => {
                                     // Create new viewcomponentconfig
-                                    let new_viewcomponentconfig: String = uuid.clone() +
-                                                                        ":" +
-                                                                        &old_view_title +
-                                                                        ":" +
-                                                                        &current_components[c_index].position.to_string() +
-                                                                        ":" +
-                                                                        &current_components[c_index].name;
+                                    let new_viewcomponentconfig: String = uuid.clone()
+                                        + ":"
+                                        + &old_view_title
+                                        + ":"
+                                        + &current_components[c_index].position.to_string()
+                                        + ":"
+                                        + &current_components[c_index].name;
 
                                     // Add to updated list of stored viewcomponentconfigs
                                     new_components_list.push(new_viewcomponentconfig);
                                     changes = true;
-                                },
+                                }
 
                                 // NO CHANGES OR INCORRECT NAME, IGNORE
                                 (true, true, true) | (false, _, _) => {
                                     // Add to updated list of stored viewcomponentconfigs
-                                    new_components_list.push(stored_views_components[index].clone());
+                                    new_components_list
+                                        .push(stored_views_components[index].clone());
                                 }
                             }
                         }
@@ -350,7 +356,7 @@ impl ModificationWindow {
 
                 // Update stored viewcomponentconfigs
                 println!("Final components list: `{:?}`", stored_views_components);
-                if changes{
+                if changes {
                     self.update_setting::<Vec<String>>("viewcomponentconfigs", new_components_list);
                     println!("saving changes.."); //TEST
                 } else {
@@ -359,17 +365,13 @@ impl ModificationWindow {
             } else {
                 // Create new viewconfig
                 //UUID:POSITION:VIEW_TITLE
-                let new_viewconfig: String = uuid.clone() +
-                                            ":0:" +
-                                            &new_view_title;
-
+                let new_viewconfig: String = uuid.clone() + ":0:" + &new_view_title;
 
                 // Update viewconfigs item with new viewconfig
                 stored_views_data.push(new_viewconfig);
 
                 // Update stored viewconfigs
                 self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
-
 
                 // Get current components
                 let current_components: Vec<ViewComponent> = self.view_components_list.take();
@@ -378,13 +380,13 @@ impl ModificationWindow {
                 // For each selected property component
                 for component in current_components {
                     //UUID:VIEW_TITLE:POSITION:name
-                    let formatted_component: String = uuid.clone() +
-                                                ":" +
-                                                &new_view_title +
-                                                ":" +
-                                                &component.position.to_string() +
-                                                ":" +
-                                                &component.name;
+                    let formatted_component: String = uuid.clone()
+                        + ":"
+                        + &new_view_title
+                        + ":"
+                        + &component.position.to_string()
+                        + ":"
+                        + &component.name;
 
                     // Add to list
                     stored_views_components.push(formatted_component);
@@ -505,21 +507,16 @@ impl ModificationWindow {
         // Create new item
         let new_item: ViewComponent = ViewComponent {
             name: String::from("temp"),
-            position: -1
+            position: -1,
         };
 
         // Add to list of items
         //
 
-
-
         //NOTE: NEEDS A TEXTBOX FOR VIEW NAME
         //NOTE: NEEDS A SCROLLWHEEL FOR # OF VIEW POSITIONS
         //NOTE: SWITCH THESE CHECKBUTTONS TO DROP-DOWN MENU FOR EACH POSITION
         //^THIS WAY DON'T NEED TO SET POSITION SEPERATELY
-
-
-
 
         // Activate scroll wheel (for position)
         //
@@ -609,13 +606,15 @@ impl ObjectImpl for ModificationWindow {
      * glib::ParamSpecObject::builder("formatter").build(),
      */
     fn properties() -> &'static [ParamSpec] {
-        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| vec![
-            glib::ParamSpecInt::builder("old-view-id").build(),
-            glib::ParamSpecInt::builder("new-view-id").build(),
-            glib::ParamSpecString::builder("old-view-title").build(),
-            glib::ParamSpecString::builder("new-view-title").build(),
-            glib::ParamSpecString::builder("uuid").build(),
-        ]);
+        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
+            vec![
+                glib::ParamSpecInt::builder("old-view-id").build(),
+                glib::ParamSpecInt::builder("new-view-id").build(),
+                glib::ParamSpecString::builder("old-view-title").build(),
+                glib::ParamSpecString::builder("new-view-title").build(),
+                glib::ParamSpecString::builder("uuid").build(),
+            ]
+        });
 
         //println!("PROPERTIES: {:?}", PROPERTIES);//TEST
         //println!("trying to add `base_call`: {:?}", glib::ParamSpecString::builder("base_call").build());//TEST
@@ -644,33 +643,32 @@ impl ObjectImpl for ModificationWindow {
 
         match pspec.name() {
             "old-view-id" => match value.get() {
-                Ok(input_old_view_id) => {
-                   self.old_view_id.set(input_old_view_id).expect("`old-view-id` should not be set after calling constructor..")
-                }
+                Ok(input_old_view_id) => self
+                    .old_view_id
+                    .set(input_old_view_id)
+                    .expect("`old-view-id` should not be set after calling constructor.."),
                 Err(_) => panic!("The value needs to be of type `i32`."),
             },
             "new-view-id" => match value.get() {
-                Ok(input_new_view_id) => {
-                   self.new_view_id.set(input_new_view_id)
-                }
+                Ok(input_new_view_id) => self.new_view_id.set(input_new_view_id),
                 Err(_) => panic!("The value needs to be of type `i32`."),
             },
             "old-view-title" => match value.get() {
-                Ok(input_old_view_title) => {
-                   self.old_view_title.set(input_old_view_title).expect("`old-view-title` should not be set after calling `setup_widgets()`..")
-                }
+                Ok(input_old_view_title) => self
+                    .old_view_title
+                    .set(input_old_view_title)
+                    .expect("`old-view-title` should not be set after calling `setup_widgets()`.."),
                 Err(_) => panic!("The value needs to be of type `String`."),
             },
             "new-view-title" => match value.get() {
-                Ok(input_new_view_title) => {
-                   self.new_view_title.set(input_new_view_title)
-                }
+                Ok(input_new_view_title) => self.new_view_title.set(input_new_view_title),
                 Err(_) => panic!("The value needs to be of type `String`."),
             },
             "uuid" => match value.get() {
-                Ok(input_uuid) => {
-                   self.uuid.set(input_uuid).expect("`uuid` should not be set after calling constructor..")
-                }
+                Ok(input_uuid) => self
+                    .uuid
+                    .set(input_uuid)
+                    .expect("`uuid` should not be set after calling constructor.."),
                 Err(_) => panic!("The value needs to be of type `String`."),
             },
             _ => panic!("Property `{}` does not exist..", pspec.name()),
@@ -697,20 +695,14 @@ impl ObjectImpl for ModificationWindow {
         //println!("getting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            "old-view-id" => {
-                match self.old_view_id.clone().get() {
-                    Some(value) => return value.to_value(),
-                    None => panic!("Cannot get value of `old-view-id` property.."),
-                }
+            "old-view-id" => match self.old_view_id.clone().get() {
+                Some(value) => return value.to_value(),
+                None => panic!("Cannot get value of `old-view-id` property.."),
             },
-            "new-view-id" => {
-                self.new_view_id.get().to_value()
-            },
-            "old-view-title" => {
-                match self.old_view_title.clone().get() {
-                    Some(value) => return value.to_value(),
-                    None => panic!("Cannot get value of `old-view-title` property.."),
-                }
+            "new-view-id" => self.new_view_id.get().to_value(),
+            "old-view-title" => match self.old_view_title.clone().get() {
+                Some(value) => return value.to_value(),
+                None => panic!("Cannot get value of `old-view-title` property.."),
             },
             "new-view-title" => {
                 let value: String = self.new_view_title.take();
@@ -718,12 +710,10 @@ impl ObjectImpl for ModificationWindow {
                 self.new_view_title.set(value.clone());
 
                 value.to_value()
-            },
-            "uuid" => {
-                match self.uuid.clone().get() {
-                    Some(value) => return value.to_value(),
-                    None => panic!("Cannot get value of `uuid` property.."),
-                }
+            }
+            "uuid" => match self.uuid.clone().get() {
+                Some(value) => return value.to_value(),
+                None => panic!("Cannot get value of `uuid` property.."),
             },
             _ => panic!("Property `{}` does not exist..", pspec.name()),
         }

@@ -525,7 +525,8 @@ impl GpuPage {
         let settings_obj: &Settings = self.settings();
 
         // Load list of Properties for current Page
-        let loaded_properties_data: Vec<String> = settings_obj.get::<Vec<String>>("viewcomponentconfigs");
+        let loaded_properties_data: Vec<String> =
+            settings_obj.get::<Vec<String>>("viewcomponentconfigs");
         // println!("items saved:`{}`", loaded_properties_data.len()); //TEST
 
         // If present in saved settings, use! otherwise follow below defaults

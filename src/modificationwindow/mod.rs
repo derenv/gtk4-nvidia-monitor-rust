@@ -21,17 +21,12 @@
 mod imp;
 
 // Imports
-use adwaita::{
-    gio,
-    glib,
-    subclass::prelude::*,
-    prelude::*,
-};
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
-use glib::{Object, GString};
+use glib::{GString, Object};
 
 // Modules
-use crate::{APP_ID, modificationwindow::imp::ViewComponent};
+use crate::{modificationwindow::imp::ViewComponent, APP_ID};
 
 // GObject wrapper for ModificationWindow
 glib::wrapper! {
@@ -75,7 +70,8 @@ impl ModificationWindow {
      *
      */
     pub fn new(app: &adwaita::Application, view_id: i32, uuid: &str) -> Self {
-        let obj: ModificationWindow = Object::new(&[("application", app)]).expect("`ModificationWindow` should be  instantiable.");
+        let obj: ModificationWindow = Object::new(&[("application", app)])
+            .expect("`ModificationWindow` should be  instantiable.");
 
         // Set custom properties
         obj.set_property("old-view-id", view_id);
@@ -175,8 +171,6 @@ impl ModificationWindow {
         self.set_property("old-view-title", view_title.clone());
         self.set_property("new-view-title", view_title);
 
-
-
         // Retrieve list of in-use properties
         let view_components_list = self.settings().strv("viewcomponentconfigs");
         println!("Possible Components: {:?}", view_components_list); //TEST
@@ -193,7 +187,9 @@ impl ModificationWindow {
                 // Create new item
                 let new_item: ViewComponent = ViewComponent {
                     name: String::from(sub_items[3]),
-                    position: sub_items[2].parse::<i32>().expect("Malformed gschema data..")
+                    position: sub_items[2]
+                        .parse::<i32>()
+                        .expect("Malformed gschema data.."),
                 };
                 final_components.push(new_item);
 
@@ -202,31 +198,31 @@ impl ModificationWindow {
                     "util" => {
                         println!("`util` active"); //TEST
                         self.imp().util_checkbox.set_active(true);
-                    },
+                    }
                     "temp" => {
                         println!("`temp` active"); //TEST
                         self.imp().temp_checkbox.set_active(true);
-                    },
+                    }
                     "power_usage" => {
                         println!("`power_usage` active"); //TEST
                         self.imp().power_usage_checkbox.set_active(true);
-                    },
+                    }
                     "memory_usage" => {
                         println!("`memory_usage` active"); //TEST
                         self.imp().mem_usage_checkbox.set_active(true);
-                    },
+                    }
                     "memory_total" => {
                         println!("`memory_total` active"); //TEST
                         self.imp().mem_total_checkbox.set_active(true);
-                    },
+                    }
                     "mem_ctrl_util" => {
                         println!("`mem_ctrl_util` active"); //TEST
                         self.imp().mem_util_checkbox.set_active(true);
-                    },
+                    }
                     "fan_speed" => {
                         println!("`fan_speed` active"); //TEST
                         self.imp().fan_speed_checkbox.set_active(true);
-                    },
+                    }
                     _ => panic!("unknown property..."),
                 }
             }
@@ -234,7 +230,6 @@ impl ModificationWindow {
 
         // Bind components list to struct member
         self.imp().view_components_list.set(final_components);
-
     }
 
     /**

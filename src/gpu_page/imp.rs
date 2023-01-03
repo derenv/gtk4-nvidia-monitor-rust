@@ -287,21 +287,24 @@ impl ObjectImpl for GpuPage {
 
         match pspec.name() {
             "uuid" => match value.get() {
-                Ok(input_uuid) => {
-                   self.uuid.set(input_uuid).expect("`uuid` should not be set after calling constructor..")
-                }
+                Ok(input_uuid) => self
+                    .uuid
+                    .set(input_uuid)
+                    .expect("`uuid` should not be set after calling constructor.."),
                 Err(_) => panic!("The value needs to be of type `String`."),
             },
             "name" => match value.get() {
-                Ok(input_name) => {
-                   self.name.set(input_name).expect("`name` should not be set after calling constructor..")
-                }
+                Ok(input_name) => self
+                    .name
+                    .set(input_name)
+                    .expect("`name` should not be set after calling constructor.."),
                 Err(_) => panic!("The value needs to be of type `String`."),
             },
             "provider" => match value.get() {
-                Ok(input_provider) => {
-                   self.provider.set(input_provider).expect("`provider` should not be set after calling constructor..")
-                }
+                Ok(input_provider) => self
+                    .provider
+                    .set(input_provider)
+                    .expect("`provider` should not be set after calling constructor.."),
                 Err(_) => panic!("The value needs to be of type `Provider`."),
             },
             "refreshid" => match value.get() {
@@ -341,24 +344,18 @@ impl ObjectImpl for GpuPage {
         //println!("getting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            "uuid" => {
-                match self.uuid.clone().get() {
-                    Some(value) => return value.to_value(),
-                    None => panic!("Cannot get value of `uuid` property.."),
-                }
+            "uuid" => match self.uuid.clone().get() {
+                Some(value) => return value.to_value(),
+                None => panic!("Cannot get value of `uuid` property.."),
             },
-            "name" => {
-                match self.name.clone().get() {
-                    Some(value) => return value.to_value(),
-                    None => panic!("Cannot get value of `name` property.."),
-                }
-            }
-            "provider" => {
-                match self.provider.clone().get() {
-                    Some(value) => return value.to_value(),
-                    None => panic!("Cannot get value of `provider` property.."),
-                }
-            }
+            "name" => match self.name.clone().get() {
+                Some(value) => return value.to_value(),
+                None => panic!("Cannot get value of `name` property.."),
+            },
+            "provider" => match self.provider.clone().get() {
+                Some(value) => return value.to_value(),
+                None => panic!("Cannot get value of `provider` property.."),
+            },
             "refreshid" => {
                 let value: u32 = self.refreshid.take();
 
