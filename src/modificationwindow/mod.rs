@@ -23,7 +23,7 @@ mod imp;
 // Imports
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ActionRow};
 use gio::{Settings, SimpleAction};
-use glib::{GString, Object, clone};
+use glib::{clone, GString, Object};
 use gtk::{Adjustment, DropDown, StringList};
 
 // Modules
@@ -212,7 +212,8 @@ impl ModificationWindow {
                     let model: StringList = StringList::new(&items);
 
                     // Create dropdown choice
-                    let dropdown_input_name: String = String::from("dropdown_input_") + final_components.len().to_string().as_str();
+                    let dropdown_input_name: String = String::from("dropdown_input_")
+                        + final_components.len().to_string().as_str();
                     let dropdown_input: DropDown = DropDown::builder()
                         .name(&dropdown_input_name)
                         .model(&model)
@@ -256,8 +257,10 @@ impl ModificationWindow {
                     }
 
                     // Create row to hold dropdown_input
-                    let row_name: String = String::from("view_component_row_") + final_components.len().to_string().as_str();
-                    let row_title: String = String::from("View Component ") + final_components.len().to_string().as_str();
+                    let row_name: String = String::from("view_component_row_")
+                        + final_components.len().to_string().as_str();
+                    let row_title: String = String::from("View Component ")
+                        + final_components.len().to_string().as_str();
                     let row: ActionRow = ActionRow::builder()
                         .name(&row_name)
                         .title(&row_title)
@@ -273,10 +276,7 @@ impl ModificationWindow {
                     println!("inserting in position: `{}`", (1 + final_components.len())); //TEST
                     self.imp()
                         .view_modifier_listbox
-                        .insert(
-                            &row,
-                            (1 + final_components.len()) as i32
-                        );
+                        .insert(&row, (1 + final_components.len()) as i32);
                 }
             }
         }
@@ -284,7 +284,10 @@ impl ModificationWindow {
 
         // Get current number of view components before we get rid of this..
         let current_view_component_amount: f64 = final_components.len() as f64;
-        println!("amount of current components: `{}`", current_view_component_amount); //TEST
+        println!(
+            "amount of current components: `{}`",
+            current_view_component_amount
+        ); //TEST
 
         // Bind components list to struct member
         self.imp().view_components_list.set(final_components);
@@ -295,12 +298,8 @@ impl ModificationWindow {
             .set_placeholder_text(Some(&self.property::<String>("old-view-title")));
 
         // Set character limit to textbox (10)
-        self.imp()
-            .view_name_input
-            .set_max_length(10);
-        self.imp()
-            .view_name_input
-            .set_max_width_chars(10);
+        self.imp().view_name_input.set_max_length(10);
+        self.imp().view_name_input.set_max_width_chars(10);
 
         // Create adjustment settings for number of view components SpinButton
         //TODO: link the upper limit to the total different properties
@@ -310,43 +309,47 @@ impl ModificationWindow {
             .view_components_amount_input
             .configure(Some(&adjustment), 1.0, 0);
 
-
-
         // Buttons
         // Apply
-        self.imp().view_modification_apply_button.connect_clicked(clone!(@weak self as window => move |_| {
-            // TODO: Save any changes to the view
-            println!("APPLYING CHANGES..");
-            //window.imp().update_stored_data();
-            println!("CHANGES APPLIED..");
+        self.imp().view_modification_apply_button.connect_clicked(
+            clone!(@weak self as window => move |_| {
+                // TODO: Save any changes to the view
+                println!("APPLYING CHANGES..");
+                //window.imp().update_stored_data();
+                println!("CHANGES APPLIED..");
 
-            // TODO: Emit signal to notify changes made to view (and thus reload required)
-            //
+                // TODO: Emit signal to notify changes made to view (and thus reload required)
+                //
 
-            // Close window
-            window.close();
-        }));
+                // Close window
+                window.close();
+            }),
+        );
         // Cancel
-        self.imp().view_modification_cancel_button.connect_clicked(clone!(@weak self as window => move |_| {
-            // Cancel any changes to the view
-            println!("NOT APPLYING CHANGES..");
+        self.imp().view_modification_cancel_button.connect_clicked(
+            clone!(@weak self as window => move |_| {
+                // Cancel any changes to the view
+                println!("NOT APPLYING CHANGES..");
 
-            // Close window
-            window.close();
-        }));
+                // Close window
+                window.close();
+            }),
+        );
         // Delete
-        self.imp().view_modification_delete_button.connect_clicked(clone!(@weak self as window => move |_| {
-            // TODO: Delete the view
-            println!("DELETING VIEW..");
-            //???
-            println!("VIEW DELETED..");
+        self.imp().view_modification_delete_button.connect_clicked(
+            clone!(@weak self as window => move |_| {
+                // TODO: Delete the view
+                println!("DELETING VIEW..");
+                //???
+                println!("VIEW DELETED..");
 
-            // TODO: Emit signal to notify changes made to view (and thus reload required)
-            //
+                // TODO: Emit signal to notify changes made to view (and thus reload required)
+                //
 
-            // Close window
-            window.close();
-        }));
+                // Close window
+                window.close();
+            }),
+        );
     }
 
     /**

@@ -24,7 +24,10 @@ use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
     subclass::InitializingObject, FromVariant, ParamSpec, Value,
 };
-use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild, Entry, SpinButton, ListBox, Button, StringList, DropDown};
+use gtk::{
+    subclass::prelude::*, Button, CompositeTemplate, DropDown, Entry, ListBox, SpinButton,
+    StringList, TemplateChild,
+};
 use std::cell::Cell;
 
 // Modules
@@ -57,8 +60,6 @@ pub struct ModificationWindow {
     pub view_components_amount_input: TemplateChild<SpinButton>,
     #[template_child]
     pub view_modifier_listbox: TemplateChild<ListBox>,
-
-
 
     #[template_child]
     pub button_row: TemplateChild<ActionRow>,
@@ -533,7 +534,10 @@ impl ModificationWindow {
 
             // subtract end item
             self.view_modifier_listbox.remove(
-                &self.view_modifier_listbox.row_at_index((1 + components.len()) as i32).unwrap()
+                &self
+                    .view_modifier_listbox
+                    .row_at_index((1 + components.len()) as i32)
+                    .unwrap(),
             );
 
             // Modify view component list
@@ -556,7 +560,8 @@ impl ModificationWindow {
             let model: StringList = StringList::new(&items);
 
             // Create dropdown choice
-            let dropdown_input_name: String = String::from("dropdown_input_") + components.len().to_string().as_str();
+            let dropdown_input_name: String =
+                String::from("dropdown_input_") + components.len().to_string().as_str();
             let dropdown_input: DropDown = DropDown::builder()
                 .name(&dropdown_input_name)
                 .model(&model)
@@ -564,8 +569,10 @@ impl ModificationWindow {
                 .build();
 
             // Create row to empty
-            let row_name: String = String::from("view_component_row_") + components.len().to_string().as_str();
-            let row_title: String = String::from("View Component ") + components.len().to_string().as_str();
+            let row_name: String =
+                String::from("view_component_row_") + components.len().to_string().as_str();
+            let row_title: String =
+                String::from("View Component ") + components.len().to_string().as_str();
             let row: ActionRow = ActionRow::builder()
                 .name(&row_name)
                 .title(&row_title)
@@ -580,10 +587,7 @@ impl ModificationWindow {
             // Add new item, needs defaults (i.e. None)
             let pos: i32 = (2 + components.len()) as i32;
             println!("inserting in position: `{}`", pos); //TEST
-            self.view_modifier_listbox.insert(
-                &row,
-                pos
-            );
+            self.view_modifier_listbox.insert(&row, pos);
 
             // Create new item
             let new_item: ViewComponent = ViewComponent {
