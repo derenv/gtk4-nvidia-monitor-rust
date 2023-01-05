@@ -28,7 +28,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
         <property name="child">
           <object class="AdwClamp">
             <property name="child">
-              <object class="GtkListBox">
+              <object class="GtkListBox" id="view_modifier_listbox">
                 <!-- Properties -->
                 <property name="margin-top">12</property>
                 <property name="margin-bottom">12</property>
@@ -40,136 +40,73 @@ SPDX-License-Identifier: GPL-3.0-or-later
                 <child>
                   <object class="AdwActionRow">
                     <!-- Properties -->
-                    <property name="title">GPU Utilization</property>
-                    <property name="subtitle">The utilization of the GPU (percentage)</property>
+                    <property name="title">View Name</property>
+                    <property name="subtitle">The name of the current view</property>
                     <property name="activatable">false</property>
                     <property name="selectable">false</property>
 
                     <!-- Children -->
                     <child>
-                      <object class="GtkCheckButton" id="util_checkbox">
+                      <object class="GtkEntry" id="view_name_input">
                         <!-- Signals -->
-                        <signal name="toggled" handler="util_property_selected" swapped="true"/>
+                        <signal name="changed" handler="view_name_changed" swapped="true"/>
+
+                        <!-- Properties -->
+
                       </object>
                     </child>
-                    <!--
-                    <child>
-                      <object class="GtkSpinButton" id="util_position">
-                        <!- - Signals - ->
-                        <signal name="value-changed" handler="refreshrate_set" swapped="true"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow">
+                    <!-- Properties -->
+                    <property name="title">View Properties</property>
+                    <property name="subtitle">The number of properties in the current view</property>
+                    <property name="activatable">false</property>
+                    <property name="selectable">false</property>
 
-                        <!- - Properties - ->
+                    <!-- Children -->
+                    <child>
+                      <object class="GtkSpinButton" id="view_components_amount_input">
+                        <!-- Signals -->
+                        <signal name="value-changed" handler="view_components_amount_changed" swapped="true"/>
+
+                        <!-- Properties -->
                         <property name="digits" translatable="yes">0</property>
                         <property name="numeric">True</property>
                       </object>
                     </child>
-                    -->
                   </object>
                 </child>
+
                 <child>
-                  <object class="AdwActionRow">
+                  <object class="AdwActionRow" id="button_row">
                     <!-- Properties -->
-                    <property name="title">Temperature</property>
-                    <property name="subtitle">The temperature of the GPU</property>
                     <property name="activatable">false</property>
                     <property name="selectable">false</property>
 
                     <!-- Children -->
                     <child>
-                      <object class="GtkCheckButton" id="temp_checkbox">
-                        <!-- Signals -->
-                        <signal name="toggled" handler="temp_property_selected" swapped="true"/>
+                      <object class="GtkButton" id="view_modification_apply_button">
+                        <!-- Properties -->
+                        <property name="label" translatable="yes">Apply Changes</property>
                       </object>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="AdwActionRow">
-                    <!-- Properties -->
-                    <property name="title">Power Usage</property>
-                    <property name="subtitle">The power usage (in watts)</property>
-                    <property name="activatable">false</property>
-                    <property name="selectable">false</property>
-
-                    <!-- Children -->
                     <child>
-                      <object class="GtkCheckButton" id="power_usage_checkbox">
-                        <!-- Signals -->
-                        <signal name="toggled" handler="power_usage_property_selected" swapped="true"/>
+                      <object class="GtkButton" id="view_modification_cancel_button">
+                        <!-- Properties -->
+                        <property name="label" translatable="yes">Cancel Changes</property>
                       </object>
                     </child>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="AdwActionRow">
-                    <!-- Properties -->
-                    <property name="title">Memory Usage</property>
-                    <property name="subtitle">The amount of VRAM used (in megabytes)</property>
-                    <property name="activatable">false</property>
-                    <property name="selectable">false</property>
-
-                    <!-- Children -->
                     <child>
-                      <object class="GtkCheckButton" id="mem_usage_checkbox">
-                        <!-- Signals -->
-                        <signal name="toggled" handler="mem_usage_property_selected" swapped="true"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="AdwActionRow">
-                    <!-- Properties -->
-                    <property name="title">Memory Total</property>
-                    <property name="subtitle">The amount of VRAM available (in megabytes)</property>
-                    <property name="activatable">false</property>
-                    <property name="selectable">false</property>
-
-                    <!-- Children -->
-                    <child>
-                      <object class="GtkCheckButton" id="mem_total_checkbox">
-                        <!-- Signals -->
-                        <signal name="toggled" handler="mem_total_property_selected" swapped="true"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="AdwActionRow">
-                    <!-- Properties -->
-                    <property name="title">Memory Controller Usage</property>
-                    <property name="subtitle">The utilization of the memory controller (percentage)</property>
-                    <property name="activatable">false</property>
-                    <property name="selectable">false</property>
-
-                    <!-- Children -->
-                    <child>
-                      <object class="GtkCheckButton" id="mem_util_checkbox">
-                        <!-- Signals -->
-                        <signal name="toggled" handler="mem_util_property_selected" swapped="true"/>
+                      <object class="GtkButton" id="view_modification_delete_button">
+                        <!-- Properties -->
+                        <property name="label" translatable="yes">Delete View</property>
                       </object>
                     </child>
                   </object>
                 </child>
 
-                <child>
-                  <object class="AdwActionRow">
-                    <!-- Properties -->
-                    <property name="title">Fan Speed</property>
-                    <property name="subtitle">The fan speed for current GPU (percentage)</property>
-                    <property name="activatable">false</property>
-                    <property name="selectable">false</property>
-
-                    <!-- Children -->
-                    <child>
-                      <object class="GtkCheckButton" id="fan_speed_checkbox">
-                        <!-- Signals -->
-                        <signal name="toggled" handler="fan_speed_property_selected" swapped="true"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
               </object>
             </property>
           </object>
@@ -177,7 +114,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
       </object>
     </child>
-
   </template>
 
   <!-- Main Menu -->

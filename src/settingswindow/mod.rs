@@ -172,7 +172,7 @@ impl SettingsWindow {
             "Nvidia SMI",
             "Nvidia Optimus",
         ];
-        let model = StringList::new(&items);
+        let model: StringList = StringList::new(&items);
         self.imp().provider_input.set_model(Some(&model));
 
         // Set current selected option from settings

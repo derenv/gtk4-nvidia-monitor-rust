@@ -21,9 +21,10 @@
 mod imp;
 
 // Imports
-use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
-use gio::Settings;
-use glib::{GString, Object};
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ActionRow};
+use gio::{Settings, SimpleAction};
+use glib::{GString, Object, clone};
+use gtk::{Adjustment, DropDown, StringList};
 
 // Modules
 use crate::{modificationwindow::imp::ViewComponent, APP_ID};
@@ -178,58 +179,174 @@ impl ModificationWindow {
         // Create list of components in current view
         let mut final_components: Vec<ViewComponent> = vec![];
 
-        for item in view_components_list {
-            println!("item: `{}`", item); //TEST
-            let sub_items: Vec<&str> = item.split(':').collect();
-            if sub_items[1] == self.property::<String>("old-view-title") {
-                println!("View Component: {}", sub_items[3]); //TEST
+        println!("LETS GET LOOPIN"); //TEST
+        if view_components_list.len() == 0 {
+            // TODO
+        } else {
+            for index in 0..view_components_list.len() {
+                println!("item: `{}`", view_components_list[index]); //TEST
+                let sub_items: Vec<&str> = view_components_list[index].split(':').collect();
+                if sub_items[1] == self.property::<String>("old-view-title") {
+                    println!("View Component: {}", sub_items[3]); //TEST
 
-                // Create new item
-                let new_item: ViewComponent = ViewComponent {
-                    name: String::from(sub_items[3]),
-                    position: sub_items[2]
-                        .parse::<i32>()
-                        .expect("Malformed gschema data.."),
-                };
-                final_components.push(new_item);
+                    // Create new item
+                    let new_item: ViewComponent = ViewComponent {
+                        name: String::from(sub_items[3]),
+                        position: sub_items[2]
+                            .parse::<i32>()
+                            .expect("Malformed gschema data.."),
+                    };
+                    final_components.push(new_item);
 
-                // Change state of appropriate checkbutton
-                match sub_items[3] {
-                    "util" => {
-                        println!("`util` active"); //TEST
-                        self.imp().util_checkbox.set_active(true);
+                    // Create list of options
+                    let items: [&str; 8] = [
+                        "None",
+                        "GPU Utilization",
+                        "GPU Temperature",
+                        "Power Usage",
+                        "Memory Usage",
+                        "Memory Total",
+                        "Memory Controller Usage",
+                        "Fan Speed",
+                    ];
+                    let model: StringList = StringList::new(&items);
+
+                    // Create dropdown choice
+                    let dropdown_input_name: String = String::from("dropdown_input_") + final_components.len().to_string().as_str();
+                    let dropdown_input: DropDown = DropDown::builder()
+                        .name(&dropdown_input_name)
+                        .model(&model)
+                        .build();
+
+                    // Set current selected option
+                    match sub_items[3] {
+                        "none" => {
+                            dropdown_input.set_selected(0);
+                            println!("`none` active"); //TEST
+                        }
+                        "util" => {
+                            dropdown_input.set_selected(1);
+                            println!("`util` active"); //TEST
+                        }
+                        "temp" => {
+                            dropdown_input.set_selected(2);
+                            println!("`temp` active"); //TEST
+                        }
+                        "power_usage" => {
+                            dropdown_input.set_selected(3);
+                            println!("`power_usage` active"); //TEST
+                        }
+                        "memory_usage" => {
+                            dropdown_input.set_selected(4);
+                            println!("`memory_usage` active"); //TEST
+                        }
+                        "memory_total" => {
+                            dropdown_input.set_selected(5);
+                            println!("`memory_total` active"); //TEST
+                        }
+                        "mem_ctrl_util" => {
+                            dropdown_input.set_selected(6);
+                            println!("`mem_ctrl_util` active"); //TEST
+                        }
+                        "fan_speed" => {
+                            dropdown_input.set_selected(7);
+                            println!("`fan_speed` active"); //TEST
+                        }
+                        _ => panic!("..Unknown property in view config"),
                     }
-                    "temp" => {
-                        println!("`temp` active"); //TEST
-                        self.imp().temp_checkbox.set_active(true);
-                    }
-                    "power_usage" => {
-                        println!("`power_usage` active"); //TEST
-                        self.imp().power_usage_checkbox.set_active(true);
-                    }
-                    "memory_usage" => {
-                        println!("`memory_usage` active"); //TEST
-                        self.imp().mem_usage_checkbox.set_active(true);
-                    }
-                    "memory_total" => {
-                        println!("`memory_total` active"); //TEST
-                        self.imp().mem_total_checkbox.set_active(true);
-                    }
-                    "mem_ctrl_util" => {
-                        println!("`mem_ctrl_util` active"); //TEST
-                        self.imp().mem_util_checkbox.set_active(true);
-                    }
-                    "fan_speed" => {
-                        println!("`fan_speed` active"); //TEST
-                        self.imp().fan_speed_checkbox.set_active(true);
-                    }
-                    _ => panic!("unknown property..."),
+
+                    // Create row to hold dropdown_input
+                    let row_name: String = String::from("view_component_row_") + final_components.len().to_string().as_str();
+                    let row_title: String = String::from("View Component ") + final_components.len().to_string().as_str();
+                    let row: ActionRow = ActionRow::builder()
+                        .name(&row_name)
+                        .title(&row_title)
+                        .subtitle("")
+                        .activatable(false)
+                        .selectable(false)
+                        .build();
+
+                    // Add dropdown_input to row
+                    row.set_child(Some(&dropdown_input));
+
+                    // Add row to ListBox
+                    println!("inserting in position: `{}`", (1 + final_components.len())); //TEST
+                    self.imp()
+                        .view_modifier_listbox
+                        .insert(
+                            &row,
+                            (1 + final_components.len()) as i32
+                        );
                 }
             }
         }
+        println!("DONE"); //TEST
+
+        // Get current number of view components before we get rid of this..
+        let current_view_component_amount: f64 = final_components.len() as f64;
+        println!("amount of current components: `{}`", current_view_component_amount); //TEST
 
         // Bind components list to struct member
         self.imp().view_components_list.set(final_components);
+
+        // Insert old name as current content of view-name text box
+        self.imp()
+            .view_name_input
+            .set_placeholder_text(Some(&self.property::<String>("old-view-title")));
+
+        // Set character limit to textbox (10)
+        self.imp()
+            .view_name_input
+            .set_max_length(10);
+        self.imp()
+            .view_name_input
+            .set_max_width_chars(10);
+
+        // Create adjustment settings for number of view components SpinButton
+        //TODO: link the upper limit to the total different properties
+        let adjustment: Adjustment =
+            Adjustment::new(current_view_component_amount, 0.0, 10.0, 1.0, 2.0, 0.0);
+        self.imp()
+            .view_components_amount_input
+            .configure(Some(&adjustment), 1.0, 0);
+
+
+
+        // Buttons
+        // Apply
+        self.imp().view_modification_apply_button.connect_clicked(clone!(@weak self as window => move |_| {
+            // TODO: Save any changes to the view
+            println!("APPLYING CHANGES..");
+            //window.imp().update_stored_data();
+            println!("CHANGES APPLIED..");
+
+            // TODO: Emit signal to notify changes made to view (and thus reload required)
+            //
+
+            // Close window
+            window.close();
+        }));
+        // Cancel
+        self.imp().view_modification_cancel_button.connect_clicked(clone!(@weak self as window => move |_| {
+            // Cancel any changes to the view
+            println!("NOT APPLYING CHANGES..");
+
+            // Close window
+            window.close();
+        }));
+        // Delete
+        self.imp().view_modification_delete_button.connect_clicked(clone!(@weak self as window => move |_| {
+            // TODO: Delete the view
+            println!("DELETING VIEW..");
+            //???
+            println!("VIEW DELETED..");
+
+            // TODO: Emit signal to notify changes made to view (and thus reload required)
+            //
+
+            // Close window
+            window.close();
+        }));
     }
 
     /**

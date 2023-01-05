@@ -18,13 +18,13 @@
  *
  */
 // Imports
-use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
+use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ActionRow};
 use gio::Settings;
 use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
     subclass::InitializingObject, FromVariant, ParamSpec, Value,
 };
-use gtk::{subclass::prelude::*, CheckButton, CompositeTemplate, TemplateChild};
+use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild, Entry, SpinButton, ListBox, Button, StringList, DropDown};
 use std::cell::Cell;
 
 // Modules
@@ -52,19 +52,22 @@ pub struct ModificationWindow {
     pub view_components_list: Cell<Vec<ViewComponent>>,
 
     #[template_child]
-    pub util_checkbox: TemplateChild<CheckButton>,
+    pub view_name_input: TemplateChild<Entry>,
     #[template_child]
-    pub temp_checkbox: TemplateChild<CheckButton>,
+    pub view_components_amount_input: TemplateChild<SpinButton>,
     #[template_child]
-    pub power_usage_checkbox: TemplateChild<CheckButton>,
+    pub view_modifier_listbox: TemplateChild<ListBox>,
+
+
+
     #[template_child]
-    pub mem_usage_checkbox: TemplateChild<CheckButton>,
+    pub button_row: TemplateChild<ActionRow>,
     #[template_child]
-    pub mem_total_checkbox: TemplateChild<CheckButton>,
+    pub view_modification_apply_button: TemplateChild<Button>,
     #[template_child]
-    pub mem_util_checkbox: TemplateChild<CheckButton>,
+    pub view_modification_cancel_button: TemplateChild<Button>,
     #[template_child]
-    pub fan_speed_checkbox: TemplateChild<CheckButton>,
+    pub view_modification_delete_button: TemplateChild<Button>,
 }
 
 /// The central trait for subclassing a GObject
@@ -471,13 +474,43 @@ impl ModificationWindow {
 impl ModificationWindow {
     /**
      * Name:
-     * util_property_selected
+     * view_name_changed
      *
      * Description:
-     * Template callback for setting properties shown in current view
+     * Template callback for changing the name of the current view
      *
      * Made:
-     * 02/01/2023
+     * 03/01/2023
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     * TODO: add a checkmark (or some kind of notification) to tell user the input is valid
+     */
+    #[template_callback]
+    fn view_name_changed(&self, textbox: &Entry) {
+        // Get new input
+        let new_title: String = textbox.text().to_string();
+        println!("new name: `{}`", new_title); //TEST
+
+        // Update new_view_title
+        if new_title != "" {
+            println!("NEW NAME VALID..");
+            self.new_view_title.set(new_title);
+        } else {
+            println!("NEW NAME INVALID..");
+        }
+    }
+    /**
+     * Name:
+     * view_components_amount_changed
+     *
+     * Description:
+     * Template callback for changing the number of components of the current view
+     *
+     * Made:
+     * 03/01/2023
      *
      * Made by:
      * Deren Vural
@@ -486,54 +519,90 @@ impl ModificationWindow {
      *
      */
     #[template_callback]
-    fn util_property_selected(&self, button: &CheckButton) {
-        /*
-        let title: String = self.view_title.take();
-        self.view_title.set(title.clone());
+    fn view_components_amount_changed(&self, spinbutton: &SpinButton) {
+        // Validate amount
+        let new_amount: usize = spinbutton.value() as usize;
+        println!("new number of components: `{}`", spinbutton.value()); //TEST
 
-        let new_item: String = self.uuid.clone().take().unwrap()
-                            + ":"
-                            + &title
-                            + ":"
-                            + &self.view_id.clone().take().unwrap().to_string()
-                            + ":util";
+        let mut components: Vec<ViewComponent> = self.view_components_list.take();
+        println!("stored number of components: `{}`", components.len()); //TEST
 
-        let list: Vec<GString> = self.view_components_list.take();
-        list.push(new_item.into());
-        */
+        if new_amount < components.len() {
+            // Less than previous
+            println!("<"); //TEST
+
+            // subtract end item
+            self.view_modifier_listbox.remove(
+                &self.view_modifier_listbox.row_at_index((1 + components.len()) as i32).unwrap()
+            );
+
+            // Modify view component list
+            components.remove(components.len() - 1);
+        } else if new_amount > components.len() {
+            // More than previous
+            println!(">"); //TEST
+
+            // Create list of options
+            let items: [&str; 8] = [
+                "None",
+                "GPU Utilization",
+                "GPU Temperature",
+                "Power Usage",
+                "Memory Usage",
+                "Memory Total",
+                "Memory Controller Usage",
+                "Fan Speed",
+            ];
+            let model: StringList = StringList::new(&items);
+
+            // Create dropdown choice
+            let dropdown_input_name: String = String::from("dropdown_input_") + components.len().to_string().as_str();
+            let dropdown_input: DropDown = DropDown::builder()
+                .name(&dropdown_input_name)
+                .model(&model)
+                .selected(0)
+                .build();
+
+            // Create row to empty
+            let row_name: String = String::from("view_component_row_") + components.len().to_string().as_str();
+            let row_title: String = String::from("View Component ") + components.len().to_string().as_str();
+            let row: ActionRow = ActionRow::builder()
+                .name(&row_name)
+                .title(&row_title)
+                .subtitle("")
+                .activatable(false)
+                .selectable(false)
+                .build();
+
+            // Add dropdown_input to row
+            row.set_child(Some(&dropdown_input));
+
+            // Add new item, needs defaults (i.e. None)
+            let pos: i32 = (2 + components.len()) as i32;
+            println!("inserting in position: `{}`", pos); //TEST
+            self.view_modifier_listbox.insert(
+                &row,
+                pos
+            );
+
+            // Create new item
+            let new_item: ViewComponent = ViewComponent {
+                name: String::from("None"),
+                position: pos,
+            };
+
+            // Modify view component list
+            components.push(new_item);
+        } else if new_amount == components.len() {
+            // Same as previous
+            println!("=="); //TEST
+
+            // TODO: ???
+        }
+
+        // Return components list
+        self.view_components_list.set(components);
     }
-    #[template_callback]
-    fn temp_property_selected(&self, button: &CheckButton) {
-        // Create new item
-        let new_item: ViewComponent = ViewComponent {
-            name: String::from("temp"),
-            position: -1,
-        };
-
-        // Add to list of items
-        //
-
-        //NOTE: NEEDS A TEXTBOX FOR VIEW NAME
-        //NOTE: NEEDS A SCROLLWHEEL FOR # OF VIEW POSITIONS
-        //NOTE: SWITCH THESE CHECKBUTTONS TO DROP-DOWN MENU FOR EACH POSITION
-        //^THIS WAY DON'T NEED TO SET POSITION SEPERATELY
-
-        // Activate scroll wheel (for position)
-        //
-
-        //let list: Vec<GString> = self.view_components_list.take();
-        //list.push(new_item.into());
-    }
-    #[template_callback]
-    fn power_usage_property_selected(&self, button: &CheckButton) {}
-    #[template_callback]
-    fn mem_usage_property_selected(&self, button: &CheckButton) {}
-    #[template_callback]
-    fn mem_total_property_selected(&self, button: &CheckButton) {}
-    #[template_callback]
-    fn mem_util_property_selected(&self, button: &CheckButton) {}
-    #[template_callback]
-    fn fan_speed_property_selected(&self, button: &CheckButton) {}
 }
 
 /**
@@ -774,9 +843,6 @@ impl WindowImpl for ModificationWindow {
     fn close_request(&self, window: &Self::Type) -> Inhibit {
         // Store state in settings
         self.update_setting("modification-open", false);
-
-        // Save any changes to selection here
-        self.update_stored_data();
 
         // Pass close request on to the parent
         self.parent_close_request(window)

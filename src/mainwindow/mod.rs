@@ -139,25 +139,7 @@ impl MainWindow {
      *
      */
     fn setup_widgets(&self) {
-        // Check if list of GPU's done
-        //if done
-        //    // Create pages
-        //    //
         //
-        //    // Grab GtkBox with id `right`
-        //    //
-        //
-        //    // Add pages to `right`
-        //    //
-        //else
-        //    // Create default page
-        //    //
-        //
-        //    // Grab GtkBox with id `right`
-        //    //
-        //
-        //    // Add default page to `right`
-        //    //
     }
 
     /**
