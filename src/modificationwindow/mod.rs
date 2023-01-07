@@ -313,9 +313,9 @@ impl ModificationWindow {
         // Apply
         self.imp().view_modification_apply_button.connect_clicked(
             clone!(@weak self as window => move |_| {
-                // TODO: Save any changes to the view
+                // Save any changes to the view
                 println!("APPLYING CHANGES..");
-                //window.imp().update_stored_data();
+                window.imp().update_stored_data();
                 println!("CHANGES APPLIED..");
 
                 // TODO: Emit signal to notify changes made to view (and thus reload required)
@@ -338,9 +338,9 @@ impl ModificationWindow {
         // Delete
         self.imp().view_modification_delete_button.connect_clicked(
             clone!(@weak self as window => move |_| {
-                // TODO: Delete the view
+                // Delete the view
                 println!("DELETING VIEW..");
-                //???
+                window.imp().delete_stored_data();
                 println!("VIEW DELETED..");
 
                 // TODO: Emit signal to notify changes made to view (and thus reload required)
