@@ -155,8 +155,8 @@ impl GpuPage {
 
         // Load list of Views
         let loaded_views_data: Vec<String> = settings_obj.get::<Vec<String>>("viewconfigs");
-        println!("views saved:`{}`", loaded_views_data.len()); //TEST
-        println!("views saved:`{:?}`", loaded_views_data); //TEST
+        // println!("views saved:`{}`", loaded_views_data.len()); //TEST
+        // println!("views saved:`{:?}`", loaded_views_data); //TEST
 
         // Remove old content grid
         match self.child_at(0, 0) {
@@ -181,35 +181,20 @@ impl GpuPage {
             let new_grid: Grid = Grid::builder()
                 .name(&new_grid_name)
                 .orientation(Orientation::Horizontal)
-                //.margin_start(12)
-                //.margin_end(12)
-                //.margin_top(12)
-                //.margin_bottom(12)
-                //.halign(Align::Center)
-                //.valign(Align::Center)
-                //.hexpand(true)
-                //.vexpand(true)
                 .build();
             content_grid.attach(&new_grid, 0, 0 as i32, 100, 12);
 
-            // Set layout properties of grid
-            //let child_manager: LayoutChild = grid_manager.layout_child(&new_grid);
-            //child_manager.set_property("row-span", 1);
-            //child_manager.set_property("column-span", 1);
-
             // Build title label & add to grid
             let label_value: String =
-                String::from("Please edit the list of Views using 'Edit Views' button");
+                String::from("Please add a View using 'Add View' button");
             let new_title_label: Label = Label::builder()
                 .label(&label_value)
                 .name("default")
                 .hexpand(true)
                 .hexpand_set(true)
                 .halign(Align::Center)
-                //.valign(Align::Center)
                 .margin_top(40)
                 .margin_bottom(40)
-                //.width_chars(space)
                 .build();
             new_grid.attach(&new_title_label, 1, 1, 1, 1);
 
@@ -217,18 +202,18 @@ impl GpuPage {
             // Fetch grid's layout manager
             match new_grid.layout_manager() {
                 Some(grid_manager) => {
-                    // Create edit button
-                    let edit_button: Button = Button::builder()
-                        .name("edit_button")
-                        .label("Edit View")
+                    // Create add_view_button
+                    let add_view_button: Button = Button::builder()
+                        .name("add_view_button")
+                        .label("Add View")
                         .margin_start(12)
                         .margin_end(12)
                         .margin_top(12)
                         .margin_bottom(12)
                         .halign(Align::Center)
                         .build();
-                    new_grid.attach(&edit_button, 0, 80, 1, 1);
-                    edit_button.connect_clicked(clone!(@weak self as gpage => move |_| {
+                    new_grid.attach(&add_view_button, 0, 80 as i32, 1, 1);
+                    add_view_button.connect_clicked(clone!(@weak self as gpage => move |_| {
                         // Create modification window
                         // Borrow (mutable) the window's container
                         let mut modification_window_container: RefMut<ModificationWindowContainer> = gpage.imp().modification_window.borrow_mut();
@@ -239,18 +224,18 @@ impl GpuPage {
                         // Check if an object is stored
                         match &modification_window_container.window {
                             Some(_window) => {
-                                println!("..window exists");//DEBUG
+                                // println!("..window exists");//DEBUG
 
                                 // Check if the window is already open
                                 match modification_window_container.open {
                                     false => {
-                                        println!("....opening window");//DEBUG
+                                        // println!("....opening window");//DEBUG
 
                                         // Create an app object
                                         let app: Application = Application::builder().application_id(APP_ID).build();
 
                                         // Create new modification window
-                                        let new_modification_window: ModificationWindow = ModificationWindow::new(&app, 0, &gpage.property::<String>("uuid"), &gpage);
+                                        let new_modification_window: ModificationWindow = ModificationWindow::new(&app, -1, &gpage.property::<String>("uuid"), &gpage);
 
                                         // Show new modification window
                                         new_modification_window.show();
@@ -265,14 +250,14 @@ impl GpuPage {
                                 }
                             },
                             None => {
-                                println!("..window does not exist");//DEBUG
-                                println!("....opening window");//DEBUG
+                                // println!("..window does not exist");//DEBUG
+                                // println!("....opening window");//DEBUG
 
                                 // Create an app object
                                 let app: Application = Application::builder().application_id(APP_ID).build();
 
                                 // Create modification window
-                                let new_modification_window: ModificationWindow = ModificationWindow::new(&app, 0, &gpage.property::<String>("uuid"), &gpage);
+                                let new_modification_window: ModificationWindow = ModificationWindow::new(&app, -1, &gpage.property::<String>("uuid"), &gpage);
 
                                 // Show new modification window
                                 new_modification_window.show();
@@ -288,7 +273,7 @@ impl GpuPage {
                     }));
 
                     // Set layout properties of button
-                    let child_manager: LayoutChild = grid_manager.layout_child(&edit_button);
+                    let child_manager: LayoutChild = grid_manager.layout_child(&add_view_button);
                     child_manager.set_property("row-span", 2);
                     child_manager.set_property("column-span", 2);
                 }
@@ -316,7 +301,7 @@ impl GpuPage {
 
             // For each loaded view
             for index in 0..loaded_views_data.len() {
-                println!("item: `{}`", loaded_views_data[index]); //TEST
+                // println!("item: `{}`", loaded_views_data[index]); //TEST
 
                 // Split current item into the 4 parts
                 let parts: Vec<&str> = loaded_views_data[index].split(':').collect::<Vec<&str>>();
@@ -354,12 +339,12 @@ impl GpuPage {
                 // Grab all saved properties
                 let properties: Vec<String> = self.check_properties_for_view(&loaded_views[index]);
 
+                // println!("GOT {} PROPERTIES FOR VIEW {}", properties.len(), index);
+
                 // Add property items to the final list
                 for prop in &properties {
                     props.push(prop.as_str().clone().to_owned());
                 }
-
-                // println!("GOT {} PROPERTIES FOR VIEW {}", properties.len(), index);
 
                 // Create new view
                 let new_grid_name: String = index.to_string() + "_grid";
@@ -382,6 +367,23 @@ impl GpuPage {
                     self.create_properties(new_grid, properties, labels);
                 let new_view_grid: Grid = output.0;
                 labels = output.1;
+
+                // If no labels (from no properties)
+                if labels.len() == 0 {
+                    // Build title label & add to grid
+                    let label_value: String =
+                        String::from("Please edit this View using 'Edit View' button");
+                    let new_title_label: Label = Label::builder()
+                        .label(&label_value)
+                        .name("default")
+                        .hexpand(true)
+                        .hexpand_set(true)
+                        .halign(Align::Center)
+                        .margin_top(40)
+                        .margin_bottom(40)
+                        .build();
+                    new_view_grid.attach(&new_title_label, 1, 1, 1, 1);
+                }
 
                 // Add edit button for current view
                 // Fetch grid's layout manager
@@ -409,12 +411,12 @@ impl GpuPage {
                             // Check if an object is stored
                             match &modification_window_container.window {
                                 Some(_window) => {
-                                    println!("..window exists");//DEBUG
+                                    // println!("..window exists");//DEBUG
 
                                     // Check if the window is already open
                                     match modification_window_container.open {
                                         false => {
-                                            println!("....opening window");//DEBUG
+                                            // println!("....opening window");//DEBUG
 
                                             // Create an app object
                                             let app: Application = Application::builder().application_id(APP_ID).build();
@@ -435,8 +437,8 @@ impl GpuPage {
                                     }
                                 },
                                 None => {
-                                    println!("..window does not exist");//DEBUG
-                                    println!("....opening window");//DEBUG
+                                    // println!("..window does not exist");//DEBUG
+                                    // println!("....opening window");//DEBUG
 
                                     // Create an app object
                                     let app: Application = Application::builder().application_id(APP_ID).build();
@@ -461,6 +463,82 @@ impl GpuPage {
                         let child_manager: LayoutChild = grid_manager.layout_child(&edit_button);
                         child_manager.set_property("row-span", 2);
                         child_manager.set_property("column-span", 2);
+
+
+                        // Create add_view_button
+                        let add_view_button: Button = Button::builder()
+                            .name("add_view_button")
+                            .label("Add View")
+                            .margin_start(12)
+                            .margin_end(12)
+                            .margin_top(12)
+                            .margin_bottom(12)
+                            .halign(Align::Center)
+                            .build();
+                        new_view_grid.attach(&add_view_button, 0, 82 as i32, 1, 1);
+                        add_view_button.connect_clicked(clone!(@weak self as gpage => move |_| {
+                            // Create modification window
+                            // Borrow (mutable) the window's container
+                            let mut modification_window_container: RefMut<ModificationWindowContainer> = gpage.imp().modification_window.borrow_mut();
+
+                            // Get state from settings
+                            modification_window_container.open = gpage.imp().get_setting::<bool>("modification-open");
+
+                            // Check if an object is stored
+                            match &modification_window_container.window {
+                                Some(_window) => {
+                                    // println!("..window exists");//DEBUG
+
+                                    // Check if the window is already open
+                                    match modification_window_container.open {
+                                        false => {
+                                            // println!("....opening window");//DEBUG
+
+                                            // Create an app object
+                                            let app: Application = Application::builder().application_id(APP_ID).build();
+
+                                            // Create new modification window
+                                            let new_modification_window: ModificationWindow = ModificationWindow::new(&app, -1, &gpage.property::<String>("uuid"), &gpage);
+
+                                            // Show new modification window
+                                            new_modification_window.show();
+
+                                            // Store object and state back in container
+                                            modification_window_container.open = true;
+                                            modification_window_container.window = Some(new_modification_window);
+                                        },
+                                        true => {
+                                            println!("....window already open");//DEBUG
+                                        },
+                                    }
+                                },
+                                None => {
+                                    // println!("..window does not exist");//DEBUG
+                                    // println!("....opening window");//DEBUG
+
+                                    // Create an app object
+                                    let app: Application = Application::builder().application_id(APP_ID).build();
+
+                                    // Create modification window
+                                    let new_modification_window: ModificationWindow = ModificationWindow::new(&app, -1, &gpage.property::<String>("uuid"), &gpage);
+
+                                    // Show new modification window
+                                    new_modification_window.show();
+
+                                    // Store object and state back in container
+                                    modification_window_container.open = true;
+                                    modification_window_container.window = Some(new_modification_window);
+                                },
+                            }
+
+                            // Set new state in settings
+                            gpage.imp().update_setting::<bool>("modification-open", modification_window_container.open);
+                        }));
+
+                        // Set layout properties of button
+                        let child_manager: LayoutChild = grid_manager.layout_child(&add_view_button);
+                        child_manager.set_property("row-span", 2);
+                        child_manager.set_property("column-span", 2);
                     }
                     None => panic!("Cannot fetch layout manager of grid.."),
                 }
@@ -481,7 +559,12 @@ impl GpuPage {
                 new_item.set_icon_name(Some("package-x-generic-symbolic"));
             }
 
-            self.create_updater(labels, props);
+            // if properties exist, call create_updater() function to add time-delayed callback to update appropriate labels
+            if props.len() > 0 {
+                self.create_updater(labels, props);
+            } // else {
+            //     println!("No properties, no callbacks!");
+            // }
 
             // Replace current view stack
             self.imp().replace_stack(Some(&new_stack));
@@ -511,17 +594,14 @@ impl GpuPage {
         // Load list of Properties for current Page
         let loaded_properties_data: Vec<String> =
             settings_obj.get::<Vec<String>>("viewcomponentconfigs");
-        // println!("items saved:`{}`", loaded_properties_data.len()); //TEST
+        // println!("items saved #: `{}`", loaded_properties_data.len()); //TEST
+        // println!("items saved: `{:?}`", loaded_properties_data); //TEST
 
         // If present in saved settings, use! otherwise follow below defaults
         if let 0 = loaded_properties_data.len() {
-            match self
-                .property::<Provider>("provider")
-                .property::<i32>("provider-type")
-            {
-                -1 => vec![String::from("choose_provider")],
-                _ => vec![String::from("choose_properties")],
-            }
+            // println!("no properties.."); //TEST
+
+            vec![]
         } else {
             // Create temporary structure for sorting loaded data
             let mut loaded_properties: Vec<String> =
@@ -552,8 +632,7 @@ impl GpuPage {
                         match parts[2].parse::<usize>() {
                             Ok(position) => {
                                 if position <= loaded_properties_data.len() {
-                                    // println!("VALID POSITION INDEX: `{}`", position); //TEST
-
+                                    // println!("VALID POSITION INDEX: `{}`", offset_position); //TEST
                                     // println!("VALID PROPERTY: `{}`", parts[3]); //TEST
 
                                     // Add to final list
@@ -596,6 +675,7 @@ impl GpuPage {
         properties: Vec<String>,
         mut labels: Vec<Label>,
     ) -> (Grid, Vec<Label>) {
+
         // Load properties from struct
         let properties_store: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(properties));
 

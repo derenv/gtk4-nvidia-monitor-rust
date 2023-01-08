@@ -1382,7 +1382,7 @@ impl MainWindow {
      */
     #[template_callback]
     fn refresh_cards(&self, _button: &Button) {
-        println!("GPU Scan Button Pressed!"); //TEST
+        // println!("GPU Scan Button Pressed!"); //TEST
 
         // Clear current ActionRow objects from GtkListBox
         let mut done: bool = false;
@@ -1512,7 +1512,7 @@ impl MainWindow {
                             Ok(gpu_uuids) => {
                                 // Construct a row for each GPU
                                 for uuid in gpu_uuids {
-                                    println!("UUID: `{}`", uuid); //TEST
+                                    // println!("UUID: `{}`", uuid); //TEST
                                                                   // Grab current provider
                                     let provider_container: Option<Provider> = self.provider.take();
                                     self.provider.set(provider_container.clone());

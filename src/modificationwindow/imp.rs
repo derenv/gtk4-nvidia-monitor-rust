@@ -282,7 +282,36 @@ impl ModificationWindow {
             self.update_setting::<Vec<String>>("viewconfigs", vec![new_viewconfig]);
 
             // Get current components
-            let current_components: Vec<ViewComponent> = self.view_components_list.take();
+            let mut current_components: Vec<ViewComponent> = self.view_components_list.take();
+            let dropdowns: Vec<DropDown> = self.dropdowns.take();
+            println!("number of stored dropdowns: `{}`", dropdowns.len()); //TEST
+            // Update list using current state of dropdowns
+            for index in 0..current_components.len() {
+                println!("comp: `{}`", current_components[index].name); //TEST
+                println!(" pos: `{}`", current_components[index].position); //TEST
+
+                // Get current dropdown
+                let current_dropdown: &DropDown = &dropdowns[index];
+                let current_dropdown_value: usize = current_dropdown.selected() as usize;
+
+                // From list of possible properties
+                //TODO: Update to use global list
+                let items: [&str; 8] = [
+                    "none",
+                    "util",
+                    "temp",
+                    "power_usage",
+                    "memory_usage",
+                    "memory_total",
+                    "mem_ctrl_util",
+                    "fan_speed",
+                ];
+
+                // Update stored name if required
+                if current_components[index].name != items[current_dropdown_value] {
+                    current_components[index].name = items[current_dropdown_value].to_string();
+                }
+            }
 
             // Create new viewcomponentconfigs
             let mut final_viewcomponentconfigs: Vec<String> = vec![];
@@ -400,6 +429,7 @@ impl ModificationWindow {
                 // Get list current components
                 let mut current_components: Vec<ViewComponent> = self.view_components_list.take();
                 let dropdowns: Vec<DropDown> = self.dropdowns.take();
+                // println!("number of stored components: `{}`", current_components.len()); //TEST
                 // println!("number of stored dropdowns: `{}`", dropdowns.len()); //TEST
                 // Update list using current state of dropdowns
                 for index in 0..current_components.len() {
@@ -555,7 +585,7 @@ impl ModificationWindow {
             } else {
                 // Create new viewconfig
                 //UUID:POSITION:VIEW_TITLE
-                let new_viewconfig: String = uuid.clone() + ":0:" + &new_view_title;
+                let new_viewconfig: String = uuid.clone() + ":" + &self.new_view_id.clone().get().to_string() + ":" + &new_view_title;
 
                 // Update viewconfigs item with new viewconfig
                 stored_views_data.push(new_viewconfig);
@@ -564,7 +594,37 @@ impl ModificationWindow {
                 self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
 
                 // Get current components
-                let current_components: Vec<ViewComponent> = self.view_components_list.take();
+                let mut current_components: Vec<ViewComponent> = self.view_components_list.take();
+                let dropdowns: Vec<DropDown> = self.dropdowns.take();
+                // println!("number of stored components: `{}`", current_components.len()); //TEST
+                // println!("number of stored dropdowns: `{}`", dropdowns.len()); //TEST
+                // Update list using current state of dropdowns
+                for index in 0..current_components.len() {
+                    // println!("comp: `{}`", current_components[index].name); //TEST
+                    // println!(" pos: `{}`", current_components[index].position); //TEST
+
+                    // Get current dropdown
+                    let current_dropdown: &DropDown = &dropdowns[index];
+                    let current_dropdown_value: usize = current_dropdown.selected() as usize;
+
+                    // From list of possible properties
+                    //TODO: Update to use global list
+                    let items: [&str; 8] = [
+                        "none",
+                        "util",
+                        "temp",
+                        "power_usage",
+                        "memory_usage",
+                        "memory_total",
+                        "mem_ctrl_util",
+                        "fan_speed",
+                    ];
+
+                    // Update stored name if required
+                    if current_components[index].name != items[current_dropdown_value] {
+                        current_components[index].name = items[current_dropdown_value].to_string();
+                    }
+                }
 
                 // Create new viewcomponentconfigs
                 // For each selected property component

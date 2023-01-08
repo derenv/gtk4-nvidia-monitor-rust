@@ -174,15 +174,29 @@ impl ModificationWindow {
         let mut view_title: String = String::from("Default");
 
         // Retrieve name of current view
-        for item in view_title_list {
-            let sub_items: Vec<&str> = item.split(':').collect();
-            if sub_items[1] == view_id {
-                view_title = sub_items[2].to_owned();
-                break;
+        if view_title_list.len() == 0 {
+            // First view being added
+            // Set new view id ('0' as is first view)
+            self.set_property("new-view-id", 0);
+        } else if view_id == "-1" {
+            // Create new view title and id
+            view_title = String::from("New");
+            self.set_property("new-view-id", view_title_list.len() as i32);
+
+            // println!("   View ID: {}", view_id); //TEST
+            // println!("View Title: {}", view_title); //TEST
+        } else {
+            for item in view_title_list {
+                let sub_items: Vec<&str> = item.split(':').collect();
+                if sub_items[1] == view_id {
+                    view_title = sub_items[2].to_owned();
+                    break;
+                }
             }
+
+            // println!("   View ID: {}", view_id); //TEST
+            // println!("View Title: {}", view_title); //TEST
         }
-        // println!("   View ID: {}", view_id); //TEST
-        // println!("View Title: {}", view_title); //TEST
 
         // Store name of current view
         self.set_property("old-view-title", view_title.clone());
@@ -200,7 +214,8 @@ impl ModificationWindow {
 
         // println!("LETS GET LOOPIN"); //TEST
         if view_components_list.len() == 0 {
-            // TODO
+            // TODO: View that needs components
+            //
         } else {
             for index in 0..view_components_list.len() {
                 // println!("item: `{}`", view_components_list[index]); //TEST
@@ -365,21 +380,26 @@ impl ModificationWindow {
             }),
         );
         // Delete
-        self.imp().view_modification_delete_button.connect_clicked(
-            clone!(@weak self as window => move |_| {
-                // Delete the view
-                // println!("DELETING VIEW.."); //TEST
-                window.imp().delete_stored_data();
-                // println!("VIEW DELETED.."); //TEST
+        if view_id == "-1" {
+            // If a new view, we don't need to delete
+            self.imp().view_modification_delete_button.hide();
+        } else {
+            self.imp().view_modification_delete_button.connect_clicked(
+                clone!(@weak self as window => move |_| {
+                    // Delete the view
+                    // println!("DELETING VIEW.."); //TEST
+                    window.imp().delete_stored_data();
+                    // println!("VIEW DELETED.."); //TEST
 
-                // TODO: Emit signal to notify changes made to view (and thus reload required)
-                let modification_window_container: RefMut<ParentContainer> = window.imp().parent_window.borrow_mut();
-                let _result = modification_window_container.window.as_ref().unwrap().emit_by_name::<i32>("update-views", &[&(-1).to_value()]);
+                    // TODO: Emit signal to notify changes made to view (and thus reload required)
+                    let modification_window_container: RefMut<ParentContainer> = window.imp().parent_window.borrow_mut();
+                    let _result = modification_window_container.window.as_ref().unwrap().emit_by_name::<i32>("update-views", &[&(-1).to_value()]);
 
-                // Close window
-                window.close();
-            }),
-        );
+                    // Close window
+                    window.close();
+                }),
+            );
+        }
     }
 
     /**
@@ -419,21 +439,7 @@ impl ModificationWindow {
      * TODO
      */
     fn setup_callbacks(&self) {
-        // Setup callback for activation of the entry
-        /*
-        self.imp()
-            .entry
-            .connect_activate(clone!(@weak self as window => move |_| {
-                window.new_task();
-            }));
-
-        // Setup callback for clicking (and the releasing) the icon of the entry
-        self.imp().entry.connect_icon_release(
-            clone!(@weak self as window => move |_,_| {
-                window.new_task();
-            }),
-        );
-        */
+        //
     }
 
     /**
