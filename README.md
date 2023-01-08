@@ -3,71 +3,70 @@ SPDX-FileCopyrightText: 2022 Deren Vural
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
+[![wakatime](https://wakatime.com/badge/user/8ce81774-1d46-4c72-8a15-b5cf4032138f/project/64d5b278-0a3f-4b93-9a34-5cf88c7a8a3a.svg)](https://wakatime.com/badge/user/8ce81774-1d46-4c72-8a15-b5cf4032138f/project/64d5b278-0a3f-4b93-9a34-5cf88c7a8a3a) ![CI](https://github.com/derenv/gtk4-nvidia-monitor-rust/actions/workflows/rust.yml/badge.svg) [![Test Coverage](https://codecov.io/gh/derenv/gtk4-nvidia-monitor-rust/branch/main/graph/badge.svg?token=PHDU5O3VFZ)](https://codecov.io/gh/derenv/gtk4-nvidia-monitor-rust)[![License: GPL v3.0+](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+
 # Description
+Initially intended as a rewrite of [gnome-nvidia-extension](https://github.com/ethanwharris/gnome-nvidia-extension) as a practise Rust project, this app has developed into a tool for interacting with GPU management interfaces like Nvidia's [nvidia-settings](https://github.com/NVIDIA/nvidia-settings), [nvidia-smi](https://developer.nvidia.com/nvidia-system-management-interface) and [optimus](https://www.nvidia.com/en-gb/geforce/technologies/optimus/). This includes viewing statistics like temperature, clock speeds, VRAM usage but also setting fan-profiles and GPU overclocks (like [GreenWithEnvy](https://gitlab.com/leinardi/gwe/), a major inspiration for this app).
 
-[![wakatime](https://wakatime.com/badge/user/8ce81774-1d46-4c72-8a15-b5cf4032138f/project/64d5b278-0a3f-4b93-9a34-5cf88c7a8a3a.svg)](https://wakatime.com/badge/user/8ce81774-1d46-4c72-8a15-b5cf4032138f/project/64d5b278-0a3f-4b93-9a34-5cf88c7a8a3a)
+The intention is to replace both GPU overclocking software like [GreenWithEnvy](https://gitlab.com/leinardi/gwe/) and system tray monitoring programs/extensions like [gnome-nvidia-extension](https://github.com/ethanwharris/gnome-nvidia-extension) with a single interface, to simplify GPU management. Hopefully the app can be extended to AMD's equivalent GPU management interfaces (if they exist) at some point (see the [Roadmap](docs/ROADMAP.md) for the rest of the plan for this app)
 
-![CI](https://github.com/derenv/gtk4-nvidia-monitor-rust/actions/workflows/rust.yml/badge.svg)
-
-[![Test Coverage](https://codecov.io/gh/derenv/gtk4-nvidia-monitor-rust/branch/main/graph/badge.svg?token=PHDU5O3VFZ)](https://codecov.io/gh/derenv/gtk4-nvidia-monitor-rust)
-
-This project is a rewrite of gnome-nvidia-extension in Rust - intended as a practise Rust project.
+The app is written entirely in [gtk-rs](https://gtk-rs.org/), using [gtk4](https://github.com/gtk-rs/gtk4-rs) and [libadwaita](https://world.pages.gitlab.gnome.org/Rust/libadwaita-rs/).
 
 # Usage
-
-Use the following to compile the project:
-
+To first install/update the settings schema, use the following:
 ```bash
-cargo clean; cargo run
+bash install_schemas.sh
+```
+
+Then, use the following to compile the project:
+```bash
+cargo clean; cargo build
+```
+
+Finally, run the app:
+```bash
+cargo run
 ```
 
 # Resources
-
-## Original Extension
-
-[Original version, written in GTK-JS](https://github.com/ethanwharris/gnome-nvidia-extension)
-
+## Applications
+- [Original version, written in GTK-JS](https://github.com/ethanwharris/gnome-nvidia-extension)
+- [nvidia-settings](https://github.com/NVIDIA/nvidia-settings)
+- [nvidia-smi](https://developer.nvidia.com/nvidia-system-management-interface)
+- [optimus](https://www.nvidia.com/en-gb/geforce/technologies/optimus/)
+- [GreenWithEnvy (GWE)]()
 ## Documentation
-
 - [GTK-RS Project website](https://gtk-rs.org/)
 - [GTK-RS Book](https://gtk-rs.org/gtk4-rs/stable/latest/book/introduction.html)
 - [GTK-RS Documentation](https://gtk-rs.org/gtk-rs-core/stable/latest/docs/)
 - [GLib Documentation](https://docs.gtk.org/glib/index.html)
 - [GObject Documentation](https://docs.gtk.org/gobject/index.html)
-
-## GitHub
-
+- [Gio Documentation](https://docs.gtk.org/gio/index.html)
+- [LibAdwaita-rs Documentation](https://relm4.org/docs/stable/libadwaita/index.html)
+- [Gnome HIG](https://developer.gnome.org/hig/index.html)
+## Git
 - [GTK-RS Organisation on GitHub](https://github.com/gtk-rs)
 - [GTK-RS Core](https://github.com/gtk-rs/gtk-rs-core)
-- [GTK3-RS](https://github.com/gtk-rs/gtk3-rs)
 - [GTK4-RS](https://github.com/gtk-rs/gtk4-rs)
+- [LibAdwaita-rs](https://world.pages.gitlab.gnome.org/Rust/libadwaita-rs/)
 
 ## Crates
-
 ### GTK libraries
+- [gtk4](https://crates.io/crates/gtk4)
+- [gdk4](https://crates.io/crates/gdk4)
+- [gtk4-macros](https://crates.io/crates/gtk4-macros)
+- [LibAdwaita](https://crates.io/crates/libadwaita)
 
-- [GTK4](https://crates.io/crates/gtk4)
-- [GLib](https://crates.io/crates/glib/0.15.12)
-- [Gio](https://crates.io/crates/gio/0.15.12)
-
+## Examples & Discussion
+These are intended as pointers for others creating gtk-rs projects, as they took a while to wrap my head around (or i haven't yet).
 ### System Tray Library
-
-[libappindicator](https://crates.io/crates/libappindicator/0.7.1)
-
-There are other ways of doing this - libappindicator seems broken..
-
-## Examples
-
-- [GObject Subclassing (GTK3)](https://github.com/gtk-rs/gtk3-rs/tree/master/examples/basic_subclass)
-- [GObject Subclassing (GTK4)](https://github.com/gtk-rs/gtk4-rs/tree/8b0c4cbd35912b9f8685d40f796b0806c52119ab/book/listings/todo/1)
-- [System Tray (libappindicator)](https://github.com/tauri-apps/libappindicator-rs/blob/main/examples/hello.rs)
-
-## System Tray Discussion
-
-[Reddit Post](https://www.reddit.com/r/gnome/comments/7x7qc6/by_what_logic_was_system_tray_removed/)
-
-The post above has possible alternatives to libappindicator in the comments
+(see [System Tray](docs/system_tray.md) for discussion)
+### Subclassing
+(see [Subclassing](docs/subclassing.md) for discussion)
+### Async
+(see [Async](docs/async.md) for discussion)
+### Signals
+(see [Signals](docs/signals.md) for discussion)
 
 # License
-
-[![License: GPL v3.0+](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+The app is licensed under [GPL3.0-or-later](https://spdx.org/licenses/GPL-3.0-or-later.html)
