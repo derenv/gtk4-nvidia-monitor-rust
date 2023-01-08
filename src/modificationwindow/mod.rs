@@ -356,7 +356,6 @@ impl ModificationWindow {
             .view_components_amount_input
             .configure(Some(&adjustment), 1.0, 0);
 
-
         // Create adjustment settings for view position SpinButton
         // NOTE: linked to the upper limit to the total views
         if view_id == "-1" {
@@ -366,8 +365,14 @@ impl ModificationWindow {
                 .view_position_input
                 .configure(Some(&adjustment), 1.0, 0);
         } else {
-            let adjustment: Adjustment =
-                Adjustment::new(view_id.parse::<f64>().expect("Missing `old-view-id`..") + 1.0, 1.0, view_amount as f64, 1.0, 2.0, 0.0);
+            let adjustment: Adjustment = Adjustment::new(
+                view_id.parse::<f64>().expect("Missing `old-view-id`..") + 1.0,
+                1.0,
+                view_amount as f64,
+                1.0,
+                2.0,
+                0.0,
+            );
             self.imp()
                 .view_position_input
                 .configure(Some(&adjustment), 1.0, 0);

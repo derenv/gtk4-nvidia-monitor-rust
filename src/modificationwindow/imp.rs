@@ -149,7 +149,12 @@ impl ModificationWindow {
         self.new_view_title.set(new_view_title.clone());
 
         // Get old ID
-        let old_id: i32 = self.old_view_id.clone().get().expect("`old-view-id` invalid..").to_owned();
+        let old_id: i32 = self
+            .old_view_id
+            .clone()
+            .get()
+            .expect("`old-view-id` invalid..")
+            .to_owned();
 
         // If present in saved settings
         if stored_views_data.len() == 0 {
@@ -913,7 +918,6 @@ impl ModificationWindow {
         // Update stored ID
         self.new_view_id.set(new_amount - 1);
     }
-
 
     /**
      * Name:
