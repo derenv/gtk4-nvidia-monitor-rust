@@ -185,8 +185,7 @@ impl GpuPage {
             content_grid.attach(&new_grid, 0, 0 as i32, 100, 12);
 
             // Build title label & add to grid
-            let label_value: String =
-                String::from("Please add a View using 'Add View' button");
+            let label_value: String = String::from("Please add a View using 'Add View' button");
             let new_title_label: Label = Label::builder()
                 .label(&label_value)
                 .name("default")
@@ -464,7 +463,6 @@ impl GpuPage {
                         child_manager.set_property("row-span", 2);
                         child_manager.set_property("column-span", 2);
 
-
                         // Create add_view_button
                         let add_view_button: Button = Button::builder()
                             .name("add_view_button")
@@ -536,7 +534,8 @@ impl GpuPage {
                         }));
 
                         // Set layout properties of button
-                        let child_manager: LayoutChild = grid_manager.layout_child(&add_view_button);
+                        let child_manager: LayoutChild =
+                            grid_manager.layout_child(&add_view_button);
                         child_manager.set_property("row-span", 2);
                         child_manager.set_property("column-span", 2);
                     }
@@ -563,8 +562,8 @@ impl GpuPage {
             if props.len() > 0 {
                 self.create_updater(labels, props);
             } // else {
-            //     println!("No properties, no callbacks!");
-            // }
+              //     println!("No properties, no callbacks!");
+              // }
 
             // Replace current view stack
             self.imp().replace_stack(Some(&new_stack));
@@ -675,7 +674,6 @@ impl GpuPage {
         properties: Vec<String>,
         mut labels: Vec<Label>,
     ) -> (Grid, Vec<Label>) {
-
         // Load properties from struct
         let properties_store: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(properties));
 

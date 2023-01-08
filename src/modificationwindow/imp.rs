@@ -284,11 +284,11 @@ impl ModificationWindow {
             // Get current components
             let mut current_components: Vec<ViewComponent> = self.view_components_list.take();
             let dropdowns: Vec<DropDown> = self.dropdowns.take();
-            println!("number of stored dropdowns: `{}`", dropdowns.len()); //TEST
+            // println!("number of stored dropdowns: `{}`", dropdowns.len()); //TEST
             // Update list using current state of dropdowns
             for index in 0..current_components.len() {
-                println!("comp: `{}`", current_components[index].name); //TEST
-                println!(" pos: `{}`", current_components[index].position); //TEST
+                // println!("comp: `{}`", current_components[index].name); //TEST
+                // println!(" pos: `{}`", current_components[index].position); //TEST
 
                 // Get current dropdown
                 let current_dropdown: &DropDown = &dropdowns[index];
@@ -585,7 +585,11 @@ impl ModificationWindow {
             } else {
                 // Create new viewconfig
                 //UUID:POSITION:VIEW_TITLE
-                let new_viewconfig: String = uuid.clone() + ":" + &self.new_view_id.clone().get().to_string() + ":" + &new_view_title;
+                let new_viewconfig: String = uuid.clone()
+                    + ":"
+                    + &self.new_view_id.clone().get().to_string()
+                    + ":"
+                    + &new_view_title;
 
                 // Update viewconfigs item with new viewconfig
                 stored_views_data.push(new_viewconfig);
