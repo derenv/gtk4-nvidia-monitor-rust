@@ -213,10 +213,7 @@ impl ModificationWindow {
         let mut dropdowns: Vec<DropDown> = vec![];
 
         // println!("LETS GET LOOPIN"); //TEST
-        if view_components_list.len() == 0 {
-            // TODO: View that needs components
-            //
-        } else {
+        if view_components_list.len() != 0 {
             for index in 0..view_components_list.len() {
                 // println!("item: `{}`", view_components_list[index]); //TEST
                 let sub_items: Vec<&str> = view_components_list[index].split(':').collect();

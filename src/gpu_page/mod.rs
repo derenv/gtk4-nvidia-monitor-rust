@@ -24,7 +24,7 @@ use imp::ModificationWindowContainer;
 // Imports
 use adwaita::{gio, glib, Application, ViewStack};
 use gio::Settings;
-use glib::{clone, closure, closure_local, translate::FromGlib, Object, SourceId};
+use glib::{clone, closure, translate::FromGlib, Object, SourceId};
 use gtk::{prelude::*, subclass::prelude::*, Align, Button, Grid, Label, LayoutChild, Orientation};
 use std::{cell::RefMut, sync::Arc, sync::Mutex, sync::MutexGuard};
 

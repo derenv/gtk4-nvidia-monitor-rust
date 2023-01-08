@@ -117,6 +117,113 @@ impl ObjectSubclass for ModificationWindow {
 impl ModificationWindow {
     /**
      * Name:
+     * reorder_data
+     *
+     * Description:
+     * Update view ID's given ???
+     *
+     * Made:
+     * 08/01/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    pub fn reorder_data(&self, remove: bool) {
+        // Get stored & const view data
+        let mut stored_views_data: Vec<String> = self.get_setting::<Vec<String>>("viewconfigs");
+        let uuid: String = self
+            .uuid
+            .clone()
+            .get()
+            .expect("missing `uuid`..")
+            .to_owned();
+        // println!("stored views: `{:?}`", stored_views_data); //TEST
+
+        // Get old + new view title
+        let new_view_title: String = self.new_view_title.take();
+        self.new_view_title.set(new_view_title.clone());
+
+        // If present in saved settings
+        if stored_views_data.len() == 0 {
+            // no views exist
+            panic!("no stored views: this shouldn't be happening!"); //programmer error
+        } else {
+            // Get list of stored viewconfigs
+            for index in 0..stored_views_data.len() {
+                // Split current viewconfig
+                let sub_items: Vec<&str> = stored_views_data[index].split(':').collect();
+                // println!("current title: `{}`", sub_items[2]); //TEST
+                // println!("searching for old title: `{}`", old_view_title); //TEST
+                // println!("searching for new title: `{}`", new_view_title); //TEST
+
+                // If viewconfig is for this GPU (i.e. has valid UUID) and IS NOT the current view
+                if (sub_items[0] == uuid, sub_items[2] != new_view_title) == (true, true) {
+                    // println!("This view needs updated: `{}`", stored_views_data[index]); //TEST
+
+                    // Get ID of current view
+                    let this_id: i32 = self.new_view_id.clone().get();
+
+                    // Split current viewconfig
+                    let sub_items: Vec<&str> = stored_views_data[index].split(':').collect();
+
+                    // Get ID of this config
+                    let mut new_id: i32 = sub_items[1]
+                        .parse::<i32>()
+                        .expect("Malformed gschema data..");
+
+                    // If viewconfig was at/above current view position
+                    match (new_id > this_id, new_id == this_id, remove) {
+                        (true, false, true) => {
+                            // println!("edit required"); //TEST
+                            // println!("removing"); //TEST
+
+                            // If above position & removing
+                            new_id -= 1; // Modify order
+
+                            // Update record
+                            stored_views_data[index] =
+                                uuid.clone() + ":" + &new_id.to_string() + ":" + sub_items[2];
+                        }
+                        (true, false, false) => {
+                            // println!("edit required"); //TEST
+                            // println!("reorder"); //TEST
+
+                            // If above position &  re-order
+                            new_id -= 1; // Modify order
+
+                            // Update record
+                            stored_views_data[index] =
+                                uuid.clone() + ":" + &new_id.to_string() + ":" + sub_items[2];
+                        }
+                        (false, true, false) => {
+                            // println!("edit required"); //TEST
+                            // println!("reorder"); //TEST
+
+                            // If same position & re-order
+                            new_id += 1; // Modify order
+
+                            // Update record
+                            stored_views_data[index] =
+                                uuid.clone() + ":" + &new_id.to_string() + ":" + sub_items[2];
+                        }
+                        _ => {
+                            // otherwise ignore
+                            // println!("NO edit required"); //TEST
+                        }
+                    }
+                }
+            }
+
+            // Update stored viewconfigs
+            self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
+        }
+    }
+
+    /**
+     * Name:
      * delete_stored_data
      *
      * Description:
@@ -157,7 +264,7 @@ impl ModificationWindow {
         // If present in saved settings
         if stored_views_data.len() == 0 {
             // no views exist
-            panic!("this shouldn't be happening!"); //programmer error
+            panic!("no stored views: this shouldn't be happening!"); //programmer error
         } else {
             // index of the view we are deleting
             let mut view_index: i32 = -1;
@@ -178,14 +285,21 @@ impl ModificationWindow {
             // If we found the view
             if view_index == -1 {
                 // Not found?
-                panic!("viwe not found: this shouldn't be happening!"); //programmer error
+                panic!("view not found: this shouldn't be happening!"); //programmer error
             } else {
                 // Delete viewconfig
                 stored_views_data.remove(view_index as usize);
 
+                let total_remaining: usize = stored_views_data.len();
+
                 // Update stored viewconfigs
                 self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
                 // println!("viewconfig updated.."); //TEST
+
+                // Re-order remaining views
+                if total_remaining != 0 {
+                    self.reorder_data(true);
+                }
 
                 // Delete associated viewcomponentconfigs
                 // println!("Initial components list: `{:?}`", stored_views_components); //TEST
@@ -396,6 +510,9 @@ impl ModificationWindow {
                         // Update stored viewconfigs
                         self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
                         // println!("viewconfig updated.."); //TEST
+
+                        // Re-order remaining views
+                        self.reorder_data(true);
                     }
                     // MATCH name is the same, id is different
                     (true, false) => {
@@ -413,6 +530,9 @@ impl ModificationWindow {
                         // Update stored viewconfigs
                         self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
                         // println!("viewconfig updated.."); //TEST
+
+                        // Re-order remaining views
+                        self.reorder_data(true);
                     }
                     // MATCH name is the same, id is the same
                     (true, true) => {
@@ -596,6 +716,9 @@ impl ModificationWindow {
 
                 // Update stored viewconfigs
                 self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
+
+                // Re-order remaining views
+                self.reorder_data(true);
 
                 // Get current components
                 let mut current_components: Vec<ViewComponent> = self.view_components_list.take();
