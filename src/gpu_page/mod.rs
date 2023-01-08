@@ -24,7 +24,7 @@ use imp::ModificationWindowContainer;
 // Imports
 use adwaita::{gio, glib, Application, ViewStack};
 use gio::Settings;
-use glib::{clone, translate::FromGlib, Object, SourceId};
+use glib::{clone, translate::FromGlib, Object, SourceId, closure_local, closure};
 use gtk::{prelude::*, subclass::prelude::*, Align, Button, Grid, Label, LayoutChild, Orientation};
 use std::{cell::RefMut, sync::Arc, sync::Mutex, sync::MutexGuard};
 
@@ -133,7 +133,7 @@ impl GpuPage {
             .expect("`settings` should be set in `setup_settings`.")
     }
 
-    /*
+    /**
      * Name:
      * load_views
      *
@@ -250,7 +250,7 @@ impl GpuPage {
                                         let app: Application = Application::builder().application_id(APP_ID).build();
 
                                         // Create new modification window
-                                        let new_modification_window: ModificationWindow = ModificationWindow::new(&app, 0, &gpage.property::<String>("uuid"));
+                                        let new_modification_window: ModificationWindow = ModificationWindow::new(&app, 0, &gpage.property::<String>("uuid"), &gpage);
 
                                         // Show new modification window
                                         new_modification_window.show();
@@ -258,10 +258,6 @@ impl GpuPage {
                                         // Store object and state back in container
                                         modification_window_container.open = true;
                                         modification_window_container.window = Some(new_modification_window);
-
-                                        // Re-create views & properties
-                                        //NOTE: any changes are saved to settings on close
-                                        gpage.load_views();
                                     },
                                     true => {
                                         println!("....window already open");//DEBUG
@@ -276,7 +272,7 @@ impl GpuPage {
                                 let app: Application = Application::builder().application_id(APP_ID).build();
 
                                 // Create modification window
-                                let new_modification_window: ModificationWindow = ModificationWindow::new(&app, 0, &gpage.property::<String>("uuid"));
+                                let new_modification_window: ModificationWindow = ModificationWindow::new(&app, 0, &gpage.property::<String>("uuid"), &gpage);
 
                                 // Show new modification window
                                 new_modification_window.show();
@@ -284,10 +280,6 @@ impl GpuPage {
                                 // Store object and state back in container
                                 modification_window_container.open = true;
                                 modification_window_container.window = Some(new_modification_window);
-
-                                // Re-create views & properties
-                                //NOTE: any changes are saved to settings on close
-                                gpage.load_views();
                             },
                         }
 
@@ -309,7 +301,7 @@ impl GpuPage {
             // Add object
             new_stack.add_titled(&new_grid, Some("default"), "Default");
             // Add icon
-            //NOTE: see https://world.pages.gitlab.gnome.org/Rust/libadwaita-rs/stable/latest/docs/libadwaita/struct.ViewStack.html
+            //NOTE: see <https://world.pages.gitlab.gnome.org/Rust/libadwaita-rs/stable/latest/docs/libadwaita/struct.ViewStack.html>
             //      function "add_titled_with_icon" not in stable yet
             let new_item = new_stack.page(&new_grid);
             new_item.set_icon_name(Some("package-x-generic-symbolic"));
@@ -428,7 +420,7 @@ impl GpuPage {
                                             let app: Application = Application::builder().application_id(APP_ID).build();
 
                                             // Create new modification window
-                                            let new_modification_window: ModificationWindow = ModificationWindow::new(&app, index as i32, &gpage.property::<String>("uuid"));
+                                            let new_modification_window: ModificationWindow = ModificationWindow::new(&app, index as i32, &gpage.property::<String>("uuid"), &gpage);
 
                                             // Show new modification window
                                             new_modification_window.show();
@@ -436,10 +428,6 @@ impl GpuPage {
                                             // Store object and state back in container
                                             modification_window_container.open = true;
                                             modification_window_container.window = Some(new_modification_window);
-
-                                            // Re-create views & properties
-                                            //NOTE: any changes are saved to settings on close
-                                            gpage.load_views();
                                         },
                                         true => {
                                             println!("....window already open");//DEBUG
@@ -454,7 +442,7 @@ impl GpuPage {
                                     let app: Application = Application::builder().application_id(APP_ID).build();
 
                                     // Create modification window
-                                    let new_modification_window: ModificationWindow = ModificationWindow::new(&app, index as i32, &gpage.property::<String>("uuid"));
+                                    let new_modification_window: ModificationWindow = ModificationWindow::new(&app, index as i32, &gpage.property::<String>("uuid"), &gpage);
 
                                     // Show new modification window
                                     new_modification_window.show();
@@ -462,10 +450,6 @@ impl GpuPage {
                                     // Store object and state back in container
                                     modification_window_container.open = true;
                                     modification_window_container.window = Some(new_modification_window);
-
-                                    // Re-create views & properties
-                                    //NOTE: any changes are saved to settings on close
-                                    gpage.load_views();
                                 },
                             }
 
@@ -491,7 +475,7 @@ impl GpuPage {
                 );
                 // println!("NEW STACK ITEM: `{}`", new_stack_item_name);//TEST
                 // Add icon
-                //NOTE: see https://world.pages.gitlab.gnome.org/Rust/libadwaita-rs/stable/latest/docs/libadwaita/struct.ViewStack.html
+                //NOTE: see <https://world.pages.gitlab.gnome.org/Rust/libadwaita-rs/stable/latest/docs/libadwaita/struct.ViewStack.html>
                 //      function "add_titled_with_icon" not in stable yet
                 let new_item = new_stack.page(&new_view_grid);
                 new_item.set_icon_name(Some("package-x-generic-symbolic"));
@@ -653,6 +637,7 @@ impl GpuPage {
                     // Decide on title label size
                     let space: i32;
                     let pretty_label: &str;
+                    //TODO: Update to use global list
                     match property.to_owned().as_str() {
                         "util" => {
                             pretty_label = "GPU Utilization";
@@ -690,6 +675,10 @@ impl GpuPage {
                             pretty_label = "Power Usage";
                             space = 8
                         }
+                        "none" => {
+                            pretty_label = "None";
+                            space = 5
+                        }
                         _ => {
                             pretty_label = property;
                             space = 5
@@ -721,7 +710,7 @@ impl GpuPage {
                     // Decide on content label size
                     let space: i32;
                     match property.to_owned().as_str() {
-                        "util" | "fan_speed" | "temp" => space = 5,
+                        "util" | "fan_speed" | "temp" | "none" => space = 5,
                         "memory_usage" | "memory_total" => space = 8,
                         _ => space = 5,
                     }
@@ -758,7 +747,7 @@ impl GpuPage {
         (grid, labels)
     }
 
-    /*
+    /**
      * Name:
      * create_updater
      *
@@ -840,23 +829,36 @@ impl GpuPage {
             match &mut *provider_container {
                 Some(current_provider) => {
                     for property in properties.iter() {
-                        // Grab current Property from provider
-                        match current_provider.get_gpu_data(&uuid, property) {
-                            Ok(property_value) => {
-                                // For each output label of the page
-                                for label in labels_container.iter() {
-                                    // println!("COMPARING AGAINST 1: `{}`", property);
-                                    // println!("COMPARING AGAINST 2: `{}`", label.widget_name());
+                        // println!("property: `{}`", property); //TEST
 
-                                    // Check if correct label
-                                    if *property.to_owned() == label.widget_name() {
-                                        label.set_label(&property_value);
-                                    }
+                        if property == "none" {
+                            // Check if correct label
+                            for label in labels_container.iter() {
+                                if *property.to_owned() == label.widget_name() {
+                                    label.set_label("N/A");
+                                    // no break here - could be duplicates
                                 }
                             }
-                            Err(err) => {
-                                println!("panicked when fetching gpu data: `{}`", err);
-                                return Continue(false);
+                        } else {
+                            // Grab current Property from provider
+                            match current_provider.get_gpu_data(&uuid, property) {
+                                Ok(property_value) => {
+                                    // For each output label of the page
+                                    for label in labels_container.iter() {
+                                        // println!("COMPARING AGAINST 1: `{}`", property);
+                                        // println!("COMPARING AGAINST 2: `{}`", label.widget_name());
+
+                                        // Check if correct label
+                                        if *property.to_owned() == label.widget_name() {
+                                            label.set_label(&property_value);
+                                            // no break here - could be duplicates
+                                        }
+                                    }
+                                }
+                                Err(err) => {
+                                    println!("panicked when fetching gpu data: `{}`", err);
+                                    return Continue(false);
+                                }
                             }
                         }
                     }
@@ -895,7 +897,33 @@ impl GpuPage {
      *
      */
     fn setup_widgets(&self) {
+        // Load stored views
         self.load_views();
+
+        // Connect closure to re-load (now updated) stored views when a modification window is closed
+        //NOTE: expected return value seems to be broken - look at imp.rs:395
+        self.connect_closure("update-views", false, closure!(move |gpage: GpuPage, current_view: i32| {
+            // println!("closure parameter: `{}`", current_view); //TEST
+
+            // Reload views
+            // println!("reloading views.."); //TEST
+            gpage.load_views();
+            // println!("views reloaded.."); //TEST
+
+            // If and edit is made (and not a delete)
+            if current_view != -1 {
+                // println!("switching to page: `{}`", current_view); //TEST
+
+                // Set to correct view
+                gpage.imp().view_switcher.stack().unwrap().set_visible_child_name((current_view.to_string() + "_stack_item").as_str());
+            }
+
+            // Return final value
+            //0.to_value()  // "Invalid return value: expected (), got gint",
+            0  // "Invalid return value: expected (), got gint",
+            //() // 'Closure returned no value but the caller expected a value of type gint'
+            //   // 'Closure returned no value but the caller expected a value of type gint'
+        }));
     }
 }
 

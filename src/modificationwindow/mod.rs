@@ -22,12 +22,13 @@ mod imp;
 
 // Imports
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ActionRow};
-use gio::{Settings, SimpleAction};
+use gio::Settings;
 use glib::{clone, GString, Object};
 use gtk::{Adjustment, DropDown, StringList};
+use std::cell::RefMut;
 
 // Modules
-use crate::{modificationwindow::imp::ViewComponent, APP_ID};
+use crate::{modificationwindow::imp::ViewComponent, modificationwindow::imp::ParentContainer, APP_ID, gpu_page::GpuPage};
 
 // GObject wrapper for ModificationWindow
 glib::wrapper! {
@@ -70,7 +71,12 @@ impl ModificationWindow {
      * Notes:
      *
      */
-    pub fn new(app: &adwaita::Application, view_id: i32, uuid: &str) -> Self {
+    pub fn new(
+        app: &adwaita::Application,
+        view_id: i32,
+        uuid: &str,
+        parent_window: &GpuPage
+    ) -> Self {
         let obj: ModificationWindow = Object::new(&[("application", app)])
             .expect("`ModificationWindow` should be  instantiable.");
 
@@ -78,6 +84,12 @@ impl ModificationWindow {
         obj.set_property("old-view-id", view_id);
         obj.set_property("new-view-id", view_id);
         obj.set_property("uuid", String::from(uuid));
+
+        // Set ref to parent
+        {
+            let mut modification_window_container: RefMut<ParentContainer> = obj.imp().parent_window.borrow_mut();
+            modification_window_container.window = Some(parent_window.to_owned());
+        }
 
         // Apply any setup actions that need the above properties
         obj.setup_settings();
@@ -165,8 +177,8 @@ impl ModificationWindow {
                 break;
             }
         }
-        println!("   View ID: {}", view_id); //TEST
-        println!("View Title: {}", view_title); //TEST
+        // println!("   View ID: {}", view_id); //TEST
+        // println!("View Title: {}", view_title); //TEST
 
         // Store name of current view
         self.set_property("old-view-title", view_title.clone());
@@ -174,20 +186,23 @@ impl ModificationWindow {
 
         // Retrieve list of in-use properties
         let view_components_list = self.settings().strv("viewcomponentconfigs");
-        println!("Possible Components: {:?}", view_components_list); //TEST
+        // println!("Possible Components: {:?}", view_components_list); //TEST
 
         // Create list of components in current view
         let mut final_components: Vec<ViewComponent> = vec![];
 
-        println!("LETS GET LOOPIN"); //TEST
+        // Create final list of dropdowns
+        let mut dropdowns: Vec<DropDown> = vec![];
+
+        // println!("LETS GET LOOPIN"); //TEST
         if view_components_list.len() == 0 {
             // TODO
         } else {
             for index in 0..view_components_list.len() {
-                println!("item: `{}`", view_components_list[index]); //TEST
+                // println!("item: `{}`", view_components_list[index]); //TEST
                 let sub_items: Vec<&str> = view_components_list[index].split(':').collect();
                 if sub_items[1] == self.property::<String>("old-view-title") {
-                    println!("View Component: {}", sub_items[3]); //TEST
+                    // println!("View Component: {}", sub_items[3]); //TEST
 
                     // Create new item
                     let new_item: ViewComponent = ViewComponent {
@@ -199,6 +214,7 @@ impl ModificationWindow {
                     final_components.push(new_item);
 
                     // Create list of options
+                    //TODO: Update to use global list
                     let items: [&str; 8] = [
                         "None",
                         "GPU Utilization",
@@ -220,38 +236,39 @@ impl ModificationWindow {
                         .build();
 
                     // Set current selected option
+                    //TODO: Update to use global list
                     match sub_items[3] {
                         "none" => {
                             dropdown_input.set_selected(0);
-                            println!("`none` active"); //TEST
+                            // println!("`none` active"); //TEST
                         }
                         "util" => {
                             dropdown_input.set_selected(1);
-                            println!("`util` active"); //TEST
+                            // println!("`util` active"); //TEST
                         }
                         "temp" => {
                             dropdown_input.set_selected(2);
-                            println!("`temp` active"); //TEST
+                            // println!("`temp` active"); //TEST
                         }
                         "power_usage" => {
                             dropdown_input.set_selected(3);
-                            println!("`power_usage` active"); //TEST
+                            // println!("`power_usage` active"); //TEST
                         }
                         "memory_usage" => {
                             dropdown_input.set_selected(4);
-                            println!("`memory_usage` active"); //TEST
+                            // println!("`memory_usage` active"); //TEST
                         }
                         "memory_total" => {
                             dropdown_input.set_selected(5);
-                            println!("`memory_total` active"); //TEST
+                            // println!("`memory_total` active"); //TEST
                         }
                         "mem_ctrl_util" => {
                             dropdown_input.set_selected(6);
-                            println!("`mem_ctrl_util` active"); //TEST
+                            // println!("`mem_ctrl_util` active"); //TEST
                         }
                         "fan_speed" => {
                             dropdown_input.set_selected(7);
-                            println!("`fan_speed` active"); //TEST
+                            // println!("`fan_speed` active"); //TEST
                         }
                         _ => panic!("..Unknown property in view config"),
                     }
@@ -272,22 +289,29 @@ impl ModificationWindow {
                     // Add dropdown_input to row
                     row.set_child(Some(&dropdown_input));
 
+                    // Add dropdown to list of dropdowns
+                    dropdowns.push(dropdown_input);
+                    // println!("new number of stored dropdowns: `{}`", dropdowns.len()); //TEST
+
                     // Add row to ListBox
-                    println!("inserting in position: `{}`", (1 + final_components.len())); //TEST
+                    // println!("inserting in position: `{}`", (1 + final_components.len())); //TEST
                     self.imp()
                         .view_modifier_listbox
                         .insert(&row, (1 + final_components.len()) as i32);
                 }
             }
         }
-        println!("DONE"); //TEST
+        // println!("DONE"); //TEST
+
+        // Set dropdowns
+        self.imp().dropdowns.set(dropdowns);
 
         // Get current number of view components before we get rid of this..
         let current_view_component_amount: f64 = final_components.len() as f64;
-        println!(
-            "amount of current components: `{}`",
-            current_view_component_amount
-        ); //TEST
+        // println!(
+        //     "amount of current components: `{}`",
+        //     current_view_component_amount
+        // ); //TEST
 
         // Bind components list to struct member
         self.imp().view_components_list.set(final_components);
@@ -314,12 +338,13 @@ impl ModificationWindow {
         self.imp().view_modification_apply_button.connect_clicked(
             clone!(@weak self as window => move |_| {
                 // Save any changes to the view
-                println!("APPLYING CHANGES..");
+                // println!("APPLYING CHANGES.."); //TEST
                 window.imp().update_stored_data();
-                println!("CHANGES APPLIED..");
+                // println!("CHANGES APPLIED.."); //TEST
 
                 // TODO: Emit signal to notify changes made to view (and thus reload required)
-                //
+                let modification_window_container: RefMut<ParentContainer> = window.imp().parent_window.borrow_mut();
+                let _result = modification_window_container.window.as_ref().unwrap().emit_by_name::<i32>("update-views", &[&window.property::<i32>("new-view-id")]);
 
                 // Close window
                 window.close();
@@ -329,7 +354,7 @@ impl ModificationWindow {
         self.imp().view_modification_cancel_button.connect_clicked(
             clone!(@weak self as window => move |_| {
                 // Cancel any changes to the view
-                println!("NOT APPLYING CHANGES..");
+                // println!("NOT APPLYING CHANGES..");
 
                 // Close window
                 window.close();
@@ -339,12 +364,13 @@ impl ModificationWindow {
         self.imp().view_modification_delete_button.connect_clicked(
             clone!(@weak self as window => move |_| {
                 // Delete the view
-                println!("DELETING VIEW..");
+                // println!("DELETING VIEW.."); //TEST
                 window.imp().delete_stored_data();
-                println!("VIEW DELETED..");
+                // println!("VIEW DELETED.."); //TEST
 
                 // TODO: Emit signal to notify changes made to view (and thus reload required)
-                //
+                let modification_window_container: RefMut<ParentContainer> = window.imp().parent_window.borrow_mut();
+                let _result = modification_window_container.window.as_ref().unwrap().emit_by_name::<i32>("update-views", &[&(-1).to_value()]);
 
                 // Close window
                 window.close();

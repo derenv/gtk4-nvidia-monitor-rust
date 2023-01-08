@@ -92,8 +92,8 @@ pub fn create_app() -> Application {
  * <https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/todo/5/main.rs>
  * <https://gtk-rs.org/gtk4-rs/stable/latest/book/todo_3.html>
  *
- * https://gtk-rs.org/gtk4-rs/git/book/actions.html
- * https://gtk-rs.org/gtk4-rs/git/docs/gtk4/struct.Window.html#actions
+ * <https://gtk-rs.org/gtk4-rs/git/book/actions.html>
+ * <https://gtk-rs.org/gtk4-rs/git/docs/gtk4/struct.Window.html#actions>
  */
 fn setup_shortcuts(app: &Application) {
     //app.set_accels_for_action("win.filter('All')", &["<Ctrl>a"]);

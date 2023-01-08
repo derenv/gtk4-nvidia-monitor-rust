@@ -22,16 +22,22 @@ use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ActionRow};
 use gio::Settings;
 use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
-    subclass::InitializingObject, FromVariant, ParamSpec, Value,
+    subclass::InitializingObject, FromVariant, ParamSpec, Value
 };
 use gtk::{
     subclass::prelude::*, Button, CompositeTemplate, DropDown, Entry, ListBox, SpinButton,
     StringList, TemplateChild,
 };
-use std::cell::Cell;
+use std::{cell::Cell, cell::RefCell, rc::Rc};
 
 // Modules
-//
+use crate::{gpu_page::GpuPage};
+
+/// Structure for storing a SettingsWindow object and any related information
+#[derive(Default)]
+pub struct ParentContainer {
+    pub window: Option<GpuPage>
+}
 
 /// Structure for storing a View item data
 #[derive(Default, Clone)]
@@ -44,23 +50,26 @@ pub struct ViewComponent {
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/modification-window.ui")]
 pub struct ModificationWindow {
+    // Public
     pub settings: OnceCell<Settings>,
-    pub uuid: OnceCell<String>,
-
-    pub old_view_id: OnceCell<i32>,
-    pub new_view_id: Cell<i32>,
-    pub old_view_title: OnceCell<String>,
-    pub new_view_title: Cell<String>,
-
     pub view_components_list: Cell<Vec<ViewComponent>>,
+    pub parent_window: Rc<RefCell<ParentContainer>>,
+    pub dropdowns: Cell<Vec<DropDown>>,
 
+    // Private
+    uuid: OnceCell<String>,
+    old_view_id: OnceCell<i32>,
+    new_view_id: Cell<i32>,
+    old_view_title: OnceCell<String>,
+    new_view_title: Cell<String>,
+
+    // Template Children
     #[template_child]
     pub view_name_input: TemplateChild<Entry>,
     #[template_child]
     pub view_components_amount_input: TemplateChild<SpinButton>,
     #[template_child]
     pub view_modifier_listbox: TemplateChild<ListBox>,
-
     #[template_child]
     pub button_row: TemplateChild<ActionRow>,
     #[template_child]
@@ -133,7 +142,7 @@ impl ModificationWindow {
             .get()
             .expect("missing `uuid`..")
             .to_owned();
-        println!("stored views: `{:?}`", stored_views_data); //TEST
+        // println!("stored views: `{:?}`", stored_views_data); //TEST
 
         // Get old + new view title
         let old_view_title: String = self
@@ -161,7 +170,7 @@ impl ModificationWindow {
                 // If viewconfig is for this GPU (i.e. has valid UUID) and has the old name
                 if (sub_items[0] == uuid, sub_items[2] == old_view_title) == (true, true) {
                     view_index = index as i32;
-                    println!("match.."); //TEST
+                    // println!("match.."); //TEST
                     break;
                 }
             }
@@ -176,11 +185,11 @@ impl ModificationWindow {
 
                 // Update stored viewconfigs
                 self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
-                println!("viewconfig updated.."); //TEST
+                // println!("viewconfig updated.."); //TEST
 
 
                 // Delete associated viewcomponentconfigs
-                println!("Initial components list: `{:?}`", stored_views_components); //TEST
+                // println!("Initial components list: `{:?}`", stored_views_components); //TEST
                 let mut to_remove: Vec<i32> = vec![];
 
                 // Check if any new viewcomponentconfigs need removed
@@ -191,7 +200,7 @@ impl ModificationWindow {
                     // If viewcomponentconfig from this view
                     if (sub_items[0] == &uuid, sub_items[1] == old_view_title) == (true, true) {
                         to_remove.push(index as i32);
-                        println!("need to remove: `{}`", index);
+                        // println!("need to remove: `{}`", index);
                     }
                 }
 
@@ -203,17 +212,17 @@ impl ModificationWindow {
                     // Update list of viewcomponentconfigs
                     for item_to_remove in to_remove {
                         stored_views_components.remove(item_to_remove as usize);
-                        println!("removed: `{}`", item_to_remove);
-                        println!("new list: `{:?}`", stored_views_components);
+                        // println!("removed: `{}`", item_to_remove);
+                        // println!("new list: `{:?}`", stored_views_components);
                     }
-                    println!("Final components list: `{:?}`", stored_views_components);
+                    // println!("Final components list: `{:?}`", stored_views_components);
 
                     // Update stored viewcomponentconfigs
                     self.update_setting::<Vec<String>>("viewcomponentconfigs", stored_views_components);
-                    println!("saving changes.."); //TEST
-                } else {
-                    println!("no changes.."); //TEST
-                }
+                    // println!("saving changes.."); //TEST
+                }//  else {
+                    // println!("no changes.."); //TEST
+                // }
             }
         }
     }
@@ -245,7 +254,7 @@ impl ModificationWindow {
             .get()
             .expect("missing `uuid`..")
             .to_owned();
-        println!("stored views: `{:?}`", stored_views_data); //TEST
+        // println!("stored views: `{:?}`", stored_views_data); //TEST
 
         // Get old + new view title
         let old_view_title: String = self
@@ -304,7 +313,7 @@ impl ModificationWindow {
                 // If viewconfig is for this GPU (i.e. has valid UUID) and has the old name
                 if (sub_items[0] == uuid, sub_items[2] == old_view_title) == (true, true) {
                     view_index = index as i32;
-                    println!("match.."); //TEST
+                    // println!("match.."); //TEST
                     break;
                 }
             }
@@ -338,7 +347,7 @@ impl ModificationWindow {
 
                         // Update stored viewconfigs
                         self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
-                        println!("viewconfig updated.."); //TEST
+                        // println!("viewconfig updated.."); //TEST
                     }
                     // MATCH name is different, id is different
                     (false, false) => {
@@ -355,7 +364,7 @@ impl ModificationWindow {
 
                         // Update stored viewconfigs
                         self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
-                        println!("viewconfig updated.."); //TEST
+                        // println!("viewconfig updated.."); //TEST
                     }
                     // MATCH name is the same, id is different
                     (true, false) => {
@@ -372,7 +381,7 @@ impl ModificationWindow {
 
                         // Update stored viewconfigs
                         self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
-                        println!("viewconfig updated.."); //TEST
+                        // println!("viewconfig updated.."); //TEST
                     }
                     // MATCH name is the same, id is the same
                     (true, true) => {
@@ -384,10 +393,39 @@ impl ModificationWindow {
                 // Create empty final list of viewcomponentconfigs
                 let mut final_components_list: Vec<String> = vec![];
                 let mut new_components_list: Vec<String> = vec![];
-                println!("Initial components list: `{:?}`", stored_views_components); //TEST
+                // println!("Initial components list: `{:?}`", stored_views_components); //TEST
 
-                // Get current components
-                let current_components: Vec<ViewComponent> = self.view_components_list.take();
+                // Get list current components
+                let mut current_components: Vec<ViewComponent> = self.view_components_list.take();
+                let dropdowns: Vec<DropDown> = self.dropdowns.take();
+                // println!("number of stored dropdowns: `{}`", dropdowns.len()); //TEST
+                // Update list using current state of dropdowns
+                for index in 0..current_components.len() {
+                    // println!("comp: `{}`", current_components[index].name); //TEST
+                    // println!(" pos: `{}`", current_components[index].position); //TEST
+
+                    // Get current dropdown
+                    let current_dropdown: &DropDown = &dropdowns[index];
+                    let current_dropdown_value: usize = current_dropdown.selected() as usize;
+
+                    // From list of possible properties
+                    //TODO: Update to use global list
+                    let items: [&str; 8] = [
+                        "none",
+                        "util",
+                        "temp",
+                        "power_usage",
+                        "memory_usage",
+                        "memory_total",
+                        "mem_ctrl_util",
+                        "fan_speed",
+                    ];
+
+                    // Update stored name if required
+                    if current_components[index].name != items[current_dropdown_value] {
+                        current_components[index].name = items[current_dropdown_value].to_string();
+                    }
+                }
 
                 // Create list of old components
                 let mut old_components_list: Vec<String> = vec![];
@@ -432,7 +470,7 @@ impl ModificationWindow {
                                 // Add to updated list of stored viewcomponentconfigs
                                 new_components_list.push(new_viewcomponentconfig);
                                 component_modified = true;
-                                println!("component modified!"); //TEST
+                                // println!("CHANGES: component modified!"); //TEST
                                 break;
                             }
                             // CORRECT NAME, TITLE CHANGE, NO POSITION CHANGE => STOP
@@ -449,7 +487,7 @@ impl ModificationWindow {
                                 // Add to updated list of stored viewcomponentconfigs
                                 new_components_list.push(new_viewcomponentconfig);
                                 component_modified = true;
-                                println!("component modified!"); //TEST
+                                // println!("CHANGES: component modified!"); //TEST
                                 break;
                             }
                             // CORRECT NAME, NO TITLE CHANGE, POSITION CHANGE => STOP
@@ -466,7 +504,7 @@ impl ModificationWindow {
                                 // Add to updated list of stored viewcomponentconfigs
                                 new_components_list.push(new_viewcomponentconfig);
                                 component_modified = true;
-                                println!("component modified!"); //TEST
+                                // println!("CHANGES: component modified!"); //TEST
                                 break;
                             }
 
@@ -475,7 +513,7 @@ impl ModificationWindow {
                                 // Add to updated list of stored viewcomponentconfigs
                                 new_components_list.push(old_components_list[old_index].clone());
                                 component_modified = true;
-                                println!("component not modified.."); //TEST
+                                // println!("NO CHANGES: component not modified.."); //TEST
                                 break;
                             }
 
@@ -485,9 +523,7 @@ impl ModificationWindow {
                     }
 
                     // Check if a new component
-                    if component_modified {
-                        println!("component modified!"); //TEST
-                    } else {
+                    if !component_modified {
                         // Create new viewcomponentconfig
                         let new_viewcomponentconfig: String = uuid.clone()
                         + ":"
@@ -499,18 +535,20 @@ impl ModificationWindow {
 
                         // Add to updated list of stored viewcomponentconfigs
                         new_components_list.push(new_viewcomponentconfig);
-                        println!("new component!"); //TEST
-                    }
+                        // println!("FINAL new component!"); //TEST
+                    } // else {
+                    //     println!("FINAL component modified!"); //TEST
+                    // }
                 }
 
                 // Combine new/modified list with other views
                 final_components_list.append(&mut new_components_list);
 
                 // Store final list
-                println!("Final components list: `{:?}`", final_components_list);
-                println!("saving changes.."); //TEST
+                // println!("Final components list: `{:?}`", final_components_list);
+                // println!("saving changes.."); //TEST
                 self.update_setting::<Vec<String>>("viewcomponentconfigs", final_components_list);
-                println!("changes saved.."); //TEST
+                // println!("changes saved.."); //TEST
             } else {
                 // Create new viewconfig
                 //UUID:POSITION:VIEW_TITLE
@@ -542,7 +580,7 @@ impl ModificationWindow {
                 }
 
                 // Update stored viewconfigs
-                println!("Final components list: `{:?}`", stored_views_components);
+                // println!("Final components list: `{:?}`", stored_views_components);
                 self.update_setting::<Vec<String>>("viewcomponentconfigs", stored_views_components);
             }
         }
@@ -638,15 +676,15 @@ impl ModificationWindow {
     fn view_name_changed(&self, textbox: &Entry) {
         // Get new input
         let new_title: String = textbox.text().to_string();
-        println!("new name: `{}`", new_title); //TEST
+        // println!("new name: `{}`", new_title); //TEST
 
         // Update new_view_title
         if new_title != "" {
-            println!("NEW NAME VALID..");
+            // println!("NEW NAME VALID..");
             self.new_view_title.set(new_title);
-        } else {
-            println!("NEW NAME INVALID..");
-        }
+        } // else {
+        //     println!("NEW NAME INVALID..");
+        // }
     }
     /**
      * Name:
@@ -668,14 +706,14 @@ impl ModificationWindow {
     fn view_components_amount_changed(&self, spinbutton: &SpinButton) {
         // Validate amount
         let new_amount: usize = spinbutton.value() as usize;
-        println!("new number of components: `{}`", spinbutton.value()); //TEST
+        // println!("new number of components: `{}`", spinbutton.value()); //TEST
 
         let mut components: Vec<ViewComponent> = self.view_components_list.take();
-        println!("stored number of components: `{}`", components.len()); //TEST
+        // println!("stored number of components: `{}`", components.len()); //TEST
 
         if new_amount < components.len() {
             // Less than previous
-            println!("<"); //TEST
+            // println!("<"); //TEST
 
             // subtract end item
             self.view_modifier_listbox.remove(
@@ -689,7 +727,7 @@ impl ModificationWindow {
             components.remove(components.len() - 1);
         } else if new_amount > components.len() {
             // More than previous
-            println!(">"); //TEST
+            // println!(">"); //TEST
 
             // Create list of options
             let items: [&str; 8] = [
@@ -731,23 +769,29 @@ impl ModificationWindow {
 
             // Add new item, needs defaults (i.e. None)
             let pos: i32 = (2 + components.len()) as i32;
-            println!("inserting in position: `{}`", pos); //TEST
+            // println!("inserting in position: `{}`", pos); //TEST
             self.view_modifier_listbox.insert(&row, pos);
 
             // Create new item
             let new_item: ViewComponent = ViewComponent {
-                name: String::from("None"),
+                name: String::from("none"),
                 position: pos,
             };
 
+            // Update list of dropdowns
+            let mut dropdowns: Vec<DropDown> = self.dropdowns.take();
+            dropdowns.push(dropdown_input);
+            // println!("new number of stored dropdowns: `{}`", dropdowns.len()); //TEST
+            self.dropdowns.set(dropdowns);
+
             // Modify view component list
             components.push(new_item);
-        } else if new_amount == components.len() {
-            // Same as previous
-            println!("=="); //TEST
+        } // else if new_amount == components.len() {
+        //     // Same as previous
+        //     // println!("=="); //TEST
 
-            // TODO: ???
-        }
+        //     // TODO: ???
+        // }
 
         // Return components list
         self.view_components_list.set(components);
@@ -973,7 +1017,7 @@ impl WidgetImpl for ModificationWindow {}
  *
  */
 impl WindowImpl for ModificationWindow {
-    /*
+    /**
      * Name:
      * close_request
      *

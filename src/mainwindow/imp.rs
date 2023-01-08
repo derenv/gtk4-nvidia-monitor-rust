@@ -149,7 +149,7 @@ impl MainWindow {
         }
     }
 
-    /*
+    /**
      * Name:
      * create_gpu_page
      *
@@ -1777,7 +1777,7 @@ impl WidgetImpl for MainWindow {}
  *
  */
 impl WindowImpl for MainWindow {
-    /*
+    /**
      * Name:
      * close_request
      *

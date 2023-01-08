@@ -23,7 +23,7 @@ use adwaita::{gio, glib, prelude::*, ViewStack, ViewSwitcherBar};
 use gio::Settings;
 use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject, FromVariant,
-    ParamSpec, ToValue, Value,
+    ParamSpec, ToValue, Value, subclass::Signal, subclass::SignalType
 };
 use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild};
 use std::{cell::Cell, cell::RefCell, rc::Rc};
@@ -90,11 +90,7 @@ impl ObjectSubclass for GpuPage {
  */
 #[gtk::template_callbacks]
 impl GpuPage {
-    // #[template_callback]
-    // fn get_gpu_data(&self, _label: &Label) {
-    //     //
-    //     println!("TEST callback");//TEST
-    // }
+    //
 }
 
 impl GpuPage {
@@ -365,6 +361,38 @@ impl ObjectImpl for GpuPage {
             }
             _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
+    }
+
+    /**
+     * Name:
+     * signals
+     *
+     * Description:
+     * Defines the list of signals
+     *
+     * Made:
+     * 07/01/2023
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     * beware that you need to use kebab-case (<https://en.wikipedia.org/wiki/Letter_case#Kebab_case>)
+     *
+     * <https://gtk-rs.org/gtk4-rs/stable/latest/book/g_object_signals.html>
+     *
+     * SignalType::from(i32::static_type())
+     */
+    fn signals() -> &'static [Signal] {
+        static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
+            vec![
+                Signal::builder("update-views",
+                    &[SignalType::from(i32::static_type())],
+                    SignalType::from(i32::static_type()))
+                .build()
+            ]
+        });
+        SIGNALS.as_ref()
     }
 }
 

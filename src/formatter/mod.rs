@@ -101,7 +101,7 @@ impl Formatter {
             .expect("`settings` should not be set before calling `setup_settings`.");
     }
 
-    /*
+    /**
      * Name:
      * format
      *
