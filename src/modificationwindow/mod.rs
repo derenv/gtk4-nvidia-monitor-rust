@@ -28,7 +28,10 @@ use gtk::{Adjustment, DropDown, StringList};
 use std::cell::RefMut;
 
 // Modules
-use crate::{modificationwindow::imp::ViewComponent, modificationwindow::imp::ParentContainer, APP_ID, gpu_page::GpuPage};
+use crate::{
+    gpu_page::GpuPage, modificationwindow::imp::ParentContainer,
+    modificationwindow::imp::ViewComponent, APP_ID,
+};
 
 // GObject wrapper for ModificationWindow
 glib::wrapper! {
@@ -75,7 +78,7 @@ impl ModificationWindow {
         app: &adwaita::Application,
         view_id: i32,
         uuid: &str,
-        parent_window: &GpuPage
+        parent_window: &GpuPage,
     ) -> Self {
         let obj: ModificationWindow = Object::new(&[("application", app)])
             .expect("`ModificationWindow` should be  instantiable.");
@@ -87,7 +90,8 @@ impl ModificationWindow {
 
         // Set ref to parent
         {
-            let mut modification_window_container: RefMut<ParentContainer> = obj.imp().parent_window.borrow_mut();
+            let mut modification_window_container: RefMut<ParentContainer> =
+                obj.imp().parent_window.borrow_mut();
             modification_window_container.window = Some(parent_window.to_owned());
         }
 

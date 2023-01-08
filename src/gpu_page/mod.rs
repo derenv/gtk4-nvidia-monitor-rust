@@ -24,7 +24,7 @@ use imp::ModificationWindowContainer;
 // Imports
 use adwaita::{gio, glib, Application, ViewStack};
 use gio::Settings;
-use glib::{clone, translate::FromGlib, Object, SourceId, closure_local, closure};
+use glib::{clone, closure, closure_local, translate::FromGlib, Object, SourceId};
 use gtk::{prelude::*, subclass::prelude::*, Align, Button, Grid, Label, LayoutChild, Orientation};
 use std::{cell::RefMut, sync::Arc, sync::Mutex, sync::MutexGuard};
 
@@ -902,28 +902,39 @@ impl GpuPage {
 
         // Connect closure to re-load (now updated) stored views when a modification window is closed
         //NOTE: expected return value seems to be broken - look at imp.rs:395
-        self.connect_closure("update-views", false, closure!(move |gpage: GpuPage, current_view: i32| {
-            // println!("closure parameter: `{}`", current_view); //TEST
+        self.connect_closure(
+            "update-views",
+            false,
+            closure!(move |gpage: GpuPage, current_view: i32| {
+                // println!("closure parameter: `{}`", current_view); //TEST
 
-            // Reload views
-            // println!("reloading views.."); //TEST
-            gpage.load_views();
-            // println!("views reloaded.."); //TEST
+                // Reload views
+                // println!("reloading views.."); //TEST
+                gpage.load_views();
+                // println!("views reloaded.."); //TEST
 
-            // If and edit is made (and not a delete)
-            if current_view != -1 {
-                // println!("switching to page: `{}`", current_view); //TEST
+                // If and edit is made (and not a delete)
+                if current_view != -1 {
+                    // println!("switching to page: `{}`", current_view); //TEST
 
-                // Set to correct view
-                gpage.imp().view_switcher.stack().unwrap().set_visible_child_name((current_view.to_string() + "_stack_item").as_str());
-            }
+                    // Set to correct view
+                    gpage
+                        .imp()
+                        .view_switcher
+                        .stack()
+                        .unwrap()
+                        .set_visible_child_name(
+                            (current_view.to_string() + "_stack_item").as_str(),
+                        );
+                }
 
-            // Return final value
-            //0.to_value()  // "Invalid return value: expected (), got gint",
-            0  // "Invalid return value: expected (), got gint",
-            //() // 'Closure returned no value but the caller expected a value of type gint'
-            //   // 'Closure returned no value but the caller expected a value of type gint'
-        }));
+                // Return final value
+                //0.to_value()  // "Invalid return value: expected (), got gint",
+                0 // "Invalid return value: expected (), got gint",
+                  //() // 'Closure returned no value but the caller expected a value of type gint'
+                  //   // 'Closure returned no value but the caller expected a value of type gint'
+            }),
+        );
     }
 }
 

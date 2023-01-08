@@ -22,7 +22,7 @@ use adwaita::{gio, glib, prelude::*, subclass::prelude::*, ActionRow};
 use gio::Settings;
 use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
-    subclass::InitializingObject, FromVariant, ParamSpec, Value
+    subclass::InitializingObject, FromVariant, ParamSpec, Value,
 };
 use gtk::{
     subclass::prelude::*, Button, CompositeTemplate, DropDown, Entry, ListBox, SpinButton,
@@ -31,12 +31,12 @@ use gtk::{
 use std::{cell::Cell, cell::RefCell, rc::Rc};
 
 // Modules
-use crate::{gpu_page::GpuPage};
+use crate::gpu_page::GpuPage;
 
 /// Structure for storing a SettingsWindow object and any related information
 #[derive(Default)]
 pub struct ParentContainer {
-    pub window: Option<GpuPage>
+    pub window: Option<GpuPage>,
 }
 
 /// Structure for storing a View item data
@@ -187,7 +187,6 @@ impl ModificationWindow {
                 self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
                 // println!("viewconfig updated.."); //TEST
 
-
                 // Delete associated viewcomponentconfigs
                 // println!("Initial components list: `{:?}`", stored_views_components); //TEST
                 let mut to_remove: Vec<i32> = vec![];
@@ -218,11 +217,14 @@ impl ModificationWindow {
                     // println!("Final components list: `{:?}`", stored_views_components);
 
                     // Update stored viewcomponentconfigs
-                    self.update_setting::<Vec<String>>("viewcomponentconfigs", stored_views_components);
+                    self.update_setting::<Vec<String>>(
+                        "viewcomponentconfigs",
+                        stored_views_components,
+                    );
                     // println!("saving changes.."); //TEST
-                }//  else {
-                    // println!("no changes.."); //TEST
-                // }
+                } //  else {
+                  // println!("no changes.."); //TEST
+                  // }
             }
         }
     }
@@ -449,7 +451,8 @@ impl ModificationWindow {
                     // Check if old version exists
                     for old_index in 0..old_components_list.len() {
                         // Split current viewcomponentconfig
-                        let sub_items: Vec<&str> = old_components_list[old_index].split(':').collect();
+                        let sub_items: Vec<&str> =
+                            old_components_list[old_index].split(':').collect();
 
                         match (
                             current_components[new_index].name == sub_items[3],
@@ -526,19 +529,19 @@ impl ModificationWindow {
                     if !component_modified {
                         // Create new viewcomponentconfig
                         let new_viewcomponentconfig: String = uuid.clone()
-                        + ":"
-                        + &old_view_title
-                        + ":"
-                        + &current_components[new_index].position.to_string()
-                        + ":"
-                        + &current_components[new_index].name;
+                            + ":"
+                            + &old_view_title
+                            + ":"
+                            + &current_components[new_index].position.to_string()
+                            + ":"
+                            + &current_components[new_index].name;
 
                         // Add to updated list of stored viewcomponentconfigs
                         new_components_list.push(new_viewcomponentconfig);
                         // println!("FINAL new component!"); //TEST
                     } // else {
-                    //     println!("FINAL component modified!"); //TEST
-                    // }
+                      //     println!("FINAL component modified!"); //TEST
+                      // }
                 }
 
                 // Combine new/modified list with other views
@@ -683,8 +686,8 @@ impl ModificationWindow {
             // println!("NEW NAME VALID..");
             self.new_view_title.set(new_title);
         } // else {
-        //     println!("NEW NAME INVALID..");
-        // }
+          //     println!("NEW NAME INVALID..");
+          // }
     }
     /**
      * Name:
@@ -787,8 +790,8 @@ impl ModificationWindow {
             // Modify view component list
             components.push(new_item);
         } // else if new_amount == components.len() {
-        //     // Same as previous
-        //     // println!("=="); //TEST
+          //     // Same as previous
+          //     // println!("=="); //TEST
 
         //     // TODO: ???
         // }

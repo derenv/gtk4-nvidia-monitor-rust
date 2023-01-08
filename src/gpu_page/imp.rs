@@ -22,8 +22,8 @@
 use adwaita::{gio, glib, prelude::*, ViewStack, ViewSwitcherBar};
 use gio::Settings;
 use glib::{
-    once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject, FromVariant,
-    ParamSpec, ToValue, Value, subclass::Signal, subclass::SignalType
+    once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject,
+    subclass::Signal, subclass::SignalType, FromVariant, ParamSpec, ToValue, Value,
 };
 use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild};
 use std::{cell::Cell, cell::RefCell, rc::Rc};
@@ -385,12 +385,12 @@ impl ObjectImpl for GpuPage {
      */
     fn signals() -> &'static [Signal] {
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
-            vec![
-                Signal::builder("update-views",
-                    &[SignalType::from(i32::static_type())],
-                    SignalType::from(i32::static_type()))
-                .build()
-            ]
+            vec![Signal::builder(
+                "update-views",
+                &[SignalType::from(i32::static_type())],
+                SignalType::from(i32::static_type()),
+            )
+            .build()]
         });
         SIGNALS.as_ref()
     }
