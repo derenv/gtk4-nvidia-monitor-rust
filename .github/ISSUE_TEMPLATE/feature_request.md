@@ -1,3 +1,7 @@
+<!--
+SPDX-FileCopyrightText: 2022 Deren Vural
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
 ---
 name: Feature request
 about: Suggest an idea for this project

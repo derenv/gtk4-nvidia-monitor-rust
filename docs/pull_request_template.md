@@ -1,4 +1,8 @@
 <!--
+SPDX-FileCopyrightText: 2022 Deren Vural
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<!--
 Thank you for contributing to this project! You must fill out the information below before we can review this pull request. By explaining why you're making a change (or linking to an issue) and what changes you've made, we can triage your pull request to the best possible team for review.
 -->
 
@@ -7,7 +11,7 @@ Thank you for contributing to this project! You must fill out the information be
 Closes ISSUE
 
 <!-- If there's an existing issue for your change, please replace ISSUE above with a link to the issue.
-If there's _not_ an existing issue, please open one first to make it more likely that this update will 
+If there's _not_ an existing issue, please open one first to make it more likely that this update will
 be accepted: https://github.com/derenv/gtk4-nvidia-monitor-rust/issues/new/choose. -->
 
 ### What's being changed (if available, include any code snippets, screenshots, or gifs):
