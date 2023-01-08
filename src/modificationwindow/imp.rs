@@ -417,7 +417,7 @@ impl ModificationWindow {
                     // MATCH name is the same, id is the same
                     (true, true) => {
                         // Do nothing
-                        println!("No viewconfig to update.."); //TEST
+                        // println!("No viewconfig to update.."); //TEST
                     }
                 }
 
@@ -835,9 +835,9 @@ impl ModificationWindow {
             row.set_child(Some(&dropdown_input));
 
             // Add new item, needs defaults (i.e. None)
-            let pos: i32 = (2 + components.len()) as i32;
+            let pos: i32 = components.len() as i32;
             // println!("inserting in position: `{}`", pos); //TEST
-            self.view_modifier_listbox.insert(&row, pos);
+            self.view_modifier_listbox.insert(&row, 2 + pos);
 
             // Create new item
             let new_item: ViewComponent = ViewComponent {

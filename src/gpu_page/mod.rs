@@ -630,8 +630,9 @@ impl GpuPage {
                         // If a valid position
                         match parts[2].parse::<usize>() {
                             Ok(position) => {
+                                // println!("POSITION INDEX: `{}`", position); //TEST
                                 if position <= loaded_properties_data.len() {
-                                    // println!("VALID POSITION INDEX: `{}`", offset_position); //TEST
+                                    // println!("VALID POSITION INDEX"); //TEST
                                     // println!("VALID PROPERTY: `{}`", parts[3]); //TEST
 
                                     // Add to final list
