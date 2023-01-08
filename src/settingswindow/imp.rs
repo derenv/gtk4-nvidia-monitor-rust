@@ -106,6 +106,22 @@ impl SettingsWindow {
         }
     }
 
+    /**
+     * Name:
+     * refreshrate_set
+     *
+     * Description:
+     * Template callback for setting refresh rate of application
+     *
+     * Made:
+     * 23/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
     #[template_callback]
     fn refreshrate_set(&self, button: &SpinButton) {
         // Get new refresh rate input
@@ -115,6 +131,22 @@ impl SettingsWindow {
         self.update_setting("refreshrate", new_value);
     }
 
+    /**
+     * Name:
+     * temp_unit_set
+     *
+     * Description:
+     * Template callback for setting temperature unit of application
+     *
+     * Made:
+     * 23/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
     #[template_callback]
     fn temp_unit_set(&self, button: &CheckButton) {
         // Get list of buttons

@@ -22,8 +22,8 @@
 use adwaita::{gio, glib, prelude::*, ViewStack, ViewSwitcherBar};
 use gio::Settings;
 use glib::{
-    once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject, FromVariant,
-    ParamSpec, ToValue, Value,
+    once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject,
+    subclass::Signal, subclass::SignalType, FromVariant, ParamSpec, ToValue, Value,
 };
 use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild};
 use std::{cell::Cell, cell::RefCell, rc::Rc};
@@ -43,9 +43,9 @@ pub struct ModificationWindowContainer {
 #[template(resource = "/gpu-page.ui")]
 pub struct GpuPage {
     pub settings: OnceCell<Settings>,
-    uuid: Cell<String>,
-    name: Cell<String>,
-    provider: Cell<Option<Provider>>,
+    uuid: OnceCell<String>,
+    name: OnceCell<String>,
+    provider: OnceCell<Option<Provider>>,
     refreshid: Cell<u32>,
 
     pub modification_window: Rc<RefCell<ModificationWindowContainer>>,
@@ -90,11 +90,7 @@ impl ObjectSubclass for GpuPage {
  */
 #[gtk::template_callbacks]
 impl GpuPage {
-    // #[template_callback]
-    // fn get_gpu_data(&self, _label: &Label) {
-    //     //
-    //     println!("TEST callback");//TEST
-    // }
+    //
 }
 
 impl GpuPage {
@@ -287,21 +283,24 @@ impl ObjectImpl for GpuPage {
 
         match pspec.name() {
             "uuid" => match value.get() {
-                Ok(input_uuid) => {
-                    self.uuid.replace(input_uuid);
-                }
+                Ok(input_uuid) => self
+                    .uuid
+                    .set(input_uuid)
+                    .expect("`uuid` should not be set after calling constructor.."),
                 Err(_) => panic!("The value needs to be of type `String`."),
             },
             "name" => match value.get() {
-                Ok(input_name) => {
-                    self.name.replace(input_name);
-                }
+                Ok(input_name) => self
+                    .name
+                    .set(input_name)
+                    .expect("`name` should not be set after calling constructor.."),
                 Err(_) => panic!("The value needs to be of type `String`."),
             },
             "provider" => match value.get() {
-                Ok(input_provider_property) => {
-                    self.provider.replace(input_provider_property);
-                }
+                Ok(input_provider) => self
+                    .provider
+                    .set(input_provider)
+                    .expect("`provider` should not be set after calling constructor.."),
                 Err(_) => panic!("The value needs to be of type `Provider`."),
             },
             "refreshid" => match value.get() {
@@ -341,29 +340,18 @@ impl ObjectImpl for GpuPage {
         //println!("getting: {:?}", pspec.name());//TEST
 
         match pspec.name() {
-            "uuid" => {
-                //TODO: this seems ridiculous..
-                let value: String = self.uuid.take();
-
-                self.uuid.set(value.clone());
-
-                value.to_value()
-            }
-            "name" => {
-                //TODO: this seems ridiculous..
-                let value: String = self.name.take();
-
-                self.name.set(value.clone());
-
-                value.to_value()
-            }
-            "provider" => {
-                let value: Option<Provider> = self.provider.take();
-
-                self.provider.set(value.clone());
-
-                value.to_value()
-            }
+            "uuid" => match self.uuid.clone().get() {
+                Some(value) => return value.to_value(),
+                None => panic!("Cannot get value of `uuid` property.."),
+            },
+            "name" => match self.name.clone().get() {
+                Some(value) => return value.to_value(),
+                None => panic!("Cannot get value of `name` property.."),
+            },
+            "provider" => match self.provider.clone().get() {
+                Some(value) => return value.to_value(),
+                None => panic!("Cannot get value of `provider` property.."),
+            },
             "refreshid" => {
                 let value: u32 = self.refreshid.take();
 
@@ -373,6 +361,38 @@ impl ObjectImpl for GpuPage {
             }
             _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
+    }
+
+    /**
+     * Name:
+     * signals
+     *
+     * Description:
+     * Defines the list of signals
+     *
+     * Made:
+     * 07/01/2023
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     * beware that you need to use kebab-case (<https://en.wikipedia.org/wiki/Letter_case#Kebab_case>)
+     *
+     * <https://gtk-rs.org/gtk4-rs/stable/latest/book/g_object_signals.html>
+     *
+     * SignalType::from(i32::static_type())
+     */
+    fn signals() -> &'static [Signal] {
+        static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
+            vec![Signal::builder(
+                "update-views",
+                &[SignalType::from(i32::static_type())],
+                SignalType::from(i32::static_type()),
+            )
+            .build()]
+        });
+        SIGNALS.as_ref()
     }
 }
 

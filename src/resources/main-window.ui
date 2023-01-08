@@ -8,6 +8,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
   <template class="NvidiaExtensionMainWindow" parent="GtkApplicationWindow">
     <!-- Properties -->
     <property name="title" translatable="yes">Nvidia App</property>
+    <property name="width-request">750</property>
+    <property name="height-request">500</property>
 
     <!-- Children -->
     <child type="titlebar">

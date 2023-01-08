@@ -13,6 +13,7 @@ https://github.com/gtk-rs/gtk4-rs/blob/master/book/listings/todo/6/resources/res
 <gresources>
   <gresource>
     <file compressed="true" preprocess="xml-stripblanks">main-window.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">modification-window.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">settings-window.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">gpu-page.ui</file>
   </gresource>

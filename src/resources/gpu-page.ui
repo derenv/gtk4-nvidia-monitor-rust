@@ -8,25 +8,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
   <template class="NvidiaExtensionGpuPage" parent="GtkGrid">
     <!-- Properties -->
     <property name="orientation">vertical</property>
-    <property name="halign">center</property>
-    <!--
+    <property name="halign">fill</property>
     <property name="hexpand">True</property>
     <property name="hexpand-set">True</property>
-    <property name="vexpand">True</property>
-    <property name="vexpand-set">True</property>
-    -->
     <property name="height-request">500</property>
-    <property name="width-request">500</property>
-
     <property name="margin-top">12</property>
-    <property name="margin-bottom">12</property>
-    <property name="margin-start">12</property>
-    <property name="margin-end">12</property>
-    <property name="margin-end">12</property>
-    <!--
-    <property name="row-homogeneous">True</property>
-    <property name="column-homogeneous">True</property>
-    -->
 
     <child>
       <object class="GtkGrid">
@@ -53,77 +39,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
     <child>
       <object class="AdwViewStack" id="view_stack">
-        <!-- Children -->
-        <!-- Default (NO VIEWS) Child - ->
-        <child>
-          <object class="AdwViewStackPage" id="default_view_1">
-            <!- - Properties - ->
-            <property name="icon-name">package-x-generic-symbolic</property>
-            <property name="name">default_view_1</property>
-            <property name="title" translatable="yes">Default View</property>
-
-            <!- - Children - ->
-            <property name="child">
-              <object class="GtkLabel" id="content1">
-                <!- - Properties - ->
-                <property name="label">Please edit the list of Views using 'Edit Views' button</property>
-              </object>
-            </property>
-          </object>
-        </child>
-
-        <!- - Default (NO PROPERTIES) Child - ->
-        <child>
-          <object class="AdwViewStackPage" id="default_view_2">
-            <!- - Properties - ->
-            <property name="icon-name">package-x-generic-symbolic</property>
-            <property name="name">default_view_2</property>
-            <property name="title" translatable="yes">Default View</property>
-
-            <!- - Children - ->
-            <property name="child">
-              <object class="GtkLabel" id="content2">
-                <!- - Properties - ->
-                <property name="label">Please edit the list of Properties using 'Edit View' button</property>
-              </object>
-            </property>
-          </object>
-        </child>
-
-        <!- - Example Children - ->
-        <child>
-          <object class="AdwViewStackPage" id="example_view_1">
-            <!- - Properties - ->
-            <property name="icon-name">package-x-generic-symbolic</property>
-            <property name="name">example_view_1</property>
-            <property name="title" translatable="yes">Example View 1</property>
-
-            <!- - Children - ->
-            <property name="child">
-              <object class="GtkLabel" id="content3">
-                <!- - Properties - ->
-                <property name="label">This is an example label 1</property>
-              </object>
-            </property>
-          </object>
-        </child>
-        <child>
-          <object class="AdwViewStackPage" id="example_view_2">
-            <!- - Properties - ->
-            <property name="icon-name">package-x-generic-symbolic</property>
-            <property name="name">example_view_2</property>
-            <property name="title" translatable="yes">Example View 2</property>
-
-            <!- - Children - ->
-            <property name="child">
-              <object class="GtkLabel" id="content4">
-                <!- - Properties - ->
-                <property name="label">This is an example label 2</property>
-              </object>
-            </property>
-          </object>
-        </child>
-        -->
       </object>
     </child>
 

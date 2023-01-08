@@ -5,11 +5,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
 -->
 <interface>
   <!-- Header Implementation -->
-  <template class="NvidiaExtensionMainWindow" parent="GtkApplicationWindow">
+  <template class="NvidiaExtensionModificationWindow" parent="GtkApplicationWindow">
     <!-- Properties -->
-    <property name="title" translatable="yes">Nvidia App</property>
+    <property name="title" translatable="yes">Modify View</property>
     <property name="width-request">500</property>
-    <property name="height-request">200</property>
+    <property name="height-request">500</property>
 
     <!-- Children -->
     <child type="titlebar">
@@ -28,14 +28,105 @@ SPDX-License-Identifier: GPL-3.0-or-later
         <property name="child">
           <object class="AdwClamp">
             <property name="child">
-              <object class="GtkListBox">
+              <object class="GtkListBox" id="view_modifier_listbox">
                 <!-- Properties -->
                 <property name="margin-top">12</property>
                 <property name="margin-bottom">12</property>
                 <property name="margin-start">12</property>
                 <property name="margin-end">12</property>
+                <property name="selection-mode">multiple</property>
 
                 <!-- Children -->
+                <child>
+                  <object class="AdwActionRow">
+                    <!-- Properties -->
+                    <property name="title">View Name</property>
+                    <property name="subtitle">The name of the current view</property>
+                    <property name="activatable">false</property>
+                    <property name="selectable">false</property>
+
+                    <!-- Children -->
+                    <child>
+                      <object class="GtkEntry" id="view_name_input">
+                        <!-- Signals -->
+                        <signal name="changed" handler="view_name_changed" swapped="true"/>
+
+                        <!-- Properties -->
+
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow">
+                    <!-- Properties -->
+                    <property name="title">View Properties</property>
+                    <property name="subtitle">The number of properties in the current view</property>
+                    <property name="activatable">false</property>
+                    <property name="selectable">false</property>
+
+                    <!-- Children -->
+                    <child>
+                      <object class="GtkSpinButton" id="view_components_amount_input">
+                        <!-- Signals -->
+                        <signal name="value-changed" handler="view_components_amount_changed" swapped="true"/>
+
+                        <!-- Properties -->
+                        <property name="digits" translatable="yes">0</property>
+                        <property name="numeric">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow">
+                    <!-- Properties -->
+                    <property name="title">View Position</property>
+                    <property name="subtitle">The position of this view</property>
+                    <property name="activatable">false</property>
+                    <property name="selectable">false</property>
+
+                    <!-- Children -->
+                    <child>
+                      <object class="GtkSpinButton" id="view_position_input">
+                        <!-- Signals -->
+                        <signal name="value-changed" handler="view_position_changed" swapped="true"/>
+
+                        <!-- Properties -->
+                        <property name="digits" translatable="yes">0</property>
+                        <property name="numeric">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="AdwActionRow" id="button_row">
+                    <!-- Properties -->
+                    <property name="activatable">false</property>
+                    <property name="selectable">false</property>
+
+                    <!-- Children -->
+                    <child>
+                      <object class="GtkButton" id="view_modification_apply_button">
+                        <!-- Properties -->
+                        <property name="label" translatable="yes">Apply Changes</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="view_modification_cancel_button">
+                        <!-- Properties -->
+                        <property name="label" translatable="yes">Cancel Changes</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="view_modification_delete_button">
+                        <!-- Properties -->
+                        <property name="label" translatable="yes">Delete View</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
 
               </object>
             </property>
@@ -44,7 +135,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
       </object>
     </child>
-
   </template>
 
   <!-- Main Menu -->

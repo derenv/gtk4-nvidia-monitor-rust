@@ -57,7 +57,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
       ]</default>
     </key>
 
-    <key name="pageconfigs" type="as">
+    <key name="viewcomponentconfigs" type="as">
       <default>[
         "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:GPU:0:util",
         "GPU-fb231809-72f7-79fd-eb6c-178b24827aa9:GPU:1:temp",
