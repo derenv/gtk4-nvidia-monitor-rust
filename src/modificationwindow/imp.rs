@@ -69,6 +69,8 @@ pub struct ModificationWindow {
     #[template_child]
     pub view_components_amount_input: TemplateChild<SpinButton>,
     #[template_child]
+    pub view_position_input: TemplateChild<SpinButton>,
+    #[template_child]
     pub view_modifier_listbox: TemplateChild<ListBox>,
     #[template_child]
     pub button_row: TemplateChild<ActionRow>,
@@ -146,6 +148,9 @@ impl ModificationWindow {
         let new_view_title: String = self.new_view_title.take();
         self.new_view_title.set(new_view_title.clone());
 
+        // Get old ID
+        let old_id: i32 = self.old_view_id.clone().get().expect("`old-view-id` invalid..").to_owned();
+
         // If present in saved settings
         if stored_views_data.len() == 0 {
             // no views exist
@@ -155,9 +160,7 @@ impl ModificationWindow {
             for index in 0..stored_views_data.len() {
                 // Split current viewconfig
                 let sub_items: Vec<&str> = stored_views_data[index].split(':').collect();
-                // println!("current title: `{}`", sub_items[2]); //TEST
-                // println!("searching for old title: `{}`", old_view_title); //TEST
-                // println!("searching for new title: `{}`", new_view_title); //TEST
+                // println!("current item: `{}`", stored_views_data[index]); //TEST
 
                 // If viewconfig is for this GPU (i.e. has valid UUID) and IS NOT the current view
                 if (sub_items[0] == uuid, sub_items[2] != new_view_title) == (true, true) {
@@ -202,22 +205,29 @@ impl ModificationWindow {
                             // println!("edit required"); //TEST
                             // println!("reorder"); //TEST
 
-                            // If same position & re-order
-                            new_id += 1; // Modify order
+                            // If same position & re-order, we need to check direction of change
+                            if old_id < new_id {
+                                new_id -= 1; // Modify order
+                            } else if old_id > new_id {
+                                new_id += 1; // Modify order
+                            }
 
                             // Update record
                             stored_views_data[index] =
                                 uuid.clone() + ":" + &new_id.to_string() + ":" + sub_items[2];
                         }
                         _ => {
+                            // println!("tuple `{} {} {}`", new_id > this_id, new_id == this_id, remove);
+
                             // otherwise ignore
-                            // println!("NO edit required"); //TEST
+                            //println!("NO edit required"); //TEST
                         }
                     }
                 }
             }
 
             // Update stored viewconfigs
+            // println!("updated views: `{:?}`", stored_views_data); //TEST
             self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
         }
     }
@@ -512,7 +522,7 @@ impl ModificationWindow {
                         // println!("viewconfig updated.."); //TEST
 
                         // Re-order remaining views
-                        self.reorder_data(true);
+                        self.reorder_data(false);
                     }
                     // MATCH name is the same, id is different
                     (true, false) => {
@@ -532,7 +542,7 @@ impl ModificationWindow {
                         // println!("viewconfig updated.."); //TEST
 
                         // Re-order remaining views
-                        self.reorder_data(true);
+                        self.reorder_data(false);
                     }
                     // MATCH name is the same, id is the same
                     (true, true) => {
@@ -718,7 +728,7 @@ impl ModificationWindow {
                 self.update_setting::<Vec<String>>("viewconfigs", stored_views_data);
 
                 // Re-order remaining views
-                self.reorder_data(true);
+                self.reorder_data(false);
 
                 // Get current components
                 let mut current_components: Vec<ViewComponent> = self.view_components_list.take();
@@ -876,6 +886,35 @@ impl ModificationWindow {
           //     println!("NEW NAME INVALID..");
           // }
     }
+
+    /**
+     * Name:
+     * view_position_changed
+     *
+     * Description:
+     * Template callback for changing the position of the current view
+     *
+     * Made:
+     * 08/01/2023
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    #[template_callback]
+    fn view_position_changed(&self, spinbutton: &SpinButton) {
+        // Validate amount
+        let new_amount: i32 = spinbutton.value() as i32;
+        // println!("input view position: `{}`", new_amount); //TEST
+        // println!("new view position: `{}`", new_amount - 1); //TEST
+
+        // Update stored ID
+        self.new_view_id.set(new_amount - 1);
+    }
+
+
     /**
      * Name:
      * view_components_amount_changed
@@ -909,7 +948,7 @@ impl ModificationWindow {
             self.view_modifier_listbox.remove(
                 &self
                     .view_modifier_listbox
-                    .row_at_index((1 + components.len()) as i32)
+                    .row_at_index((2 + components.len()) as i32)
                     .unwrap(),
             );
 
@@ -960,7 +999,7 @@ impl ModificationWindow {
             // Add new item, needs defaults (i.e. None)
             let pos: i32 = components.len() as i32;
             // println!("inserting in position: `{}`", pos); //TEST
-            self.view_modifier_listbox.insert(&row, 2 + pos);
+            self.view_modifier_listbox.insert(&row, 3 + pos);
 
             // Create new item
             let new_item: ViewComponent = ViewComponent {

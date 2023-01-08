@@ -174,14 +174,18 @@ impl ModificationWindow {
         let mut view_title: String = String::from("Default");
 
         // Retrieve name of current view
-        if view_title_list.len() == 0 {
+        let mut view_amount: usize = view_title_list.len();
+        if view_amount == 0 {
             // First view being added
             // Set new view id ('0' as is first view)
             self.set_property("new-view-id", 0);
         } else if view_id == "-1" {
             // Create new view title and id
             view_title = String::from("New");
-            self.set_property("new-view-id", view_title_list.len() as i32);
+            self.set_property("new-view-id", view_amount as i32);
+
+            // Increment count for spinwheel
+            view_amount += 1;
 
             // println!("   View ID: {}", view_id); //TEST
             // println!("View Title: {}", view_title); //TEST
@@ -213,8 +217,11 @@ impl ModificationWindow {
         let mut dropdowns: Vec<DropDown> = vec![];
 
         // println!("LETS GET LOOPIN"); //TEST
+        // If list of components is not empty
         if view_components_list.len() != 0 {
+            // For the list of components
             for index in 0..view_components_list.len() {
+                // Check if valid component
                 // println!("item: `{}`", view_components_list[index]); //TEST
                 let sub_items: Vec<&str> = view_components_list[index].split(':').collect();
                 if sub_items[1] == self.property::<String>("old-view-title") {
@@ -313,7 +320,7 @@ impl ModificationWindow {
                     // println!("inserting in position: `{}`", (1 + final_components.len())); //TEST
                     self.imp()
                         .view_modifier_listbox
-                        .insert(&row, (1 + final_components.len()) as i32);
+                        .insert(&row, (2 + final_components.len()) as i32);
                 }
             }
         }
@@ -342,12 +349,29 @@ impl ModificationWindow {
         self.imp().view_name_input.set_max_width_chars(10);
 
         // Create adjustment settings for number of view components SpinButton
-        //TODO: link the upper limit to the total different properties
+        // NOTE: Linked to the upper limit to the total different properties
         let adjustment: Adjustment =
             Adjustment::new(current_view_component_amount, 0.0, 10.0, 1.0, 2.0, 0.0);
         self.imp()
             .view_components_amount_input
             .configure(Some(&adjustment), 1.0, 0);
+
+
+        // Create adjustment settings for view position SpinButton
+        // NOTE: linked to the upper limit to the total views
+        if view_id == "-1" {
+            let adjustment: Adjustment =
+                Adjustment::new(view_amount as f64, 1.0, view_amount as f64, 1.0, 2.0, 0.0);
+            self.imp()
+                .view_position_input
+                .configure(Some(&adjustment), 1.0, 0);
+        } else {
+            let adjustment: Adjustment =
+                Adjustment::new(view_id.parse::<f64>().expect("Missing `old-view-id`..") + 1.0, 1.0, view_amount as f64, 1.0, 2.0, 0.0);
+            self.imp()
+                .view_position_input
+                .configure(Some(&adjustment), 1.0, 0);
+        }
 
         // Buttons
         // Apply
