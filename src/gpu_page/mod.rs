@@ -593,8 +593,8 @@ impl GpuPage {
         // Load list of Properties for current Page
         let loaded_properties_data: Vec<String> =
             settings_obj.get::<Vec<String>>("viewcomponentconfigs");
-        // println!("items saved #: `{}`", loaded_properties_data.len()); //TEST
-        // println!("items saved: `{:?}`", loaded_properties_data); //TEST
+        println!("items saved #: `{}`", loaded_properties_data.len()); //TEST
+        println!("items saved: `{:?}`", loaded_properties_data); //TEST
 
         // If present in saved settings, use! otherwise follow below defaults
         if let 0 = loaded_properties_data.len() {
@@ -607,7 +607,7 @@ impl GpuPage {
                 vec![String::from(""); loaded_properties_data.len()];
 
             for index in 0..loaded_properties_data.len() {
-                // println!("item: `{}`", loaded_properties_data[index]); //TEST
+                println!("item: `{}`", loaded_properties_data[index]); //TEST
 
                 // Split current item into the 4 parts
                 let parts: Vec<&str> = loaded_properties_data[index]
@@ -621,19 +621,19 @@ impl GpuPage {
 
                 // If from valid page
                 if parts[0] == self.property::<String>("uuid") {
-                    // println!("VALID UUID"); //TEST
+                    println!("VALID UUID"); //TEST
 
                     // If from valid view
                     if parts[1] == view_name {
-                        // println!("VALID VIEW #"); //TEST
+                        println!("VALID VIEW #"); //TEST
 
                         // If a valid position
                         match parts[2].parse::<usize>() {
                             Ok(position) => {
-                                // println!("POSITION INDEX: `{}`", position); //TEST
+                                println!("POSITION INDEX: `{}`", position); //TEST
                                 if position <= loaded_properties_data.len() {
-                                    // println!("VALID POSITION INDEX"); //TEST
-                                    // println!("VALID PROPERTY: `{}`", parts[3]); //TEST
+                                    println!("VALID POSITION INDEX"); //TEST
+                                    println!("VALID PROPERTY: `{}`", parts[3]); //TEST
 
                                     // Add to final list
                                     loaded_properties[position] = parts[3].to_owned();
