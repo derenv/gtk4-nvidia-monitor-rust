@@ -23,15 +23,27 @@ use gio::Settings;
 use glib::{once_cell::sync::Lazy, ParamSpec, Value};
 use glib::{once_cell::sync::OnceCell, signal::Inhibit, subclass::InitializingObject};
 use gtk::{subclass::prelude::*, CheckButton, CompositeTemplate, SpinButton, TemplateChild};
+use std::{cell::RefCell, cell::RefMut, rc::Rc};
 
 // Modules
 //use crate::utils::data_path;
+use crate::mainwindow::MainWindow;
+
+/// Structure for storing a SettingsWindow object and any related information
+#[derive(Default)]
+pub struct ParentContainer {
+    pub window: Option<MainWindow>,
+}
 
 /// Object holding the State and any Template Children
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/settings-window.ui")]
 pub struct SettingsWindow {
+    // Public
     pub settings: OnceCell<Settings>,
+    pub parent_window: Rc<RefCell<ParentContainer>>,
+
+    // Template Children
     #[template_child]
     pub refreshrate_input: TemplateChild<SpinButton>,
     #[template_child]
@@ -367,6 +379,15 @@ impl WindowImpl for SettingsWindow {
 
         // Store state in settings
         self.update_setting("app-settings-open", false);
+
+        // Emit signal to notify changes made to view (and thus reload required)
+        let modification_window_container: RefMut<ParentContainer> =
+            self.parent_window.borrow_mut();
+        let _result = modification_window_container
+            .window
+            .as_ref()
+            .unwrap()
+            .emit_by_name::<i32>("update-all-views", &[]);
 
         // Pass close request on to the parent
         self.parent_close_request(window)

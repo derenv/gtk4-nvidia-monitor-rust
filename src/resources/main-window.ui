@@ -43,7 +43,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
             <property name="tooltip-text" translatable="yes">Scan for GPUs</property>
 
             <!-- Signals -->
-            <signal name="clicked" handler="refresh_cards" swapped="true"/>
+            <signal name="clicked" handler="refresh_cards_clicked" swapped="true"/>
           </object>
         </child>
       </object>

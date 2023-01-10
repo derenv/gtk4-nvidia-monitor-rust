@@ -22,7 +22,8 @@ use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
 use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
-    subclass::InitializingObject, FromVariant, ParamSpec, Value,
+    subclass::InitializingObject, subclass::Signal, subclass::SignalType, FromVariant, ParamSpec,
+    Value,
 };
 use gtk::{
     subclass::prelude::*, Button, CompositeTemplate, PolicyType, ScrolledWindow, Stack,
@@ -53,12 +54,15 @@ enum TemperatureUnit {
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/main-window.ui")]
 pub struct MainWindow {
+    // Public
     pub settings: OnceCell<Settings>,
     pub settings_window: Rc<RefCell<SettingsWindowContainer>>,
     pub provider: Cell<Option<Provider>>,
 
+    // Private
     gpu_pages: RefCell<Vec<GpuPage>>,
 
+    // Template Children
     #[template_child]
     pub gpu_stack: TemplateChild<Stack>,
 }
@@ -1344,32 +1348,13 @@ impl MainWindow {
             }
         }
     }
-}
 
-/**
- * Name:
- * MainWindow
- *
- * Description:
- * Trait defining template callbacks shared by all MainWindow objects
- *
- * Made:
- * 13/10/2022
- *
- * Made by:
- * Deren Vural
- *
- * Notes:
- *
- */
-#[gtk::template_callbacks]
-impl MainWindow {
     /**
      * Name:
      * refresh_cards
      *
      * Description:
-     * Template callback for GPU list refresh button
+     * Re-create the GpuPages and stack contents when called
      *
      * Made:
      * 28/10/2022
@@ -1380,10 +1365,7 @@ impl MainWindow {
      * Notes:
      *
      */
-    #[template_callback]
-    fn refresh_cards(&self, _button: &Button) {
-        // println!("GPU Scan Button Pressed!"); //TEST
-
+    pub fn refresh_cards(&self) {
         // Clear current ActionRow objects from GtkListBox
         let mut done: bool = false;
         while !done {
@@ -1544,58 +1526,47 @@ impl MainWindow {
                 }
             }
         }
+    }
+}
 
-        /*
-        // Load refresh time (s) from settings
-        let refresh_rate: u32 = self.get_setting::<i32>("refreshrate") as u32;
-
-        // Create thread safe container for provider
-        // Grab copy of current provider
-        let provider_container: Option<Provider> = self.provider.take();
-        self.provider.set(provider_container.clone());
-        let provider_store: Arc<Mutex<Option<Provider>>> = Arc::new(Mutex::new(provider_container));
-
-        // Wrapper around `NonNull<RawType>` that just implements `Send`
-        struct WrappedPointer(Settings);
-        unsafe impl Send for WrappedPointer {}
-        // Safe wrapper around `WrappedPointer` that gives access to the pointer
-        // only with the mutex locked.
-        struct SafeType {
-            inner: Mutex<WrappedPointer>,
-        }
-        let settings_store: SafeType = SafeType
-        {
-            inner: Mutex::new(WrappedPointer(self.settings.get().expect("").to_owned()))
-        };
-
-        // Async check for provider changes
-        //glib::timeout_add_seconds(refresh_rate, clone!(@strong self as window => move || {
-        //glib::timeout_add_seconds(refresh_rate, clone!(@strong settings_store as window => move || {
-        glib::timeout_add_seconds_local(refresh_rate, move || {
-            // Grab locked data
-            // settings object
-            let settings_container: MutexGuard<WrappedPointer> = settings_store.inner.lock().unwrap();
-            // current provider for scanning gpu data
-            let provider_lock: Arc<Mutex<Option<Provider>>> = Arc::clone(&provider_store);
-            let mut provider_container: MutexGuard<Option<Provider>> = provider_lock.lock().unwrap();
-
-
-            // Check provider type in settings
-            let provider_type: i32 = settings_container.0.get("provider");
-
-            // If type has been changed, update provider
-            match &mut *provider_container {
-                Some(prov) => {
-                    if prov.property::<i32>("provider_type") != provider_type {
-                        //
-                    }
-                }
-                None => todo!(),
-            }
-
-            Continue(true)
-        });
-        */
+/**
+ * Name:
+ * MainWindow
+ *
+ * Description:
+ * Trait defining template callbacks shared by all MainWindow objects
+ *
+ * Made:
+ * 13/10/2022
+ *
+ * Made by:
+ * Deren Vural
+ *
+ * Notes:
+ *
+ */
+#[gtk::template_callbacks]
+impl MainWindow {
+    /**
+     * Name:
+     * refresh_cards
+     *
+     * Description:
+     * Template callback for GPU list refresh button
+     *
+     * Made:
+     * 28/10/2022
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     *
+     */
+    #[template_callback]
+    fn refresh_cards_clicked(&self, _button: &Button) {
+        // println!("GPU Scan Button Pressed!"); //TEST
+        self.refresh_cards();
     }
 }
 
@@ -1739,6 +1710,38 @@ impl ObjectImpl for MainWindow {
             }
             _ => panic!("Property `{}` does not exist..", pspec.name()),
         }
+    }
+
+    /**
+     * Name:
+     * signals
+     *
+     * Description:
+     * Defines the list of signals
+     *
+     * Made:
+     * 10/01/2023
+     *
+     * Made by:
+     * Deren Vural
+     *
+     * Notes:
+     * beware that you need to use kebab-case (<https://en.wikipedia.org/wiki/Letter_case#Kebab_case>)
+     *
+     * <https://gtk-rs.org/gtk4-rs/stable/latest/book/g_object_signals.html>
+     *
+     * SignalType::from(i32::static_type())
+     */
+    fn signals() -> &'static [Signal] {
+        static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
+            vec![Signal::builder(
+                "update-all-views",
+                &[],
+                SignalType::from(i32::static_type()),
+            )
+            .build()]
+        });
+        SIGNALS.as_ref()
     }
 }
 

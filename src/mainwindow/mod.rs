@@ -24,7 +24,7 @@ use imp::SettingsWindowContainer;
 // Imports
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::{Settings, SimpleAction};
-use glib::{clone, Object};
+use glib::{clone, closure, Object};
 use std::cell::RefMut;
 
 // Modules
@@ -72,6 +72,7 @@ impl MainWindow {
      *
      */
     pub fn new(app: &adwaita::Application) -> Self {
+        // Create new window
         Object::new(&[("application", app)]).expect("`MainWindow` should be  instantiable.")
     }
 
@@ -139,7 +140,23 @@ impl MainWindow {
      *
      */
     fn setup_widgets(&self) {
-        //
+        // Connect closure to re-load stored views (with different settings) when a settings window is closed
+        //NOTE: expected return value seems to be broken - look at imp.rs:1772
+        self.connect_closure(
+            "update-all-views",
+            false,
+            closure!(move |window: MainWindow| {
+                println!("closure called!"); //TEST
+
+                // Reload views
+                println!("reloading views.."); //TEST
+                window.imp().refresh_cards();
+                println!("views reloaded.."); //TEST
+
+                // Return final value
+                0
+            }),
+        );
     }
 
     /**
@@ -339,7 +356,7 @@ impl MainWindow {
                             let app: adwaita::Application = adwaita::Application::builder().application_id(APP_ID).build();
 
                             // Create new settings window
-                            let new_settings_window: SettingsWindow = SettingsWindow::new(&app);
+                            let new_settings_window: SettingsWindow = SettingsWindow::new(&app, &window);
 
                             // Show new settings window
                             new_settings_window.show();
@@ -361,7 +378,7 @@ impl MainWindow {
                     let app: adwaita::Application = adwaita::Application::builder().application_id(APP_ID).build();
 
                     // Create settings window
-                    let new_settings_window: SettingsWindow = SettingsWindow::new(&app);
+                    let new_settings_window: SettingsWindow = SettingsWindow::new(&app, &window);
 
                     // Show new settings window
                     new_settings_window.show();
