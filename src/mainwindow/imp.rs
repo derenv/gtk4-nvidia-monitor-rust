@@ -29,21 +29,14 @@ use gtk::{
     subclass::prelude::*, Button, CompositeTemplate, PolicyType, ScrolledWindow, Stack,
     TemplateChild,
 };
-use std::{cell::Cell, cell::RefCell, cell::RefMut, rc::Rc};
+use std::{cell::Cell, cell::RefCell, cell::RefMut};
 
 // Modules
 use crate::{
     formatter::Formatter, gpu_page::GpuPage, processor::Processor, property::Property,
-    provider::Provider, settingswindow::SettingsWindow,
+    provider::Provider,
 };
 
-/// Structure for storing a SettingsWindow object and any related information
-#[derive(Default)]
-pub struct SettingsWindowContainer {
-    pub window: Option<SettingsWindow>,
-    pub open: bool,
-}
-/// Enum for choosing temperature units
 #[derive(Debug, PartialEq, Eq)]
 enum TemperatureUnit {
     CELCIUS = 0,
@@ -56,7 +49,6 @@ enum TemperatureUnit {
 pub struct MainWindow {
     // Public
     pub settings: OnceCell<Settings>,
-    pub settings_window: Rc<RefCell<SettingsWindowContainer>>,
     pub provider: Cell<Option<Provider>>,
 
     // Private
@@ -1851,6 +1843,7 @@ impl WindowImpl for MainWindow {
         self.update_setting("app-settings-open", false);
         self.update_setting("nvidia-settings-open", false);
         self.update_setting("modification-open", false);
+        self.update_setting("about-open", false);
 
         // Pass close request on to the parent
         self.parent_close_request(window)

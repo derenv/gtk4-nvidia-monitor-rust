@@ -26,6 +26,13 @@ SPDX-License-Identifier: GPL-3.0-or-later
         App view-modification window open/closed
       </description>
     </key>
+    <key name="about-open" type="b">
+      <default>false</default>
+      <summary>About window state</summary>
+      <description>
+        About window open/closed
+      </description>
+    </key>
 
     <key name="refreshrate" type="i">
       <default>5</default>

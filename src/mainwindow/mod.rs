@@ -19,13 +19,12 @@
  */
 // Custom GObjects
 mod imp;
-use imp::SettingsWindowContainer;
+use gtk::{Window, Inhibit};
 
 // Imports
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::{Settings, SimpleAction};
 use glib::{clone, closure, Object};
-use std::cell::RefMut;
 
 // Modules
 use crate::{provider::Provider, settingswindow::SettingsWindow, APP_ID};
@@ -146,12 +145,12 @@ impl MainWindow {
             "update-all-views",
             false,
             closure!(move |window: MainWindow| {
-                println!("closure called!"); //TEST
+                // println!("closure called!"); //TEST
 
                 // Reload views
-                println!("reloading views.."); //TEST
+                // println!("reloading views.."); //TEST
                 window.imp().refresh_cards();
-                println!("views reloaded.."); //TEST
+                // println!("views reloaded.."); //TEST
 
                 // Return final value
                 0
@@ -265,28 +264,28 @@ impl MainWindow {
         // Create action from key "open_nvidia_settings" and add to action group "win"
         let open_nvidia_settings: SimpleAction = SimpleAction::new("open_nvidia_settings", None);
         open_nvidia_settings.connect_activate(clone!(@weak self as window => move |_, _| {
-            // Get state from settings
-            let app_settings_open: bool = window.imp().get_setting::<bool>("nvidia-settings-open");
-
+            //TODO: check if process exists
             //let defaultAppSystem = Shell.AppSystem.get_default();
             //let nvidiaSettingsApp = defaultAppSystem.lookup_app('nvidia-settings.desktop');
             //let def = shell::Edge::Top;
             //let dd = gio::DesktopAppInfo::from_filename("nvidia-settings.desktop");
 
-            match app_settings_open {
+            // Check if settings window open
+            //NOTE: this never gets set to false again, needs fixing
+            match window.imp().get_setting::<bool>("nvidia-settings-open") {
+                true => {
+                    println!("....Nvidia Settings app already open")//DEBUG
+                }
                 false => {
-                    // Grab current stored provider
-                    let mut provider: Option<Provider> = window.property("provider");
-
                     // Check if provider exists
-                    match provider {
-                        Some(prov) => {
+                    match window.property::<Option<Provider>>("provider") {
+                        Some(provider) => {
                             // Open Nvidia Settings
-                            match prov.open_settings() {
+                            match provider.open_settings() {
                                 Ok(_) => {
-                                    println!("Opening the Nvidia Settings app..");
+                                    println!("Opening the Nvidia Settings app.."); //DEBUG
 
-                                    // Set state in settings
+                                    // Update state in settings
                                     window.imp().update_setting::<bool>("nvidia-settings-open", true);
                                 },
                                 Err(err) => println!(
@@ -296,26 +295,21 @@ impl MainWindow {
                             }
                         },
                         None => {
+                            println!("Opening the Nvidia Settings app.."); //DEBUG
+
                             // Check provider type
                             let provider_type: i32 = window.imp().get_setting::<i32>("provider");
 
                             // Create new provider
-                            //println!("Creating new Provider..");//TEST
                             window.set_property("provider", Some(window.imp().create_provider(provider_type)));
 
-                            // Grab new provider
-                            provider = window.property("provider");
-
                             // Open Nvidia Settings
-                            println!("Opening the Nvidia Settings app..");//TEST
-                            match provider {
-                                Some(prov) => {
+                            match window.property::<Option<Provider>>("provider") {
+                                Some(provider) => {
                                     // Open Nvidia Settings
-                                    match prov.open_settings() {
+                                    match provider.open_settings() {
                                         Ok(_) => {
-                                            println!("Opening the Nvidia Settings app..");
-
-                                            // Set state in settings
+                                            // Update state in settings
                                             window.imp().update_setting::<bool>("nvidia-settings-open", true);
                                         },
                                         Err(err) => println!(
@@ -329,75 +323,74 @@ impl MainWindow {
                         }
                     }
                 }
-                true => println!("Nvidia Settings app already open!"),
             }
         }));
         self.add_action(&open_nvidia_settings);
 
+        // Show app settings window
         let open_app_settings: SimpleAction = SimpleAction::new("open_app_settings", None);
         open_app_settings.connect_activate(clone!(@weak self as window => move |_, _| {
-            // Borrow (mutable) the window's container
-            let mut settings_window_container: RefMut<SettingsWindowContainer> = window.imp().settings_window.borrow_mut();
+            // Check if settings window open
+            match window.imp().get_setting::<bool>("app-settings-open") {
+                true => {
+                    println!("....settings window already open");//DEBUG
+                }
+                false => {
+                    println!("Opening settings window.."); //DEBUG
 
-            // Get state from settings
-            settings_window_container.open = window.imp().get_setting::<bool>("app-settings-open");
-
-            // Check if an object is stored
-            match &settings_window_container.window {
-                Some(_window) => {
-                    println!("..window exists");//DEBUG
-
-                    // Check if the window is already open
-                    match settings_window_container.open {
-                        false => {
-                            println!("....opening window");//DEBUG
-
-                            // Create an app object
-                            let app: adwaita::Application = adwaita::Application::builder().application_id(APP_ID).build();
-
-                            // Create new settings window
-                            let new_settings_window: SettingsWindow = SettingsWindow::new(&app, &window);
-
-                            // Show new settings window
-                            new_settings_window.show();
-
-                            // Store object and state back in container
-                            settings_window_container.open = true;
-                            settings_window_container.window = Some(new_settings_window);
-                        },
-                        true => {
-                            println!("....window already open");//DEBUG
-                        },
-                    }
-                },
-                None => {
-                    println!("..window does not exist");//DEBUG
-                    println!("....opening window");//DEBUG
+                    // Update settings
+                    window.imp().update_setting::<bool>("app-settings-open", true);
 
                     // Create an app object
                     let app: adwaita::Application = adwaita::Application::builder().application_id(APP_ID).build();
 
-                    // Create settings window
+                    // Create new settings window
                     let new_settings_window: SettingsWindow = SettingsWindow::new(&app, &window);
 
                     // Show new settings window
                     new_settings_window.show();
-
-                    // Store object and state back in container
-                    settings_window_container.open = true;
-                    settings_window_container.window = Some(new_settings_window);
-                },
+                }
             }
-
-            // Set new state in settings
-            window.imp().update_setting::<bool>("app-settings-open", settings_window_container.open);
         }));
         self.add_action(&open_app_settings);
 
+        // Show About pop-up window
         let about: SimpleAction = SimpleAction::new("about", None);
         about.connect_activate(clone!(@weak self as window => move |_, _| {
-            // Show About info pop-up
-            println!("About pop-up not yet implemented..");//TODO
+            // Check if about window open
+            match window.imp().get_setting::<bool>("about-open") {
+                true => {
+                    println!("....about window already open");//DEBUG
+                }
+                false => {
+                    println!("Opening about window.."); //DEBUG
+
+                    // Update settings
+                    window.imp().update_setting::<bool>("about-open", true);
+
+                    // Create window
+                    let about_window = Window::builder()
+                        .width_request(350)
+                        .height_request(250)
+                        .build();
+
+                    // Update settings on window close
+                    about_window.connect_close_request(
+                        move |_| {
+                            // println!("Closing about window.."); //DEBUG
+
+                            // Update settings
+                            window.imp().update_setting::<bool>("about-open", false);
+
+                            // Tell gtk to continue to default handler
+                            Inhibit(false)
+                        },
+                    );
+
+                    // Show window
+                    about_window.show();
+                }
+            }
         }));
         self.add_action(&about);
     }
