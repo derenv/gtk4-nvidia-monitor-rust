@@ -19,7 +19,7 @@
  */
 // Custom GObjects
 mod imp;
-use gtk::{Window, Inhibit};
+use gtk::{Inhibit, Window};
 
 // Imports
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
