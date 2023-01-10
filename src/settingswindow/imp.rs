@@ -381,8 +381,13 @@ impl WindowImpl for SettingsWindow {
         self.update_setting("app-settings-open", false);
 
         // Emit signal to notify changes made to view (and thus reload required)
-        let modification_window_container: RefMut<ParentContainer> = self.parent_window.borrow_mut();
-        let _result = modification_window_container.window.as_ref().unwrap().emit_by_name::<i32>("update-all-views", &[]);
+        let modification_window_container: RefMut<ParentContainer> =
+            self.parent_window.borrow_mut();
+        let _result = modification_window_container
+            .window
+            .as_ref()
+            .unwrap()
+            .emit_by_name::<i32>("update-all-views", &[]);
 
         // Pass close request on to the parent
         self.parent_close_request(window)

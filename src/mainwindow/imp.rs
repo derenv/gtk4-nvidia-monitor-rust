@@ -22,7 +22,8 @@ use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
 use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, signal::Inhibit,
-    subclass::InitializingObject, FromVariant, ParamSpec, Value, subclass::Signal, subclass::SignalType,
+    subclass::InitializingObject, subclass::Signal, subclass::SignalType, FromVariant, ParamSpec,
+    Value,
 };
 use gtk::{
     subclass::prelude::*, Button, CompositeTemplate, PolicyType, ScrolledWindow, Stack,

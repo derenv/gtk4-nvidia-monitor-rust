@@ -24,7 +24,7 @@ use imp::SettingsWindowContainer;
 // Imports
 use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::{Settings, SimpleAction};
-use glib::{clone, Object, closure};
+use glib::{clone, closure, Object};
 use std::cell::RefMut;
 
 // Modules

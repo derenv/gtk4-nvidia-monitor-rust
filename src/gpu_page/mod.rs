@@ -26,7 +26,7 @@ use adwaita::{gio, glib, Application, ViewStack};
 use gio::Settings;
 use glib::{clone, closure, Object};
 use gtk::{prelude::*, subclass::prelude::*, Align, Button, Grid, Label, LayoutChild, Orientation};
-use std::{cell::RefMut};
+use std::cell::RefMut;
 
 // Modules
 use crate::{modificationwindow::ModificationWindow, provider::Provider, APP_ID};
@@ -338,7 +338,8 @@ impl GpuPage {
             for index in 0..loaded_views.len() {
                 // println!("VIEW {}", index);
                 // Grab all saved properties
-                let properties: Vec<String> = self.imp().check_properties_for_view(&loaded_views[index]);
+                let properties: Vec<String> =
+                    self.imp().check_properties_for_view(&loaded_views[index]);
 
                 // println!("GOT {} PROPERTIES FOR VIEW {}", properties.len(), index);
 

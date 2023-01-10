@@ -23,10 +23,13 @@ use adwaita::{gio, glib, prelude::*, ViewStack, ViewSwitcherBar};
 use gio::Settings;
 use glib::{
     once_cell::sync::Lazy, once_cell::sync::OnceCell, subclass::InitializingObject,
-    subclass::Signal, subclass::SignalType, FromVariant, ParamSpec, ToValue, Value,
-    translate::FromGlib, SourceId
+    subclass::Signal, subclass::SignalType, translate::FromGlib, FromVariant, ParamSpec, SourceId,
+    ToValue, Value,
 };
-use gtk::{subclass::prelude::*, CompositeTemplate, TemplateChild, Label, Grid, Orientation, LayoutChild, Align};
+use gtk::{
+    subclass::prelude::*, Align, CompositeTemplate, Grid, Label, LayoutChild, Orientation,
+    TemplateChild,
+};
 use std::{cell::Cell, cell::RefCell, rc::Rc, sync::Arc, sync::Mutex, sync::MutexGuard};
 
 // Modules
@@ -381,7 +384,12 @@ impl GpuPage {
         // !!UNSAFE CODE HERE!!!!UNSAFE CODE HERE!!!!UNSAFE CODE HERE!!!!UNSAFE CODE HERE!!
 
         // Get stored UUID
-        let uuid: String = self.uuid.clone().get().expect("`uuid` wasn't set properly..").to_string();
+        let uuid: String = self
+            .uuid
+            .clone()
+            .get()
+            .expect("`uuid` wasn't set properly..")
+            .to_string();
 
         // Load refresh time (s) from settings
         let refresh_rate: u32 = self.get_setting::<i32>("refreshrate") as u32;
@@ -396,9 +404,13 @@ impl GpuPage {
         let uuid_store: Arc<Mutex<String>> = Arc::new(Mutex::new(uuid));
 
         // Create thread safe container for provider
-        let provider: Option<Provider> = self.provider.clone().get().expect("`provider` wasn't set properly..").to_owned();
-        let provider_store: Arc<Mutex<Option<Provider>>> =
-            Arc::new(Mutex::new(provider));
+        let provider: Option<Provider> = self
+            .provider
+            .clone()
+            .get()
+            .expect("`provider` wasn't set properly..")
+            .to_owned();
+        let provider_store: Arc<Mutex<Option<Provider>>> = Arc::new(Mutex::new(provider));
 
         // Async fill the labels
         let id: SourceId = glib::timeout_add_seconds_local(refresh_rate, move || {
@@ -497,7 +509,12 @@ impl GpuPage {
         // println!("items saved: `{:?}`", loaded_properties_data); //TEST
 
         // Get stored UUID
-        let uuid: String = self.uuid.clone().get().expect("`uuid` wasn't set properly..").to_string();
+        let uuid: String = self
+            .uuid
+            .clone()
+            .get()
+            .expect("`uuid` wasn't set properly..")
+            .to_string();
 
         // If present in saved settings, use! otherwise follow below defaults
         if let 0 = loaded_properties_data.len() {

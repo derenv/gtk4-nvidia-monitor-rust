@@ -71,12 +71,10 @@ impl SettingsWindow {
      * Notes:
      *
      */
-    pub fn new(
-        app: &adwaita::Application,
-        parent_window: &MainWindow,
-    ) -> Self {
+    pub fn new(app: &adwaita::Application, parent_window: &MainWindow) -> Self {
         // Create new window
-        let obj: SettingsWindow = Object::new(&[("application", app)]).expect("`SettingsWindow` should be  instantiable.");
+        let obj: SettingsWindow = Object::new(&[("application", app)])
+            .expect("`SettingsWindow` should be  instantiable.");
 
         // Set custom properties
         //
