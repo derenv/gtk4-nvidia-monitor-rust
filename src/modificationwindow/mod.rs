@@ -80,6 +80,7 @@ impl ModificationWindow {
         uuid: &str,
         parent_window: &GpuPage,
     ) -> Self {
+        // Create new window
         let obj: ModificationWindow = Object::new(&[("application", app)])
             .expect("`ModificationWindow` should be  instantiable.");
 
@@ -99,6 +100,7 @@ impl ModificationWindow {
         obj.setup_settings();
         obj.setup_widgets();
 
+        // Return final object
         obj
     }
 
@@ -387,7 +389,7 @@ impl ModificationWindow {
                 window.imp().update_stored_data();
                 // println!("CHANGES APPLIED.."); //TEST
 
-                // TODO: Emit signal to notify changes made to view (and thus reload required)
+                // Emit signal to notify changes made to view (and thus reload required)
                 let modification_window_container: RefMut<ParentContainer> = window.imp().parent_window.borrow_mut();
                 let _result = modification_window_container.window.as_ref().unwrap().emit_by_name::<i32>("update-views", &[&window.property::<i32>("new-view-id")]);
 
@@ -417,7 +419,7 @@ impl ModificationWindow {
                     window.imp().delete_stored_data();
                     // println!("VIEW DELETED.."); //TEST
 
-                    // TODO: Emit signal to notify changes made to view (and thus reload required)
+                    // Emit signal to notify changes made to view (and thus reload required)
                     let modification_window_container: RefMut<ParentContainer> = window.imp().parent_window.borrow_mut();
                     let _result = modification_window_container.window.as_ref().unwrap().emit_by_name::<i32>("update-views", &[&(-1).to_value()]);
 

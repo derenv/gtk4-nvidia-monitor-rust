@@ -25,9 +25,10 @@ use adwaita::{gio, glib, prelude::*, subclass::prelude::*};
 use gio::Settings;
 use glib::{clone, Object};
 use gtk::{Adjustment, CheckButton, StringList};
+use std::cell::RefMut;
 
 // Modules
-use crate::APP_ID;
+use crate::{mainwindow::MainWindow, settingswindow::imp::ParentContainer, APP_ID};
 
 // GObject wrapper for Property
 glib::wrapper! {
@@ -70,9 +71,28 @@ impl SettingsWindow {
      * Notes:
      *
      */
-    pub fn new(app: &adwaita::Application) -> Self {
+    pub fn new(
+        app: &adwaita::Application,
+        parent_window: &MainWindow,
+    ) -> Self {
         // Create new window
-        Object::new(&[("application", app)]).expect("`SettingsWindow` should be  instantiable.")
+        let obj: SettingsWindow = Object::new(&[("application", app)]).expect("`SettingsWindow` should be  instantiable.");
+
+        // Set custom properties
+        //
+
+        // Set ref to parent
+        {
+            let mut modification_window_container: RefMut<ParentContainer> =
+                obj.imp().parent_window.borrow_mut();
+            modification_window_container.window = Some(parent_window.to_owned());
+        }
+
+        // Apply any setup actions that need the above properties
+        //
+
+        // Return final object
+        obj
     }
 
     /**
