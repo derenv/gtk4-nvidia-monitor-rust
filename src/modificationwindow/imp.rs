@@ -182,6 +182,10 @@ impl ModificationWindow {
                         .parse::<i32>()
                         .expect("Malformed gschema data..");
 
+                    // println!("old_id: `{}`", old_id); //TEST
+                    // println!("new_id: `{}`", new_id); //TEST
+                    // println!("this_id: `{}`", this_id); //TEST
+
                     // If viewconfig was at/above current view position
                     match (new_id > this_id, new_id == this_id, remove) {
                         (true, false, true) => {
@@ -189,7 +193,9 @@ impl ModificationWindow {
                             // println!("removing"); //TEST
 
                             // If above position & removing
+                            // println!("new_id: `{}` modified by -1", new_id); //TEST
                             new_id -= 1; // Modify order
+                            // println!("new_id: `{}`", new_id); //TEST
 
                             // Update record
                             stored_views_data[index] =
@@ -197,10 +203,12 @@ impl ModificationWindow {
                         }
                         (true, false, false) => {
                             // println!("edit required"); //TEST
-                            // println!("reorder"); //TEST
+                            // println!("tff reorder"); //TEST
 
                             // If above position &  re-order
+                            // println!("new_id: `{}` modified by -1", new_id); //TEST
                             new_id -= 1; // Modify order
+                            // println!("new_id: `{}`", new_id); //TEST
 
                             // Update record
                             stored_views_data[index] =
@@ -208,14 +216,23 @@ impl ModificationWindow {
                         }
                         (false, true, false) => {
                             // println!("edit required"); //TEST
-                            // println!("reorder"); //TEST
+                            // println!("ftf reorder"); //TEST
 
                             // If same position & re-order, we need to check direction of change
-                            if old_id < new_id {
-                                new_id -= 1; // Modify order
-                            } else if old_id > new_id {
+                            if old_id == -1 {
+                                // if inserting new view
+                                // println!("new_id: `{}` modified by +1", new_id); //TEST
                                 new_id += 1; // Modify order
+                            } else {
+                                if old_id < new_id {
+                                    // println!("new_id: `{}` modified by -1", new_id); //TEST
+                                    new_id -= 1; // Modify order
+                                } else if old_id > new_id {
+                                    // println!("new_id: `{}` modified by +1", new_id); //TEST
+                                    new_id += 1; // Modify order
+                                }
                             }
+                            // println!("new_id: `{}`", new_id); //TEST
 
                             // Update record
                             stored_views_data[index] =
@@ -225,7 +242,8 @@ impl ModificationWindow {
                             // println!("tuple `{} {} {}`", new_id > this_id, new_id == this_id, remove);
 
                             // otherwise ignore
-                            //println!("NO edit required"); //TEST
+                            // println!("new_id: `{}` NOT modified", new_id); //TEST
+                            // println!("NO edit required"); //TEST
                         }
                     }
                 }
